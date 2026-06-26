@@ -2,22 +2,15 @@ from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 
-# Initialize DeepSeek once
 llm = get_llm()
 
 
 def architecture_agent(state: AgentState) -> AgentState:
-    """
-    Architecture Agent:
-    Designs a scalable Python Playwright automation framework
-    based on the generated strategy and scraped website elements.
-    """
 
     tracker = PerformanceTracker(label="architecture_agent")
     tracker.start()
 
     try:
-
         print("[Architecture Agent] Running...")
 
         selectors = state.get("selectors", {})
@@ -29,8 +22,7 @@ def architecture_agent(state: AgentState) -> AgentState:
         prompt = f"""
 You are a Senior Python Playwright Test Automation Architect.
 
-Your task is to design a scalable Playwright automation framework
-for the given website.
+Your task is to design a scalable Playwright automation framework.
 
 Website Description:
 {state["design_doc"]}
@@ -52,22 +44,18 @@ Generated Test Plan:
 Requirements:
 
 1. Design ONLY for Python + Playwright + Pytest.
-2. Do NOT generate TypeScript or JavaScript architecture.
+2. Follow the Page Object Model (POM).
 3. Base the framework on the detected website elements.
-4. Recommend a Page Object Model (POM).
-5. Include reusable fixtures.
-6. Suggest utility modules.
-7. Include configuration files.
-8. Include reporting (pytest-html / Allure).
-9. Include logging.
-10. Capture screenshots on failures.
-11. Recommend folder structure.
-12. Explain selector organization.
-13. Keep the architecture suitable for medium to large automation projects.
+4. Recommend reusable fixtures.
+5. Suggest utility modules.
+6. Include configuration files.
+7. Include reporting (pytest-html / Allure).
+8. Include logging.
+9. Include screenshots on failure.
+10. Suggest how selectors should be organized.
+11. Keep the framework scalable for medium to large projects.
 
-Return the response as well-formatted Markdown.
-
-Use these headings:
+Return the response using the following sections:
 
 # Project Structure
 
@@ -90,19 +78,20 @@ Use these headings:
 
         response = llm.invoke(prompt)
 
-        text = response.content if hasattr(response, "content") else str(response)
-
-        state["architecture_notes"] = text
+        state["architecture_notes"] = (
+            response.content
+            if hasattr(response, "content")
+            else str(response)
+        )
 
         print("[Architecture Agent] Architecture generated successfully.")
 
     except Exception as e:
 
-        print(f"[Architecture Agent] Error: {e}")
+        print("[Architecture Error]", e)
 
         state["architecture_notes"] = (
-            "# Architecture Generation Failed\n\n"
-            f"Error: {e}"
+            f"Architecture generation failed.\nError: {e}"
         )
 
     finally:

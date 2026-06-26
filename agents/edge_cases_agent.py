@@ -2,99 +2,72 @@ from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 
-# Initialize DeepSeek once
 llm = get_llm()
 
 
 def edge_cases_agent(state: AgentState) -> AgentState:
-    """
-    Edge Cases Agent:
-    Generates comprehensive edge cases for the generated
-    Playwright automation suite.
-    """
 
     tracker = PerformanceTracker(label="edge_cases_agent")
     tracker.start()
 
     try:
-
         print("[Edge Cases Agent] Running...")
 
-        selectors = state.get("selectors", {})
-
-        buttons = selectors.get("buttons", [])
-        inputs = selectors.get("inputs", [])
-        links = selectors.get("links", [])
+        task_plan = state.get("task_plan", [])
+        generated_code = state.get("generated_code", "")
 
         prompt = f"""
-You are a Senior QA Engineer specializing in Python Playwright automation.
+You are a Senior QA Automation Engineer specializing in Playwright testing.
 
-Your task is to generate comprehensive edge case scenarios.
+Your task is to generate high-quality edge cases for the automation test suite.
 
-Website Description:
-{state["design_doc"]}
-
-Detected Website Elements
-
-Buttons:
-{buttons}
-
-Inputs:
-{inputs}
-
-Links:
-{links}
-
-Generated Test Plan:
-{state["task_plan"]}
+Test Plan:
+{task_plan}
 
 Generated Playwright Code:
-{state["generated_code"]}
+{generated_code}
 
 Instructions:
 
-1. Analyze ONLY the detected website elements.
-2. Do NOT invent features that are not present.
-3. Generate important edge cases covering:
+Generate edge cases covering:
 
-   • Empty inputs
-   • Invalid inputs
-   • Boundary values
-   • Maximum input lengths
-   • Special characters
-   • SQL Injection
-   • XSS
-   • Network failures
-   • Browser compatibility
-   • Session timeout
-   • Multiple browser tabs
-   • Responsive layouts
-   • Accessibility
-   • Slow page loading
-   • Broken links
-   • Missing elements
+- Empty inputs
+- Invalid inputs
+- Boundary values
+- Large data inputs
+- Special characters
+- SQL Injection attempts
+- XSS attempts
+- Network failures
+- Slow response scenarios
+- Browser compatibility issues
+- Session expiration
+- Authentication failures
+- UI responsiveness issues
+- Missing elements
+- Click failures
+- Form validation failures
 
-4. Return ONLY one edge case per line.
-5. Do NOT number the list.
+Rules:
+- One edge case per line
+- No numbering
+- No explanations
+- Be practical and execution-focused
 """
 
         response = llm.invoke(prompt)
 
-        text = (
-            response.content
-            if hasattr(response, "content")
-            else str(response)
-        )
+        text = response.content if hasattr(response, "content") else str(response)
 
         edge_cases = []
 
         for line in text.splitlines():
-
             line = line.strip()
 
             if not line:
                 continue
 
+            # clean numbering if model adds it
             line = line.lstrip("-•0123456789. ").strip()
 
             if line:
@@ -102,13 +75,11 @@ Instructions:
 
         state["edge_cases"] = edge_cases
 
-        print(
-            f"[Edge Cases Agent] {len(edge_cases)} edge cases generated."
-        )
+        print(f"[Edge Cases Agent] Generated {len(edge_cases)} edge cases.")
 
     except Exception as e:
 
-        print(f"[Edge Cases Agent] Error: {e}")
+        print("[Edge Cases Error]", e)
 
         state["edge_cases"] = [
             f"Edge case generation failed: {e}"
