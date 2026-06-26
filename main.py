@@ -10,6 +10,9 @@ from agents.edge_cases_agent import edge_cases_agent
 # Import scraper
 from scraper.scraper import main as scrape_website
 
+# Import performance tracker
+from performance.engine import PerformanceTracker
+
 
 def build_graph():
     graph = StateGraph(AgentState)
@@ -76,7 +79,20 @@ Requirements:
         "edge_cases": []
     }
 
+    # --------------------------------------------
+    # Start Performance Tracking
+    # --------------------------------------------
+    tracker = PerformanceTracker(label="full_pipeline_run")
+    tracker.start()
+
+    # Execute LangGraph workflow
     result = app.invoke(initial_state)
+
+    # Stop tracking
+    metrics = tracker.stop(agents_completed=5)
+
+    # Save metrics
+    tracker.save()
 
     print("\n" + "=" * 70)
     print("FINAL STATE")
@@ -88,3 +104,13 @@ Requirements:
         print("-" * 70)
 
     print("\nWorkflow completed successfully.")
+
+    # --------------------------------------------
+    # Performance Report
+    # --------------------------------------------
+    print("\n" + "=" * 70)
+    print("PERFORMANCE REPORT")
+    print("=" * 70)
+
+    for key, value in metrics.items():
+        print(f"{key}: {value}")
