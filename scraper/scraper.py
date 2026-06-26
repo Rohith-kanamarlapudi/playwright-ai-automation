@@ -2,13 +2,12 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-from playwright_check import check_page, get_rendered_html
+from .playwright_check import check_page, get_rendered_html
 from urllib.parse import urljoin
 from datetime import datetime
 
 URL = "https://ideabytes.com"
-OUTPUT_FILE = "website_elements.json"
-
+OUTPUT_FILE = "reports/website_elements.json"
 
 # ----------------------------------------
 # Download page using Requests
@@ -167,7 +166,15 @@ def extract_elements(soup, url):
 # ----------------------------------------
 # Save JSON
 # ----------------------------------------
+from pathlib import Path
+
+
 def save_json(data, filename):
+
+    Path(filename).parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
     with open(filename, "w", encoding="utf-8") as file:
 
@@ -175,9 +182,8 @@ def save_json(data, filename):
             data,
             file,
             indent=2,
-            ensure_ascii=False  # Preserves non-English characters in output
+            ensure_ascii=False
         )
-
 
 # ----------------------------------------
 # Main Program
