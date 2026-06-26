@@ -1,0 +1,4 @@
+Prompt Style,Response Time,Input Tokens,Output Tokens,Quality Notes
+Simple Prompt,2.44,90,134,Relevant output
+Detailed Prompt,13.9,116,952,Relevant output
+Step-by-Step Prompt,4.75,124,461,Relevant output
