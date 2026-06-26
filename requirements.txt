@@ -1,0 +1,15 @@
+langgraph
+langchain
+langchain-openai
+langchain-community
+langchain-ollama
+fastapi
+uvicorn[standard]
+beautifulsoup4
+requests
+psutil
+playwright
+pyyaml
+python-dotenv
+pytest
+pytest-asyncio
