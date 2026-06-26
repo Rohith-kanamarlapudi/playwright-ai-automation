@@ -1,23 +1,35 @@
 from agents.state import AgentState
 from agents.llm_client import get_llm
+from performance.engine import PerformanceTracker
 
 # Initialize the LLM once
 llm = get_llm()
 
 
 def strategy_agent(state: AgentState) -> AgentState:
-    print("[Strategy Agent] Running...")
+    """
+    Strategy Agent:
+    Generates a Playwright test strategy based on the
+    website description and scraped website elements.
+    """
 
-    selectors = state.get("selectors", {})
+    tracker = PerformanceTracker(label="strategy_agent")
+    tracker.start()
 
-    buttons = selectors.get("buttons", [])
-    inputs = selectors.get("inputs", [])
-    links = selectors.get("links", [])
+    try:
 
-    prompt = f"""
-You are an expert QA Test Strategy Agent specializing in Playwright automation.
+        print("[Strategy Agent] Running...")
 
-Your goal is to generate a practical test strategy for the given website.
+        selectors = state.get("selectors", {})
+
+        buttons = selectors.get("buttons", [])
+        inputs = selectors.get("inputs", [])
+        links = selectors.get("links", [])
+
+        prompt = f"""
+You are an expert QA Test Strategy Agent specializing in Python Playwright automation.
+
+Your goal is to generate a practical Playwright testing strategy for the given website.
 
 Website Description:
 {state["design_doc"]}
@@ -36,29 +48,33 @@ Links:
 Instructions:
 
 1. Analyze ONLY the detected website elements.
-2. Do NOT invent features that are not present.
+2. Do NOT invent pages or features that do not exist.
 3. If there is no login form, do NOT generate login tests.
-4. Generate Playwright test scenarios for:
-   - Navigation
-   - Buttons
-   - Forms
-   - Input validation
-   - Links
-   - Responsive UI
-   - Accessibility
-   - Error handling
-5. Include both positive and negative test cases.
-6. Prefer scenarios based on the detected selectors.
+4. Generate Playwright test scenarios covering:
+
+   • Navigation
+   • Buttons
+   • Forms
+   • Input validation
+   • Links
+   • Responsive UI
+   • Accessibility
+   • Error handling
+   • Browser compatibility
+
+5. Include both positive and negative scenarios.
+6. Prefer scenarios using the detected selectors.
 7. Return ONLY one test scenario per line.
-Do not number the list.
+8. Do NOT number the list.
 """
 
-    try:
         response = llm.invoke(prompt)
+
+        text = response.content if hasattr(response, "content") else str(response)
 
         task_plan = []
 
-        for line in response.content.splitlines():
+        for line in text.splitlines():
 
             line = line.strip()
 
@@ -74,13 +90,18 @@ Do not number the list.
 
         print("\n[Strategy Agent] Generated Test Plan:\n")
 
-        for i, task in enumerate(task_plan, start=1):
-            print(f"{i}. {task}")
+        for index, task in enumerate(task_plan, start=1):
+            print(f"{index}. {task}")
 
     except Exception as e:
 
         print(f"[Strategy Agent] Error: {e}")
 
         state["task_plan"] = []
+
+    finally:
+
+        tracker.stop(agents_completed=1)
+        tracker.save("reports/per_agent_perf.json")
 
     return state

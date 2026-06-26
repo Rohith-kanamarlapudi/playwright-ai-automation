@@ -1,0 +1,167 @@
+[
+  {
+    "label": "strategy_agent",
+    "timestamp": "2026-06-26T14:45:41.570761",
+    "duration_seconds": 16.805,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 113.72,
+    "memory_end_mb": 117.52,
+    "memory_delta_mb": 3.8,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.06
+  },
+  {
+    "label": "architecture_agent",
+    "timestamp": "2026-06-26T14:46:23.303191",
+    "duration_seconds": 41.592,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 117.52,
+    "memory_end_mb": 117.46,
+    "memory_delta_mb": -0.05,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.024
+  },
+  {
+    "label": "code_gen_agent",
+    "timestamp": "2026-06-26T14:47:07.553448",
+    "duration_seconds": 44.09,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 117.47,
+    "memory_end_mb": 117.47,
+    "memory_delta_mb": 0.0,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.023
+  },
+  {
+    "label": "review_agent",
+    "timestamp": "2026-06-26T14:47:45.285162",
+    "duration_seconds": 37.598,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 117.47,
+    "memory_end_mb": 117.43,
+    "memory_delta_mb": -0.04,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.027
+  },
+  {
+    "label": "edge_cases_agent",
+    "timestamp": "2026-06-26T14:47:53.849288",
+    "duration_seconds": 8.46,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 117.43,
+    "memory_end_mb": 117.44,
+    "memory_delta_mb": 0.0,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.118
+  },
+  {
+    "label": "strategy_agent",
+    "timestamp": "2026-06-26T14:50:06.648518",
+    "duration_seconds": 10.228,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 113.2,
+    "memory_end_mb": 116.97,
+    "memory_delta_mb": 3.77,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.098
+  },
+  {
+    "label": "architecture_agent",
+    "timestamp": "2026-06-26T14:50:34.695192",
+    "duration_seconds": 27.946,
+    "cpu_percent": 14.3,
+    "memory_start_mb": 116.97,
+    "memory_end_mb": 116.97,
+    "memory_delta_mb": 0.0,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.036
+  },
+  {
+    "label": "code_gen_agent",
+    "timestamp": "2026-06-26T14:51:13.291213",
+    "duration_seconds": 38.489,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 116.98,
+    "memory_end_mb": 116.91,
+    "memory_delta_mb": -0.07,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.026
+  },
+  {
+    "label": "review_agent",
+    "timestamp": "2026-06-26T14:51:50.771102",
+    "duration_seconds": 37.368,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 116.91,
+    "memory_end_mb": 117.01,
+    "memory_delta_mb": 0.1,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.027
+  },
+  {
+    "label": "edge_cases_agent",
+    "timestamp": "2026-06-26T14:52:08.158374",
+    "duration_seconds": 17.281,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 117.01,
+    "memory_end_mb": 116.98,
+    "memory_delta_mb": -0.03,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.058
+  },
+  {
+    "label": "strategy_agent",
+    "timestamp": "2026-06-26T14:54:40.600444",
+    "duration_seconds": 17.338,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 113.32,
+    "memory_end_mb": 117.06,
+    "memory_delta_mb": 3.74,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.058
+  },
+  {
+    "label": "architecture_agent",
+    "timestamp": "2026-06-26T14:55:09.415696",
+    "duration_seconds": 28.698,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 117.06,
+    "memory_end_mb": 117.05,
+    "memory_delta_mb": -0.02,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.035
+  },
+  {
+    "label": "code_gen_agent",
+    "timestamp": "2026-06-26T14:56:02.648750",
+    "duration_seconds": 53.069,
+    "cpu_percent": 14.3,
+    "memory_start_mb": 117.05,
+    "memory_end_mb": 117.0,
+    "memory_delta_mb": -0.05,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.019
+  },
+  {
+    "label": "review_agent",
+    "timestamp": "2026-06-26T14:56:48.061585",
+    "duration_seconds": 45.305,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 117.0,
+    "memory_end_mb": 117.12,
+    "memory_delta_mb": 0.12,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.022
+  },
+  {
+    "label": "edge_cases_agent",
+    "timestamp": "2026-06-26T14:57:08.945556",
+    "duration_seconds": 20.772,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 117.12,
+    "memory_end_mb": 117.2,
+    "memory_delta_mb": 0.08,
+    "agents_completed": 1,
+    "throughput_agents_per_sec": 0.048
+  }
+]

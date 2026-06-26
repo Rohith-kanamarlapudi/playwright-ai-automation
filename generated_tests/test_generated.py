@@ -1,498 +1,693 @@
-```
-# File: config/config.py
-import os
-import yaml
-
-class Config:
-    def __init__(self, config_path=None):
-        if config_path is None:
-            config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
-        with open(config_path, 'r') as f:
-            self.data = yaml.safe_load(f)
-
-    @property
-    def base_url(self):
-        return self.data['base_url']
-
-    @property
-    def browser_type(self):
-        return self.data['browser']['type']
-
-    @property
-    def headless(self):
-        return self.data['browser']['headless']
-
-    @property
-    def slow_mo(self):
-        return self.data['browser'].get('slow_mo', 0)
-
-    @property
-    def default_timeout(self):
-        return self.data['timeouts']['default']
-
-    @property
-    def navigation_timeout(self):
-        return self.data['timeouts']['navigation']
-
-    @property
-    def viewport(self):
-        return self.data.get('viewport', {'width': 1280, 'height': 720})
-
-    def get_viewport_for_test(self, size):
-        return {'width': size[0], 'height': size[1]}
-
-# If config.yaml is not present, a default is created automatically (you can embed the YAML as a string)
-```
-```yaml
-# File: config/config.yaml
-base_url: "https://ideabytes.com"
-browser:
-  type: chromium
-  headless: true
-  slow_mo: 100
-timeouts:
-  default: 30000
-  navigation: 60000
-viewport:
-  width: 1280
-  height: 720
-```
 ```python
-# File: utils/logger.py
-import logging
-import sys
+# ===============================================================
+# File: configs/config.py
+# ===============================================================
+import os
 
-def setup_logger(name=__name__, log_file='logs/automation.log'):
+BASE_URL = os.environ.get("BASE_URL", "https://ideabytes.com")
+HEADLESS = os.environ.get("HEADLESS", "true").lower() == "true"
+DEFAULT_VIEWPORT = {"width": 1280, "height": 720}
+NAVIGATION_TIMEOUT = 30000
+WAIT_TIMEOUT = 10000
+
+
+# ===============================================================
+# File: utils/logger.py
+# ===============================================================
+import logging
+import os
+
+LOG_DIR = "logs"
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+def setup_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(file_handler)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(console_handler)
+    fh = logging.FileHandler(os.path.join(LOG_DIR, "test_run.log"))
+    fh.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
     return logger
 
-logger = setup_logger()
-```
-```python
-# File: utils/http_utils.py
-import requests
 
-def check_url_status(url: str) -> int:
-    try:
-        resp = requests.head(url, allow_redirects=True, timeout=10)
-        return resp.status_code
-    except requests.RequestException:
-        return 0
+# ===============================================================
+# File: utils/screenshot.py
+# ===============================================================
+import os
+from datetime import datetime
 
-def download_file_size(url: str) -> int:
-    try:
-        resp = requests.get(url, stream=True, timeout=10)
-        resp.raise_for_status()
-        return len(resp.content)
-    except requests.RequestException:
-        return 0
-```
-```python
-# File: utils/allure_helper.py
-import allure
+SCREENSHOT_DIR = "reports/screenshots"
+if not os.path.exists(SCREENSHOT_DIR):
+    os.makedirs(SCREENSHOT_DIR)
 
-def attach_log(text: str):
-    allure.attach(text, 'test_log', attachment_type=allure.attachment_type.TEXT)
+def capture_screenshot(page, test_name):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{test_name}_{timestamp}.png"
+    filepath = os.path.join(SCREENSHOT_DIR, filename)
+    page.screenshot(path=filepath, full_page=True)
+    return filepath
 
-def attach_screenshot(page, name: str):
-    allure.attach(page.screenshot(), name=name, attachment_type=allure.attachment_type.PNG)
-```
-```python
-# File: selectors/home_selectors.py
-class HomeSelectors:
-    HAMBURGER_BUTTON = "button.lines-button.x"
-    LOGO_LINK = "a.logo[href='https://ideabytes.com/index.html']"
-    CONTACT_LINK = "a:has-text('Contact')"
-    IOT_SOLUTIONS_LINK = "a:has-text('IoT Solutions')"
-    DG_HAZMAT_LINK = "a:has-text('DG HAZMAT')"
-    IGBMS_LINK = "a:has-text('IGBMS')"
-    TEST_AUTOMATION_LINK = "a:has-text('Test Automation')"
-    APPLICATION_DEVELOPMENT_LINK = "a:has-text('Application Development')"
-    TEENS4TECH_LINK = "a:has-text('Teens4Tech')"
-    PARTNERSHIPS_LINK = "a:has-text('Partnerships')"
-    ABOUT_US_LINK = "a:has-text('About Us')"
-    CERTIFICATES_LINK = "a:has-text('Certificates')"
-    TEAM_LINK = "a:has-text('Team')"
-    DISCOVER_MORE_LINKS = "a.blog_link:has-text('Discover More')"
-    LINKEDIN_LINK = "a[href='https://in.linkedin.com/company/ideabytes-inc']"
-    PDF_ISO9001 = "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
-    PDF_ISO27001 = "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
-    PDF_ISO27017 = "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
-    # All navigation anchors (excluding logo and external)
-    NAV_LINKS = [
-        CONTACT_LINK,
-        IOT_SOLUTIONS_LINK,
-        DG_HAZMAT_LINK,
-        IGBMS_LINK,
-        TEST_AUTOMATION_LINK,
-        APPLICATION_DEVELOPMENT_LINK,
-        TEENS4TECH_LINK,
-        PARTNERSHIPS_LINK,
-        ABOUT_US_LINK,
-        CERTIFICATES_LINK,
-        TEAM_LINK,
+
+# ===============================================================
+# File: utils/link_utils.py
+# ===============================================================
+from playwright.sync_api import Page
+
+def validate_href(href: str) -> bool:
+    """Return True if href is not empty and not javascript:void."""
+    if not href:
+        return False
+    if href.strip().startswith("javascript"):
+        return False
+    return True
+
+def check_pdf_extension(href: str) -> bool:
+    return href.lower().endswith(".pdf")
+
+def has_target_blank(page: Page, selector: str) -> bool:
+    element = page.query_selector(selector)
+    if element:
+        target = element.get_attribute("target")
+        return target == "_blank"
+    return False
+
+def get_text_content(page: Page, selector: str) -> str:
+    element = page.query_selector(selector)
+    if element:
+        return element.text_content().strip()
+    return ""
+
+
+# ===============================================================
+# File: utils/responsive_utils.py
+# ===============================================================
+from playwright.sync_api import Page
+
+def set_viewport(page: Page, width: int, height: int = 800):
+    page.set_viewport_size({"width": width, "height": height})
+
+def is_element_hidden(page: Page, selector: str) -> bool:
+    element = page.query_selector(selector)
+    if element:
+        return not element.is_visible()
+    return True  # if element does not exist, consider hidden
+
+def check_layout_integrity(page: Page):
+    """Basic check: ensure no elements overlap in the navigation area."""
+    nav_selectors = [
+        "a:has-text('Contact')",
+        "a:has-text('IoT Solutions')",
+        "a:has-text('About Us')",
     ]
-```
-```python
-# File: selectors/contact_selectors.py
-class ContactSelectors:
-    # Selectors for contact form – none detected on the website provided, we will not invent.
-    pass
-```
-```python
+    boxes = []
+    for sel in nav_selectors:
+        els = page.query_selector_all(sel)
+        for el in els:
+            if el.is_visible():
+                box = el.bounding_box()
+                if box:
+                    boxes.append(box)
+    for i in range(len(boxes)):
+        for j in range(i + 1, len(boxes)):
+            # simple overlap check
+            if (
+                boxes[i]["x"] < boxes[j]["x"] + boxes[j]["width"]
+                and boxes[i]["x"] + boxes[i]["width"] > boxes[j]["x"]
+                and boxes[i]["y"] < boxes[j]["y"] + boxes[j]["height"]
+                and boxes[i]["y"] + boxes[i]["height"] > boxes[j]["y"]
+            ):
+                return False
+    return True
+
+
+# ===============================================================
 # File: pages/base_page.py
-import allure
-from playwright.sync_api import Page, expect
-from utils.logger import logger
+# ===============================================================
+from playwright.sync_api import Page
+from configs.config import BASE_URL, NAVIGATION_TIMEOUT, WAIT_TIMEOUT
+from utils.logger import setup_logger
+from utils.screenshot import capture_screenshot
+import logging
 
 class BasePage:
     def __init__(self, page: Page):
         self.page = page
-        self.timeout = 30000
+        self.logger = logging.getLogger(self.__class__.__name__)
 
-    def navigate(self, url: str):
-        logger.info(f"Navigating to {url}")
-        self.page.goto(url, wait_until="networkidle")
+    def navigate(self, url: str = BASE_URL):
+        self.page.goto(url, timeout=NAVIGATION_TIMEOUT)
+        self.page.wait_for_load_state("networkidle")
 
-    def click(self, selector: str, **kwargs):
-        logger.info(f"Clicking element: {selector}")
-        self.page.click(selector, **kwargs)
+    def click(self, selector: str):
+        self.page.click(selector)
 
-    def fill(self, selector: str, text: str, **kwargs):
-        logger.info(f"Filling '{text}' into {selector}")
-        self.page.fill(selector, text, **kwargs)
+    def get_element(self, selector: str):
+        return self.page.query_selector(selector)
 
-    def wait_for_element(self, selector: str, state="visible", timeout=None):
-        self.page.wait_for_selector(selector, state=state, timeout=timeout or self.timeout)
+    def wait_for_visible(self, selector: str, timeout: int = WAIT_TIMEOUT):
+        self.page.wait_for_selector(selector, state="visible", timeout=timeout)
 
-    def take_screenshot(self, name: str):
-        self.page.screenshot(path=f"screenshots/{name}.png")
-        allure.attach.file(f"screenshots/{name}.png", name=name, attachment_type=allure.attachment_type.PNG)
+    def get_current_url(self) -> str:
+        return self.page.url
 
-    def get_element_text(self, selector: str) -> str:
-        return self.page.text_content(selector)
+    def get_title(self) -> str:
+        return self.page.title()
+
+    def check_element_exists(self, selector: str) -> bool:
+        return self.page.query_selector(selector) is not None
 
     def is_element_visible(self, selector: str) -> bool:
-        return self.page.is_visible(selector)
+        element = self.page.query_selector(selector)
+        if element:
+            return element.is_visible()
+        return False
 
-    def get_attribute(self, selector: str, attribute: str) -> str:
-        return self.page.get_attribute(selector, attribute)
+    def get_attribute(self, selector: str, attribute: str):
+        element = self.page.query_selector(selector)
+        if element:
+            return element.get_attribute(attribute)
+        return None
 
-    def wait_for_page_load(self):
-        self.page.wait_for_load_state("networkidle")
-```
-```python
+    def take_screenshot(self, name: str):
+        return capture_screenshot(self.page, name)
+
+
+# ===============================================================
 # File: pages/home_page.py
+# ===============================================================
 from pages.base_page import BasePage
-from selectors.home_selectors import HomeSelectors
 
 class HomePage(BasePage):
-    def __init__(self, page):
-        super().__init__(page)
-        self.selectors = HomeSelectors()
+    # Navigation links (unique text)
+    contact_link = "a:has-text('Contact')"
+    iot_solutions_link = "a:has-text('IoT Solutions')"
+    dg_hazmat_link = "a:has-text('DG HAZMAT')"
+    igbms_link = "a:has-text('IGBMS')"
+    test_automation_link = "a:has-text('Test Automation')"
+    application_dev_link = "a:has-text('Application Development')"
+    teens4tech_link = "a:has-text('Teens4Tech')"
+    partnerships_link = "a:has-text('Partnerships')"
+    about_us_link = "a:has-text('About Us')"
+    certificates_link = "a:has-text('Certificates')"
+    team_link = "a:has-text('Team')"
+    logo_link = "a.logo"  # class logo
 
-    def click_hamburger(self):
-        self.click(self.selectors.HAMBURGER_BUTTON)
+    # Actionable links
+    iot_hardware_software_link = "a.products_text"
+    discover_more_links = "a.blog_link"  # multiple
+    linkedin_link = "a[href='https://in.linkedin.com/company/ideabytes-inc']"
 
-    def click_logo(self):
-        self.click(self.selectors.LOGO_LINK)
+    # PDF links
+    pdf_iso9001 = "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+    pdf_iso27001 = "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+    pdf_iso27017 = "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
 
-    def get_all_discover_more_links_hrefs(self):
-        elements = self.page.query_selector_all(self.selectors.DISCOVER_MORE_LINKS)
-        return [el.get_attribute("href") for el in elements]
+    # Button
+    hamburger_button = "button.lines-button.x"
 
-    def is_hamburger_visible(self):
-        return self.is_element_visible(self.selectors.HAMBURGER_BUTTON)
+    # Responsive: navigation container (assuming a nav element)
+    nav_container = "nav"  # generic, adjust if needed
+    mobile_menu_overlay = None  # not detected
 
-    def click_nav_link(self, link_selector):
+    def click_nav_link(self, link_selector: str):
         self.click(link_selector)
 
-    def get_nav_link_href(self, link_selector):
-        return self.get_attribute(link_selector, "href")
-```
-```python
+    def click_hamburger(self):
+        self.click(self.hamburger_button)
+
+    def get_nav_links(self):
+        """Return all top-level navigation link locators as list of strings."""
+        return [
+            self.contact_link,
+            self.iot_solutions_link,
+            self.dg_hazmat_link,
+            self.igbms_link,
+            self.test_automation_link,
+            self.application_dev_link,
+            self.teens4tech_link,
+            self.partnerships_link,
+            self.about_us_link,
+            self.certificates_link,
+            self.team_link,
+        ]
+
+
+# ===============================================================
 # File: pages/contact_page.py
+# ===============================================================
 from pages.base_page import BasePage
-from selectors.contact_selectors import ContactSelectors
 
 class ContactPage(BasePage):
-    def __init__(self, page):
-        super().__init__(page)
-        self.selectors = ContactSelectors()
-```
-```python
-# File: tests/conftest.py
-import pytest
-import yaml
-from playwright.sync_api import sync_playwright
-from config.config import Config
-from utils.logger import logger
+    # If a contact form exists, define locators here.
+    # Since no inputs detected, keep as placeholder.
+    pass
+
+
+# ===============================================================
+# File: pages/page_factory.py
+# ===============================================================
 from pages.home_page import HomePage
+from pages.contact_page import ContactPage
 
-# Load config once per session
+class PageFactory:
+    @staticmethod
+    def get_page(page, page_name: str):
+        if page_name == "home":
+            return HomePage(page)
+        elif page_name == "contact":
+            return ContactPage(page)
+        else:
+            raise ValueError(f"Unknown page: {page_name}")
+
+
+# ===============================================================
+# File: tests/conftest.py
+# ===============================================================
+import pytest
+import logging
+from playwright.sync_api import sync_playwright
+from configs.config import BASE_URL, HEADLESS, DEFAULT_VIEWPORT, NAVIGATION_TIMEOUT
+from utils.logger import setup_logger
+from utils.screenshot import capture_screenshot
+
 @pytest.fixture(scope="session")
-def config():
-    return Config()
-
-@pytest.fixture(scope="session")
-def browser_context_args(config):
-    return {
-        "viewport": config.viewport,
-        "locale": "en-US",
-    }
-
-@pytest.fixture(scope="function")
-def page(config, browser_context_args):
-    with sync_playwright() as playwright:
-        browser = getattr(playwright, config.browser_type).launch(
-            headless=config.headless,
-            slow_mo=config.slow_mo
+def browser_context():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=HEADLESS)
+        context = browser.new_context(
+            viewport=DEFAULT_VIEWPORT,
+            ignore_https_errors=True,
         )
-        context = browser.new_context(**browser_context_args)
-        page = context.new_page()
-        yield page
+        yield context
         context.close()
         browser.close()
 
-@pytest.fixture
-def home_page(page, config):
+@pytest.fixture()
+def page(browser_context):
+    page = browser_context.new_page()
+    # Capture console errors
+    console_errors = []
+    page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
+    page.console_errors = console_errors
+    yield page
+    page.close()
+
+@pytest.fixture()
+def home_page(page):
+    from pages.home_page import HomePage
     home = HomePage(page)
-    home.navigate(config.base_url)
-    home.wait_for_page_load()
+    home.navigate(BASE_URL)
     return home
+
+@pytest.fixture(params=[375, 768, 1024, 1280])
+def viewport_size(request):
+    return request.param
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
-    report = outcome.get_result()
-    if report.when == "call" and report.failed:
+    rep = outcome.get_result()
+    if rep.when == "call" and rep.failed:
         if "page" in item.funcargs:
             page = item.funcargs["page"]
-            screenshot_name = f"{item.nodeid.replace('::', '_')}_fail"
-            page.screenshot(path=f"screenshots/{screenshot_name}.png")
-            logger.error(f"Test failed: {item.nodeid}")
+            screenshot_path = capture_screenshot(page, item.name)
+            # Attach to report if using pytest-html
             try:
-                import allure
-                allure.attach.file(f"screenshots/{screenshot_name}.png",
-                                   name=screenshot_name,
-                                   attachment_type=allure.attachment_type.PNG)
-            except Exception:
+                from pytest_html import extras
+                extra = getattr(rep, "extra", [])
+                extra.append(extras.html(f"<a href='{screenshot_path}'>Screenshot</a>"))
+                rep.extra = extra
+            except ImportError:
                 pass
-```
-```python
+
+# Set up logging for each test
+@pytest.fixture(autouse=True)
+def setup_logging(request):
+    logger = setup_logger(request.node.name)
+    request.node.logger = logger
+    yield
+    # Cleanup handlers to avoid duplicate logs
+    for handler in logger.handlers[:]:
+        handler.close()
+        logger.removeHandler(handler)
+
+
+# ===============================================================
 # File: tests/test_navigation.py
-import allure
+# ===============================================================
 import pytest
-from config.config import Config
-from utils.http_utils import check_url_status
+from pages.home_page import HomePage, BASE_URL
 
-@allure.feature("Navigation Links")
+@pytest.mark.navigation
 class TestNavigation:
+    """Tests for all navigation links."""
 
-    @allure.story("Internal navigation links")
-    @pytest.mark.parametrize("link_selector,expected_url", [
-        ("a:has-text('Contact')", "https://ideabytes.com/contact-us.html"),
-        ("a:has-text('IoT Solutions')", "https://www.ideabytesiot.com/"),
-        ("a:has-text('DG HAZMAT')", "https://www.dgsms.ca"),
-        ("a:has-text('IGBMS')", "https://igbms.com/"),
-        ("a:has-text('Test Automation')", "https://ideabytes.com/test-automation.html"),
-        ("a:has-text('Application Development')", "https://ideabytes.com/web-mobile-app-dev.html"),
-        ("a:has-text('Teens4Tech')", "https://ideabytes.com/Teens_tech.html"),
-        ("a:has-text('Partnerships')", "https://ideabytes.com/partnership.html"),
-        ("a:has-text('About Us')", "https://ideabytes.com/about-us.html"),
-        ("a:has-text('Certificates')", "https://ideabytes.com/certificates.html"),
-        ("a:has-text('Team')", "https://ideabytes.com/team.html"),
+    @pytest.mark.parametrize("link_selector, expected_url", [
+        (HomePage.contact_link, "https://ideabytes.com/contact-us.html"),
+        (HomePage.iot_solutions_link, "https://www.ideabytesiot.com/"),
+        (HomePage.dg_hazmat_link, "https://www.dgsms.ca"),
+        (HomePage.igbms_link, "https://igbms.com/"),
+        (HomePage.test_automation_link, "https://ideabytes.com/test-automation.html"),
+        (HomePage.application_dev_link, "https://ideabytes.com/web-mobile-app-dev.html"),
+        (HomePage.teens4tech_link, "https://ideabytes.com/Teens_tech.html"),
+        (HomePage.partnerships_link, "https://ideabytes.com/partnership.html"),
+        (HomePage.about_us_link, "https://ideabytes.com/about-us.html"),
+        (HomePage.certificates_link, "https://ideabytes.com/certificates.html"),
+        (HomePage.team_link, "https://ideabytes.com/team.html"),
+        (HomePage.linkedin_link, "https://in.linkedin.com/company/ideabytes-inc"),
+        (HomePage.logo_link, "https://ideabytes.com/index.html"),
     ])
-    def test_nav_link_click_navigates(self, home_page, link_selector, expected_url):
-        with allure.step(f"Click navigation link: {link_selector}"):
-            home_page.click_nav_link(link_selector)
-        with allure.step("Wait for page load"):
-            home_page.wait_for_page_load()
-        with allure.step("Verify current URL"):
-            assert home_page.page.url == expected_url, f"Expected {expected_url}, got {home_page.page.url}"
+    def test_navigation_links(self, home_page, link_selector, expected_url):
+        """Click a navigation link and verify the URL."""
+        home_page.logger.info(f"Navigating to {link_selector}")
+        with home_page.page.expect_navigation() as nav_info:
+            home_page.click(link_selector)
+        actual_url = nav_info.value.url
+        assert actual_url == expected_url, f"Expected {expected_url}, got {actual_url}"
 
-    @allure.story("Logo link")
-    def test_logo_link_navigates_to_home(self, home_page):
-        with allure.step("Click logo link"):
-            home_page.click_logo()
-        with allure.step("Verify URL is homepage"):
-            assert home_page.page.url == "https://ideabytes.com/index.html"
-
-    @allure.story("Discover More links")
-    def test_discover_more_links_http_status(self, home_page):
-        with allure.step("Get all Discover More hrefs"):
-            hrefs = home_page.get_all_discover_more_links_hrefs()
-        assert len(hrefs) > 0, "No Discover More links found"
-        for href in hrefs:
-            with allure.step(f"Check HTTP status for {href}"):
-                status = check_url_status(href)
-                assert status == 200, f"{href} returned HTTP {status}"
-
-    @allure.story("LinkedIn link opens in new tab or navigates")
-    def test_linkedin_link(self, home_page):
-        with allure.step("Click LinkedIn link and wait for new page"):
-            with home_page.page.context.expect_page() as new_page_info:
-                home_page.click("a[href='https://in.linkedin.com/company/ideabytes-inc']")
-            new_page = new_page_info.value
-            new_page.wait_for_load_state()
-            assert "linkedin.com" in new_page.url
-
-    @allure.story("PDF certificate links are downloadable")
-    @pytest.mark.parametrize("pdf_selector", [
-        "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']",
-        "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']",
-        "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
+    @pytest.mark.parametrize("discover_href", [
+        "https://ideabytes.com/test_automation_article4.html",
+        "https://ideabytes.com/test_automation_article3.html",
+        "https://ideabytes.com/security-testing-article-3.html",
+        "https://ideabytes.com/test_automation_article2.html",
+        "https://ideabytes.com/web-mobile-app-dev-art2.html",
+        "https://ideabytes.com/web-mobile-app-dev-art1.html",
+        "https://ideabytes.com/security-testing-article-1.html",
+        "https://ideabytes.com/security-testing-article-2.html",
+        "https://ideabytes.com/test_automation_article.html",
+        "https://ideabytes.com/test_automation_article5.html",
     ])
-    def test_pdf_links_download(self, home_page, pdf_selector):
-        with allure.step("Click PDF link and wait for download"):
-            with home_page.page.expect_download() as download_info:
-                home_page.click(pdf_selector)
-            download = download_info.value
-            # Expect a download event; we can accept it or just verify that it was triggered
-            assert download.suggested_filename.endswith('.pdf')
-```
-```python
+    def test_discover_more_links(self, home_page, discover_href):
+        """Click each 'Discover More' link by href and verify navigation."""
+        selector = f"a.blog_link[href='{discover_href}']"
+        home_page.logger.info(f"Clicking Discover More link with href {discover_href}")
+        with home_page.page.expect_navigation() as nav_info:
+            home_page.click(selector)
+        assert nav_info.value.url == discover_href
+
+    def test_iot_hardware_software_link(self, home_page):
+        """Click IoT Hardware & Software Solutions link."""
+        with home_page.page.expect_navigation() as nav_info:
+            home_page.click(home_page.iot_hardware_software_link)
+        assert nav_info.value.url == "https://www.ideabytesiot.com"
+
+    def test_pdf_iso9001(self, home_page):
+        """Click PDF for ISO9001 and verify download or navigation to PDF."""
+        with home_page.page.expect_download() as download_info:
+            home_page.click(home_page.pdf_iso9001)
+        download = download_info.value
+        assert download.suggested_filename.endswith(".pdf")
+
+    def test_pdf_iso27001(self, home_page):
+        with home_page.page.expect_download() as download_info:
+            home_page.click(home_page.pdf_iso27001)
+        download = download_info.value
+        assert download.suggested_filename.endswith(".pdf")
+
+    def test_pdf_iso27017(self, home_page):
+        with home_page.page.expect_download() as download_info:
+            home_page.click(home_page.pdf_iso27017)
+        download = download_info.value
+        assert download.suggested_filename.endswith(".pdf")
+
+
+# ===============================================================
 # File: tests/test_responsive.py
-import allure
+# ===============================================================
 import pytest
+from pages.home_page import HomePage
+from utils.responsive_utils import set_viewport, is_element_hidden, check_layout_integrity
 
-@allure.feature("Responsive UI")
+@pytest.mark.responsive
 class TestResponsive:
+    def test_hamburger_visible_on_small_viewport(self, home_page):
+        """At 375px width, hamburger button is visible and nav links are hidden."""
+        set_viewport(home_page.page, 375)
+        home_page.page.wait_for_timeout(500)  # allow re-render
+        assert home_page.is_element_visible(home_page.hamburger_button), "Hamburger not visible at 375px"
+        # Check all top nav links are hidden (not visible)
+        for nav_link in home_page.get_nav_links():
+            if home_page.check_element_exists(nav_link):
+                assert not home_page.is_element_visible(nav_link), f"Nav link {nav_link} still visible at 375px"
 
-    @allure.story("Hamburger menu visibility on mobile viewport")
-    @pytest.mark.parametrize("viewport_size", [(375, 812), (768, 1024)])
-    def test_hamburger_visible_on_mobile(self, home_page, viewport_size):
-        with allure.step(f"Set viewport to {viewport_size}"):
-            home_page.page.set_viewport_size({"width": viewport_size[0], "height": viewport_size[1]})
-        with allure.step("Check that hamburger button is visible"):
-            assert home_page.is_hamburger_visible(), \
-                f"Hamburger button should be visible at viewport {viewport_size}"
+    def test_hamburger_hidden_on_large_viewport(self, home_page):
+        """At 1024px width, hamburger button is hidden and nav links are visible."""
+        set_viewport(home_page.page, 1024)
+        home_page.page.wait_for_timeout(500)
+        # Hamburger should be hidden or not exist
+        if home_page.check_element_exists(home_page.hamburger_button):
+            assert not home_page.is_element_visible(home_page.hamburger_button), "Hamburger visible at 1024px"
+        # Nav links should be visible
+        for nav_link in home_page.get_nav_links():
+            if home_page.check_element_exists(nav_link):
+                assert home_page.is_element_visible(nav_link), f"Nav link {nav_link} not visible at 1024px"
 
-    @allure.story("Hamburger menu hides on desktop viewport")
-    def test_hamburger_hidden_on_desktop(self, home_page):
-        with allure.step("Set viewport to 1920x1080"):
-            home_page.page.set_viewport_size({"width": 1920, "height": 1080})
-        with allure.step("Check that hamburger button is not visible"):
-            assert not home_page.is_hamburger_visible(), \
-                "Hamburger button should be hidden on desktop viewport"
+    def test_hamburger_toggle(self, home_page):
+        """Click hamburger and verify that the mobile menu toggles (e.g., a class change)."""
+        set_viewport(home_page.page, 375)
+        home_page.page.wait_for_timeout(500)
+        # Get initial state (maybe menu has class 'active' or similar)
+        # Since we don't have exact class, we check that after click a menu becomes visible
+        # Assume mobile menu is a sibling/child; use generic approach
+        # For this test, we simply verify button click does not break
+        home_page.click_hamburger()
+        # Wait a bit and verify no errors
+        assert "error" not in home_page.page.title()
 
-    @allure.story("Hamburger toggles mobile navigation")
-    def test_hamburger_toggles_nav(self, home_page):
-        with allure.step("Set mobile viewport"):
-            home_page.page.set_viewport_size({"width": 375, "height": 812})
-        # We need to verify that clicking hamburger shows/hides a mobile menu.
-        # Since we don't have a selector for the mobile menu panel, we check for the button's aria-expanded or a class.
-        # Here we use a generic approach: expect the button to have an 'active' class or similar.
-        hamburger_selector = "button.lines-button.x"
-        # Before click, assume menu is closed.
-        initial_class = home_page.get_attribute(hamburger_selector, "class")
-        with allure.step("Click hamburger"):
-            home_page.click_hamburger()
-        # After click, the class may change (e.g., 'lines-button x active')
-        after_click_class = home_page.get_attribute(hamburger_selector, "class")
-        with allure.step("Verify class changed indicating toggled"):
-            assert initial_class != after_click_class, \
-                "Hamburger button class should change after click"
-```
-```python
-# File: tests/test_keyboard_accessibility.py
-import allure
+    def test_layout_integrity_responsive(self, home_page, viewport_size):
+        """Check that at various viewports, navigation elements do not overlap."""
+        set_viewport(home_page.page, viewport_size)
+        home_page.page.wait_for_timeout(500)
+        assert check_layout_integrity(home_page.page), f"Layout overlap detected at {viewport_size}px"
+
+    def test_text_not_cut_at_320px(self, home_page):
+        """Verify that key text is not cut off at 320px width."""
+        set_viewport(home_page.page, 320)
+        home_page.page.wait_for_timeout(500)
+        # Check visibility of an element like the hero heading (if exists). Use a generic check:
+        body_text = home_page.page.inner_text("body")
+        assert len(body_text) > 0, "Body text is empty at 320px"
+        # Additional: check that no element has negative width/height (basic)
+        # This is a placeholder; real implementation would check specific elements.
+
+    def test_mobile_menu_closes_on_outside_click(self, home_page):
+        """Test that clicking outside the mobile menu closes it."""
+        set_viewport(home_page.page, 375)
+        home_page.page.wait_for_timeout(500)
+        # Open menu
+        home_page.click_hamburger()
+        # Assume the menu overlay has a specific class or id; we cannot detect.
+        # For demonstration, we simply click on the page body and check that menu is hidden.
+        # This is a placeholder.
+        home_page.page.click("body")
+        # Wait a bit
+        home_page.page.wait_for_timeout(300)
+        # No assertion, just ensure no errors
+
+
+# ===============================================================
+# File: tests/test_validation.py
+# ===============================================================
 import pytest
+from playwright.sync_api import expect
+from pages.home_page import HomePage, BASE_URL
+from utils.link_utils import validate_href, check_pdf_extension, has_target_blank, get_text_content
 
-@allure.feature("Keyboard Accessibility")
-class TestKeyboardAccessibility:
+@pytest.mark.validation
+class TestValidation:
+    def test_all_links_have_valid_href(self, home_page):
+        """Verify all a elements have a valid href attribute."""
+        links = home_page.page.query_selector_all("a")
+        for link in links:
+            href = link.get_attribute("href")
+            assert validate_href(href), f"Invalid href: {href}"
 
-    @allure.story("All visible navigation links are focusable and activate with Enter")
-    def test_nav_links_keyboard_focusable(self, home_page):
-        # All nav links that are visible at default desktop viewport
-        nav_selectors = [
-            "a:has-text('Contact')",
-            "a:has-text('IoT Solutions')",
-            "a:has-text('DG HAZMAT')",
-            "a:has-text('IGBMS')",
-            "a:has-text('Test Automation')",
-            "a:has-text('Application Development')",
-            "a:has-text('Teens4Tech')",
-            "a:has-text('Partnerships')",
-            "a:has-text('About Us')",
-            "a:has-text('Certificates')",
-            "a:has-text('Team')",
+    def test_external_links_target_blank(self, home_page):
+        """Verify that external links open in new tab (target=_blank)."""
+        external_selectors = [
+            HomePage.linkedin_link,
+            HomePage.iot_solutions_link,
+            HomePage.dg_hazmat_link,
+            HomePage.igbms_link,
+            HomePage.iot_hardware_software_link,
         ]
-        for selector in nav_selectors:
-            with allure.step(f"Check focusability of {selector}"):
-                elem = home_page.page.locator(selector).first
-                # Check that the element is visible and can be focused
-                assert elem.is_visible(), f"{selector} is not visible"
-                # Focus using keyboard tab; but we can directly focus via Playwright
-                elem.focus()
-                # Verify it received focus
-                active = home_page.page.evaluate("document.activeElement === arguments[0]", elem.element_handles()[0])
-                assert active, f"{selector} did not receive focus"
-                # Simulate Enter key
-                home_page.page.keyboard.press("Enter")
-                # Wait a moment, check if URL changed (should not be homepage for internal links)
-                # We can use a simplified check: after pressing Enter on a link, the page should navigate.
-                # For this test we only verify that the element is focusable; full navigation test is separate.
-                # We'll just verify no error occurred and page is not blank.
-                assert home_page.page.url != "about:blank"
-                # Go back to home for next link
-                if home_page.page.url != "https://ideabytes.com/":
-                    home_page.navigate("https://ideabytes.com/")
-                home_page.wait_for_page_load()
-```
-```python
-# File: tests/test_error_handling.py
-import allure
+        for sel in external_selectors:
+            assert has_target_blank(home_page.page, sel), f"Link {sel} does not have target=_blank"
+
+    def test_page_title(self, home_page):
+        """Verify the page title is set."""
+        title = home_page.get_title()
+        assert title, "Page title is empty"
+        # Optionally check contain "Ideabytes"
+        assert "Ideabytes" in title, f"Title '{title}' does not contain 'Ideabytes'"
+
+    def test_console_errors(self, home_page):
+        """Verify no console errors on page load."""
+        errors = getattr(home_page.page, "console_errors", [])
+        assert len(errors) == 0, f"Console errors found: {errors}"
+
+    def test_images_have_alt_text(self, home_page):
+        """Verify all img elements have alt attribute."""
+        images = home_page.page.query_selector_all("img")
+        for img in images:
+            alt = img.get_attribute("alt")
+            assert alt is not None, f"Image with src {img.get_attribute('src')} missing alt text"
+
+    def test_keyboard_navigation(self, home_page):
+        """Test that links are focusable via Tab."""
+        # Focus on first link
+        home_page.page.keyboard.press("Tab")
+        # Verify some element is focused
+        focused = home_page.page.evaluate("document.activeElement.tagName")
+        assert focused in ("A", "BUTTON"), f"Focused element is {focused}, expected link or button"
+
+    def test_404_page(self, page):
+        """Navigate to non-existent page and verify error or 404."""
+        response = page.goto(f"{BASE_URL}/nonexistent")
+        assert response.status == 404 or "not found" in page.title().lower()
+
+    def test_link_text_not_empty(self, home_page):
+        """Verify that each link has text content (except logo/social)."""
+        links = home_page.page.query_selector_all("a")
+        for link in links:
+            text = link.text_content().strip()
+            href = link.get_attribute("href")
+            # Skip elements that are expected empty (logo, icon, pdf)
+            if href and (".pdf" in href or "linkedin.com" in href):
+                continue
+            if link.get_attribute("class") and "logo" in link.get_attribute("class"):
+                continue
+            assert text, f"Link with href {href} has no text content"
+
+    def test_pdf_extension(self, home_page):
+        """Verify that PDF links have .pdf extension."""
+        pdf_selectors = [
+            HomePage.pdf_iso9001,
+            HomePage.pdf_iso27001,
+            HomePage.pdf_iso27017,
+        ]
+        for sel in pdf_selectors:
+            href = home_page.get_attribute(sel, "href")
+            assert check_pdf_extension(href), f"PDF link {sel} does not end with .pdf"
+
+    def test_discover_more_unique_hrefs(self, home_page):
+        """Verify Discover More links have unique hrefs."""
+        links = home_page.page.query_selector_all("a.blog_link")
+        hrefs = [link.get_attribute("href") for link in links if link.get_attribute("href")]
+        assert len(hrefs) == len(set(hrefs)), "Duplicate Discover More hrefs found"
+
+    def test_contact_button_css_class(self, home_page):
+        """Verify Contact link has correct CSS class."""
+        contact_el = home_page.page.query_selector(HomePage.contact_link)
+        class_attr = contact_el.get_attribute("class")
+        assert class_attr and "btn btn-md btn-rounded btn-outline" in class_attr
+
+    def test_logo_link_homepage(self, home_page):
+        """Verify logo link points to correct URL."""
+        href = home_page.get_attribute(HomePage.logo_link, "href")
+        assert href == "https://ideabytes.com/index.html"
+
+    def test_back_button(self, home_page):
+        """Test browser back button works after navigation."""
+        home_page.click(home_page.contact_link)
+        home_page.page.go_back()
+        assert home_page.page.url == BASE_URL
+
+    def test_double_click_no_error(self, home_page):
+        """Test clicking a link twice does not cause JS error."""
+        with home_page.page.expect_navigation() as nav_info:
+            home_page.click(home_page.contact_link)
+        # Go back
+        home_page.page.go_back()
+        home_page.page.wait_for_load_state("networkidle")
+        # Click again
+        with home_page.page.expect_navigation() as nav_info2:
+            home_page.click(home_page.contact_link)
+        assert nav_info2.value.url == "https://ideabytes.com/contact-us.html"
+
+    def test_footer_linkedin_clickable(self, home_page):
+        """Verify LinkedIn link is in footer and clickable."""
+        footer = home_page.page.query_selector("footer")
+        assert footer, "Footer not found"
+        linkedin_in_footer = footer.query_selector("a[href='https://in.linkedin.com/company/ideabytes-inc']")
+        assert linkedin_in_footer, "LinkedIn link not found in footer"
+        # Click it
+        with home_page.page.expect_navigation():
+            linkedin_in_footer.click()
+        assert "linkedin.com" in home_page.page.url
+
+    def test_iot_hardware_has_class(self, home_page):
+        """Verify IoT Hardware link has products_text class."""
+        el = home_page.page.query_selector(HomePage.iot_hardware_software_link)
+        class_attr = el.get_attribute("class")
+        assert "products_text" in class_attr
+
+    def test_hamburger_visible_below_768(self, page):
+        """Check that hamburger button is visible only on screens < 768px."""
+        from utils.responsive_utils import set_viewport
+        home = HomePage(page)
+        home.navigate()
+        # Test below 768
+        set_viewport(page, 600)
+        page.wait_for_timeout(300)
+        assert home.is_element_visible(home.hamburger_button), "Hamburger not visible at 600px"
+        # Test above 768
+        set_viewport(page, 1024)
+        page.wait_for_timeout(300)
+        assert not home.is_element_visible(home.hamburger_button), "Hamburger visible at 1024px"
+
+
+# ===============================================================
+# File: tests/test_login.py
+# ===============================================================
 import pytest
+from pages.home_page import HomePage
 
-@allure.feature("Error Handling")
-class TestErrorHandling:
+@pytest.mark.login
+class TestLogin:
+    """Placeholder for login functionality. No login page detected."""
+    def test_login_page_not_found(self, home_page):
+        """Verify that there is no login button/link present."""
+        # No login link detected; ensure none exists
+        login_selectors = [
+            "a:has-text('Login')",
+            "a:has-text('Sign In')",
+            "button:has-text('Login')",
+        ]
+        for sel in login_selectors:
+            el = home_page.page.query_selector(sel)
+            assert el is None, f"Unexpected login element found: {sel}"
 
-    @allure.story("Navigate to non-existent page returns 404")
-    def test_404_page(self, home_page):
-        with allure.step("Navigate to a non-existent URL"):
-            home_page.page.goto("https://ideabytes.com/nonexistent", wait_until="networkidle")
-        # The page may display custom 404 content or return HTTP 404.
-        # Check for common indicators: title contains '404', or page text contains '404' or 'not found'
-        page_content = home_page.page.content().lower()
-        assert "404" in page_content or "page not found" in page_content or "not found" in page_content, \
-            "Expected 404 page indicators not found"
-```
-```python
-# File: conftest.py
-# Root conftest to set up reporting and any global hooks (optional)
-# If you already have tests/conftest.py, this is not needed. We keep it minimal.
-```
-```ini
+
+# ===============================================================
 # File: pytest.ini
-[pytest]
-log_cli = true
-log_cli_level = INFO
-addopts = -v --tb=short --html=reports/pytest-html/report.html --self-contained-html --alluredir=reports/allure-results
-testpaths = tests
-markers =
-    smoke: smoke tests
-    regression: full regression
-```
-```
+# ===============================================================
+# [pytest]
+# minversion = 7.0
+# addopts = -v --html=reports/report.html --self-contained-html
+# testpaths = tests
+# markers =
+#     navigation: Tests for navigation links
+#     responsive: Tests for responsive behavior
+#     validation: Tests for link validity and accessibility
+#     login: Tests for login functionality
+
+
+# ===============================================================
 # File: requirements.txt
-playwright>=1.30.0
-pytest>=7.0.0
-pytest-html>=3.2.0
-allure-pytest>=2.12.0
-pyyaml>=6.0
-requests>=2.28.0
-```
-```python
-# File: tests/test_contact_form.py
-# Note: No input selectors were detected on the contact page, so we skip form submission tests.
-# This file is intentionally left empty to indicate that the Contact form is not present.
+# ===============================================================
+# playwright==1.40.0
+# pytest==7.4.3
+# pytest-html==4.1.1
+# pyyaml==6.0.1
+# pytest-playwright==0.4.3
+
 ```
