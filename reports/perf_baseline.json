@@ -1,0 +1,35 @@
+[
+  {
+    "label": "full_pipeline_run",
+    "timestamp": "2026-06-26T14:47:53.953322",
+    "duration_seconds": 149.205,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 113.67,
+    "memory_end_mb": 117.44,
+    "memory_delta_mb": 3.77,
+    "agents_completed": 5,
+    "throughput_agents_per_sec": 0.034
+  },
+  {
+    "label": "full_pipeline_run",
+    "timestamp": "2026-06-26T14:52:08.262861",
+    "duration_seconds": 131.852,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 113.14,
+    "memory_end_mb": 116.98,
+    "memory_delta_mb": 3.83,
+    "agents_completed": 5,
+    "throughput_agents_per_sec": 0.038
+  },
+  {
+    "label": "full_pipeline_run",
+    "timestamp": "2026-06-26T14:57:09.051798",
+    "duration_seconds": 165.967,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 113.27,
+    "memory_end_mb": 117.2,
+    "memory_delta_mb": 3.93,
+    "agents_completed": 5,
+    "throughput_agents_per_sec": 0.03
+  }
+]

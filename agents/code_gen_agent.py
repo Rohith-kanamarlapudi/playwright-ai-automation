@@ -2,21 +2,32 @@ from pathlib import Path
 
 from agents.state import AgentState
 from agents.llm_client import get_llm
+from performance.engine import PerformanceTracker
 
 # Initialize DeepSeek once
 llm = get_llm()
 
 
 def code_gen_agent(state: AgentState) -> AgentState:
-    print("[Code Generation Agent] Running...")
+    """
+    Code Generation Agent:
+    Generates production-ready Python Playwright automation code.
+    """
 
-    selectors = state.get("selectors", {})
+    tracker = PerformanceTracker(label="code_gen_agent")
+    tracker.start()
 
-    buttons = selectors.get("buttons", [])
-    inputs = selectors.get("inputs", [])
-    links = selectors.get("links", [])
+    try:
 
-    prompt = f"""
+        print("[Code Generation Agent] Running...")
+
+        selectors = state.get("selectors", {})
+
+        buttons = selectors.get("buttons", [])
+        inputs = selectors.get("inputs", [])
+        links = selectors.get("links", [])
+
+        prompt = f"""
 You are a Senior Python Playwright Automation Engineer.
 
 Generate production-ready Playwright automation code.
@@ -53,19 +64,21 @@ Requirements:
 8. Add comments where useful.
 9. Produce runnable code.
 10. Return ONLY Python code.
+11. Do NOT return Markdown.
 
-Do not include Markdown.
-Do not include explanations.
+Return only code.
 """
 
-    try:
         response = llm.invoke(prompt)
 
-        generated_code = response.content.strip()
+        generated_code = (
+            response.content
+            if hasattr(response, "content")
+            else str(response)
+        ).strip()
 
         state["generated_code"] = generated_code
 
-        # Save generated code
         Path("generated_tests").mkdir(exist_ok=True)
 
         with open(
@@ -79,11 +92,17 @@ Do not include explanations.
         print("[Code Generation Agent] Saved to generated_tests/test_generated.py")
 
     except Exception as e:
+
         print(f"[Code Generation Agent] Error: {e}")
 
         state["generated_code"] = (
             "# Code generation failed\n"
             f"# Error: {e}"
         )
+
+    finally:
+
+        tracker.stop(agents_completed=1)
+        tracker.save("reports/per_agent_perf.json")
 
     return state
