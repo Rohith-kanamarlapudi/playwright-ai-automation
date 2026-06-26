@@ -7,6 +7,9 @@ from agents.code_gen_agent import code_gen_agent
 from agents.review_agent import review_agent
 from agents.edge_cases_agent import edge_cases_agent
 
+# Import scraper
+from scraper.scraper import main as scrape_website
+
 
 def build_graph():
     graph = StateGraph(AgentState)
@@ -18,7 +21,7 @@ def build_graph():
     graph.add_node("review", review_agent)
     graph.add_node("edge_cases", edge_cases_agent)
 
-    # Define workflow
+    # Workflow
     graph.set_entry_point("strategy")
     graph.add_edge("strategy", "architecture")
     graph.add_edge("architecture", "code_gen")
@@ -30,11 +33,42 @@ def build_graph():
 
 
 if __name__ == "__main__":
+
+    print("=" * 70)
+    print("STEP 1: Running Website Scraper")
+    print("=" * 70)
+
+    # Run scraper and get selectors directly
+    selectors = scrape_website()
+
+    if selectors is None:
+        print("[Main] Scraper failed. Continuing with empty selectors.")
+        selectors = {}
+
+    else:
+        print(
+            f"[Main] Scraper completed successfully "
+            f"({selectors.get('total_elements', 0)} elements found)"
+        )
+
+    print("\n" + "=" * 70)
+    print("STEP 2: Starting LangGraph Workflow")
+    print("=" * 70)
+
     app = build_graph()
 
     initial_state: AgentState = {
-        "design_doc": "A login page with username, password fields and submit button.",
-        "selectors": [],
+        "design_doc": """
+Generate Playwright automation tests for the website.
+
+Requirements:
+- Login functionality
+- Form submission
+- Navigation
+- Validation
+- Responsive UI
+""",
+        "selectors": selectors,
         "task_plan": [],
         "architecture_notes": "",
         "generated_code": "",
@@ -44,9 +78,13 @@ if __name__ == "__main__":
 
     result = app.invoke(initial_state)
 
-    print("\n========== FINAL STATE ==========\n")
+    print("\n" + "=" * 70)
+    print("FINAL STATE")
+    print("=" * 70)
 
     for key, value in result.items():
-        print(f"{key}:")
+        print(f"\n{key}:")
         print(value)
-        print("-" * 50)
+        print("-" * 70)
+
+    print("\nWorkflow completed successfully.")
