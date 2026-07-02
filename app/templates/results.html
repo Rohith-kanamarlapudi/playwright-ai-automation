@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Results</title>
+
+    <link rel="stylesheet"
+          href="/static/style.css">
+</head>
+
+<body>
+
+<h1>Results</h1>
+
+{% if error %}
+<p>{{ error }}</p>
+{% endif %}
+
+<h2>File</h2>
+
+<p>{{ filename }}</p>
+
+<h2>Preview</h2>
+
+<pre>{{ preview }}</pre>
+
+<h2>Validation</h2>
+
+{% if validation.valid %}
+<p>VALID YAML</p>
+{% else %}
+<ul>
+{% for error in validation.errors %}
+<li>{{ error }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+<h2>Test Cases</h2>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Priority</th>
+<th>Steps</th>
+<th>Expected Result</th>
+</tr>
+
+{% for tc in test_cases %}
+
+<tr>
+<td>{{ tc.id }}</td>
+<td>{{ tc.title }}</td>
+<td>{{ tc.priority }}</td>
+<td>{{ tc.steps|length }}</td>
+<td>{{ tc.expected_result }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+<h2>Generated YAML</h2>
+
+<pre>{{ yaml_output }}</pre>
+
+<h2>Playwright Preview</h2>
+
+<pre>{{ playwright_output }}</pre>
+
+<!-- ================================================= -->
+<!-- Multi-Agent LangGraph Pipeline Output -->
+<!-- ================================================= -->
+
+{% if agent_code %}
+
+<hr>
+
+<h2>Multi-Agent Pipeline Output</h2>
+
+<!-- Strategy Agent -->
+
+<h3>Strategy Agent - Test Plan</h3>
+
+{% if agent_task_plan %}
+<ul>
+{% for task in agent_task_plan %}
+<li>{{ task }}</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No task plan generated.</p>
+{% endif %}
+
+<!-- Architecture Agent -->
+
+<h3>Architecture Agent</h3>
+
+<pre>{{ agent_architecture }}</pre>
+
+<!-- Code Generation Agent -->
+
+<h3>Generated Playwright Code (Code Generation Agent)</h3>
+
+<pre><code>{{ agent_code }}</code></pre>
+
+<!-- Review Agent -->
+
+<h3>Review Notes</h3>
+
+<pre>{{ agent_review }}</pre>
+
+<!-- Edge Cases Agent -->
+
+<h3>Edge Cases</h3>
+
+{% if agent_edge_cases %}
+<ul>
+{% for edge_case in agent_edge_cases %}
+<li>{{ edge_case }}</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No edge cases generated.</p>
+{% endif %}
+
+{% endif %}
+
+</body>
+
+</html>
