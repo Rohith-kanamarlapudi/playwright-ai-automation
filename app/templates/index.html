@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Test Case Generator</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>🤖 AI Test Case Generator</h1>
+
+        <p>
+            Upload a Design Document (.txt, .md, .pdf)
+            and automatically generate YAML Test Cases
+            with Playwright Validation.
+        </p>
+
+    </div>
+
+    <div class="upload-card">
+
+        <form action="/upload"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input
+                type="file"
+                name="file"
+                required
+            >
+
+            <button type="submit">
+                Generate Test Cases
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
