@@ -14,11 +14,11 @@ def strategy_agent(state: AgentState) -> AgentState:
     try:
         print("[Strategy Agent] Running...")
 
-        selectors = state.get("selectors", {})
+        selectors = state.get("selectors", [])
 
-        buttons = selectors.get("buttons", [])
-        inputs = selectors.get("inputs", [])
-        links = selectors.get("links", [])
+        buttons = [s for s in selectors if s.get("type") == "button"]
+        inputs = [s for s in selectors if s.get("type") == "input"]
+        links = [s for s in selectors if s.get("type") == "link"]
 
         prompt = STRATEGY_PROMPT.format(
             design_doc=state["design_doc"],
@@ -29,17 +29,21 @@ def strategy_agent(state: AgentState) -> AgentState:
 
         response = llm.invoke(prompt)
 
-        text = response.content if hasattr(response, "content") else str(response)
+        text = (
+            response.content
+            if hasattr(response, "content")
+            else str(response)
+        )
 
         task_plan = []
 
         for line in text.splitlines():
+
             line = line.strip()
 
             if not line:
                 continue
 
-            # clean numbering like 1. 2. -
             line = line.lstrip("-•0123456789. ").strip()
 
             if line:
@@ -49,14 +53,17 @@ def strategy_agent(state: AgentState) -> AgentState:
 
         print("\n[Strategy Agent] Generated Test Plan:\n")
 
-        for i, t in enumerate(task_plan, 1):
-            print(f"{i}. {t}")
+        for i, task in enumerate(task_plan, start=1):
+            print(f"{i}. {task}")
 
     except Exception as e:
+
         print("[Strategy Error]", e)
+
         state["task_plan"] = []
 
     finally:
+
         tracker.stop(agents_completed=1)
         tracker.save("reports/per_agent_perf.json")
 
