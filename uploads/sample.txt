@@ -1,0 +1,11 @@
+Library Management System
+Users can:
+- Login
+- Search books
+- Borrow books
+- Return books
+
+Admin can:
+- Add books
+- Delete books
+- Update books
