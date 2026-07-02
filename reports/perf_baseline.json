@@ -53,5 +53,27 @@
     "memory_delta_mb": 4.24,
     "agents_completed": 5,
     "throughput_agents_per_sec": 0.033
+  },
+  {
+    "label": "full_pipeline_run",
+    "timestamp": "2026-07-02T21:48:48.163004",
+    "duration_seconds": 1.338,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 111.03,
+    "memory_end_mb": 114.75,
+    "memory_delta_mb": 3.72,
+    "agents_completed": 5,
+    "throughput_agents_per_sec": 3.737
+  },
+  {
+    "label": "full_pipeline_run",
+    "timestamp": "2026-07-02T21:55:24.805120",
+    "duration_seconds": 1.831,
+    "cpu_percent": 0.0,
+    "memory_start_mb": 121.31,
+    "memory_end_mb": 125.23,
+    "memory_delta_mb": 3.91,
+    "agents_completed": 5,
+    "throughput_agents_per_sec": 2.73
   }
 ]

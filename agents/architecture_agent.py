@@ -13,11 +13,11 @@ def architecture_agent(state: AgentState) -> AgentState:
     try:
         print("[Architecture Agent] Running...")
 
-        selectors = state.get("selectors", {})
+        selectors = state.get("selectors", [])
 
-        buttons = selectors.get("buttons", [])
-        inputs = selectors.get("inputs", [])
-        links = selectors.get("links", [])
+        buttons = [s for s in selectors if s.get("type") == "button"]
+        inputs = [s for s in selectors if s.get("type") == "input"]
+        links = [s for s in selectors if s.get("type") == "link"]
 
         prompt = f"""
 You are a Senior Python Playwright Test Automation Architect.
