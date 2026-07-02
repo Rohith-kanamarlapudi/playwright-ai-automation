@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from langgraph.graph import StateGraph, END
 
+from agents.scraper_adapter import build_selectors_from_crawl
 from agents.state import AgentState
 from agents.strategy_agent import strategy_agent
 from agents.architecture_agent import architecture_agent
@@ -9,8 +12,6 @@ from agents.edge_cases_agent import edge_cases_agent
 
 from scraper.scraper import main as scrape_website
 from performance.engine import PerformanceTracker
-
-from pathlib import Path
 
 
 def build_graph():
@@ -40,11 +41,22 @@ if __name__ == "__main__":
     print("STEP 1: Running Website Scraper")
     print("=" * 70)
 
-    selectors = scrape_website()
+    # ----------------------------------------------------
+    # Run multi-page scraper
+    # ----------------------------------------------------
+    crawl_data = scrape_website()
 
-    if selectors is None:
-        print("[Main] Scraper failed. Using empty selectors.")
-        selectors = {"buttons": [], "inputs": [], "links": []}
+    if crawl_data is None:
+        print("[Main] Scraper failed.")
+        crawl_data = []
+
+    # ----------------------------------------------------
+    # Convert multi-page crawl into flat selector list
+    # ----------------------------------------------------
+    selectors = build_selectors_from_crawl(crawl_data)
+
+    print(f"[Main] Pages crawled : {len(crawl_data)}")
+    print(f"[Main] Selectors found: {len(selectors)}")
 
     print("\n" + "=" * 70)
     print("STEP 2: Starting LangGraph Workflow")
@@ -71,9 +83,9 @@ Requirements:
         "edge_cases": []
     }
 
-    # --------------------------------------------
+    # ----------------------------------------------------
     # Performance Tracking
-    # --------------------------------------------
+    # ----------------------------------------------------
     tracker = PerformanceTracker(label="full_pipeline_run")
     tracker.start()
 
@@ -82,9 +94,9 @@ Requirements:
     metrics = tracker.stop(agents_completed=5)
     tracker.save("reports/perf_baseline.json")
 
-    # --------------------------------------------
+    # ----------------------------------------------------
     # OUTPUT
-    # --------------------------------------------
+    # ----------------------------------------------------
     print("\n" + "=" * 70)
     print("FINAL STATE")
     print("=" * 70)
@@ -96,9 +108,9 @@ Requirements:
 
     print("\nWorkflow completed successfully.")
 
-    # --------------------------------------------
+    # ----------------------------------------------------
     # PERFORMANCE REPORT
-    # --------------------------------------------
+    # ----------------------------------------------------
     print("\n" + "=" * 70)
     print("PERFORMANCE REPORT")
     print("=" * 70)

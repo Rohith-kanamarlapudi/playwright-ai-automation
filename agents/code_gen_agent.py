@@ -16,11 +16,11 @@ def code_gen_agent(state: AgentState) -> AgentState:
     try:
         print("[Code Gen Agent] Running...")
 
-        selectors = state.get("selectors", {})
+        selectors = state.get("selectors", [])
 
-        buttons = selectors.get("buttons", [])
-        inputs = selectors.get("inputs", [])
-        links = selectors.get("links", [])
+        buttons = [s for s in selectors if s.get("type") == "button"]
+        inputs = [s for s in selectors if s.get("type") == "input"]
+        links = [s for s in selectors if s.get("type") == "link"]
 
         prompt = CODE_GEN_PROMPT.format(
             task_plan=state["task_plan"],
@@ -32,26 +32,33 @@ def code_gen_agent(state: AgentState) -> AgentState:
 
         response = llm.invoke(prompt)
 
-        code = response.content if hasattr(response, "content") else str(response)
+        code = (
+            response.content
+            if hasattr(response, "content")
+            else str(response)
+        )
 
         state["generated_code"] = code
 
+        # Create output directory if it doesn't exist
         Path("generated_tests").mkdir(exist_ok=True)
 
-        with open(
-            "generated_tests/test_generated.py",
-            "w",
-            encoding="utf-8"
-        ) as f:
-            f.write(code)
+        # Save generated Playwright test
+        output_path = Path("generated_tests") / "generated_test.py"
 
-        print("[Code Gen Agent] Code generated successfully.")
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(state["generated_code"])
+
+        print(f"[Code Gen Agent] Script saved to {output_path}")
 
     except Exception as e:
+
         print("[Code Gen Error]", e)
+
         state["generated_code"] = ""
 
     finally:
+
         tracker.stop(agents_completed=1)
         tracker.save("reports/per_agent_perf.json")
 
