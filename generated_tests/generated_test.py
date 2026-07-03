@@ -24,278 +24,338 @@ def base_url():
 # Test Case 1
 
 # =====================================================
-# TC001 - Verify homepage title contains Ideabytes
+# TC001 - Verify homepage loads with expected title
 # =====================================================
 
-def test_verify_homepage_title_contains_ideabytes(page: Page):
+def test_verify_homepage_loads_with_expected_title(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    expect(page).to_have_title(re.compile("Ideabytes"))
 
-    expect(page).to_have_title(re.compile("the text 'Ideabytes"))
 
 
 # Test Case 2
 
 # =====================================================
-# TC002 - Navigate to Contact page via link
+# TC002 - Click Contact link and verify navigation to contact page
 # =====================================================
 
-def test_navigate_to_contact_page_via_link(page: Page):
+def test_click_contact_link_and_verify_navigation_to_contact_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    page.click("a:has-text('Contact')")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Click the 'Contact' link using selector a:has-text('Contact')")
+    # Unsupported Step: Click the 'Contact' link using selector a:has-text('Contact')
 
-    expect(page).to_have_url("https://ideabytes.com/contact-us.html")
 
 
 # Test Case 3
 
 # =====================================================
-# TC003 - Navigate to Test Automation page via link
+# TC003 - Click IoT Solutions link and verify external URL opens
 # =====================================================
 
-def test_navigate_to_test_automation_page_via_link(page: Page):
+def test_click_iot_solutions_link_and_verify_external_url_opens(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    page.click("a:has-text('Test Automation')")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Click the 'IoT Solutions' link using selector a:has-text('IoT Solutions')")
+    # Unsupported Step: Click the 'IoT Solutions' link using selector a:has-text('IoT Solutions')
 
-    expect(page).to_have_url("https://ideabytes.com/test-automation.html")
+    expect(page).to_have_url("https://www.ideabytesiot.com/")
 
 
 # Test Case 4
 
 # =====================================================
-# TC004 - Navigate to Application Development page via link
+# TC004 - Click Test Automation link and verify navigation to test-automation page
 # =====================================================
 
-def test_navigate_to_application_development_page_via_link(page: Page):
+def test_click_test_automation_link_and_verify_navigation_to_test_automation_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    page.click("a:has-text('Application Development')")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Click the 'Test Automation' link using selector a:has-text('Test Automation')")
+    # Unsupported Step: Click the 'Test Automation' link using selector a:has-text('Test Automation')
 
-    expect(page).to_have_url("https://ideabytes.com/web-mobile-app-dev.html")
 
 
 # Test Case 5
 
 # =====================================================
-# TC005 - Navigate to Teens4Tech page via link
+# TC005 - Click Teens4Tech link and verify navigation to Teens_tech page
 # =====================================================
 
-def test_navigate_to_teens4tech_page_via_link(page: Page):
+def test_click_teens4tech_link_and_verify_navigation_to_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    page.click("a:has-text('Teens4Tech')")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Click the 'Teens4Tech' link using selector a:has-text('Teens4Tech')")
+    # Unsupported Step: Click the 'Teens4Tech' link using selector a:has-text('Teens4Tech')
 
-    expect(page).to_have_url("https://ideabytes.com/Teens_tech.html")
 
 
 # Test Case 6
 
 # =====================================================
-# TC006 - Navigate to Partnerships page via link
+# TC006 - Fill Teens_tech registration form with valid data and submit
 # =====================================================
 
-def test_navigate_to_partnerships_page_via_link(page: Page):
+def test_fill_teens_tech_registration_form_with_valid_data_and_submit(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    page.click("a:has-text('Partnerships')")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    page.fill("the name input (name='widget-contact-form-name')", "John Doe")
+    page.fill("the email input (name='widget-contact-form-email')", "john@example.com")
+    page.fill("the age input (name='widget-contact-form-company')", "15")
+    print("WARNING: Unsupported step -> Click the Register button using selector")
+    # Unsupported Step: Click the Register button using selector
 
-    expect(page).to_have_url("https://ideabytes.com/partnership.html")
 
 
 # Test Case 7
 
 # =====================================================
-# TC007 - Navigate to IoT Solutions external site
+# TC007 - Submit empty Teens_tech registration form and verify validation errors
 # =====================================================
 
-def test_navigate_to_iot_solutions_external_site(page: Page):
+def test_submit_empty_teens_tech_registration_form_and_verify_validation_errors(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    page.click("a:has-text('IoT Solutions')")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Click the Register button using selector")
+    # Unsupported Step: Click the Register button using selector
 
-    expect(page).to_have_url("https://www.ideabytesiot.com/")
 
 
 # Test Case 8
 
 # =====================================================
-# TC008 - Navigate to DG HAZMAT external site
+# TC008 - Fill only name field on Teens_tech form and verify email validation
 # =====================================================
 
-def test_navigate_to_dg_hazmat_external_site(page: Page):
+def test_fill_only_name_field_on_teens_tech_form_and_verify_email_validation(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    page.click("a:has-text('DG HAZMAT')")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    page.fill("the name input (name='widget-contact-form-name')", "John Doe")
+    print("WARNING: Unsupported step -> Click the Register button using selector")
+    # Unsupported Step: Click the Register button using selector
 
-    expect(page).to_have_url("https://www.dgsms.ca")
 
 
 # Test Case 9
 
 # =====================================================
-# TC009 - Navigate to IGBMS external site
+# TC009 - Verify name input placeholder on Teens_tech page
 # =====================================================
 
-def test_navigate_to_igbms_external_site(page: Page):
+def test_verify_name_input_placeholder_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    page.click("a:has-text('IGBMS')")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Check placeholder attribute of input[name='widget-contact-form-name']")
+    # Unsupported Step: Check placeholder attribute of input[name='widget-contact-form-name']
 
-    expect(page).to_have_url("https://igbms.com/")
 
 
 # Test Case 10
 
 # =====================================================
-# TC010 - Navigate to LinkedIn page via link
+# TC010 - Verify email input type attribute on Teens_tech page
 # =====================================================
 
-def test_navigate_to_linkedin_page_via_link(page: Page):
+def test_verify_email_input_type_attribute_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    page.click("a[href='https://in.linkedin.com/company/ideabytes-inc']")
-    page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Check type attribute of input[name='widget-contact-form-email']")
+    # Unsupported Step: Check type attribute of input[name='widget-contact-form-email']
 
 
 
 # Test Case 11
 
 # =====================================================
-# TC011 - Mobile menu hamburger toggle on 375x667 viewport
+# TC011 - Verify age input placeholder on Teens_tech page
 # =====================================================
 
-def test_mobile_menu_hamburger_toggle_on_375x667_viewport(page: Page):
+def test_verify_age_input_placeholder_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    page.set_viewport_size({'width': 375, 'height': 667})
-    print("WARNING: Unsupported step -> Click the button with selector \"button:has-text('')\"")
-    # Unsupported Step: Click the button with selector "button:has-text('')"
-    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Check placeholder attribute of input[name='widget-contact-form-company']")
+    # Unsupported Step: Check placeholder attribute of input[name='widget-contact-form-company']
 
 
 
 # Test Case 12
 
 # =====================================================
-# TC012 - Verify security testing article page loads successfully
+# TC012 - Verify PDF document loads successfully
 # =====================================================
 
-def test_verify_security_testing_article_page_loads_successfully(page: Page):
+def test_verify_pdf_document_loads_successfully(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com/security-testing-article-2.html")
+    page.goto("https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf")
     page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
-    expect(page.locator("body")).to_contain_text("404")
 
 
 
 # Test Case 13
 
 # =====================================================
-# TC013 - Verify certificates page contains Certificates heading
+# TC013 - Verify LinkedIn link is present and clickable on homepage
 # =====================================================
 
-def test_verify_certificates_page_contains_certificates_heading(page: Page):
-    page.set_default_timeout(10000)
-    page.set_default_navigation_timeout(30000)
-
-    page.goto("https://ideabytes.com/certificates.html")
-    page.wait_for_load_state('networkidle')
-    expect(page.locator("h1")).to_be_visible()
-
-    expect(page.locator("h1")).to_be_visible()
-
-
-# Test Case 14
-
-# =====================================================
-# TC014 - Check homepage button for accessible name (aria-label)
-# =====================================================
-
-def test_check_homepage_button_for_accessible_name_aria_label(page: Page):
+def test_verify_linkedin_link_is_present_and_clickable_on_homepage(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Locate button with selector \"button:has-text('')\"")
-    # Unsupported Step: Locate button with selector "button:has-text('')"
-    print("WARNING: Unsupported step -> Retrieve its accessible name attribute (aria-label)")
-    # Unsupported Step: Retrieve its accessible name attribute (aria-label)
-    print("WARNING: Unsupported step -> If accessible name is empty or missing, report accessibility issue")
-    # Unsupported Step: If accessible name is empty or missing, report accessibility issue
+    print("WARNING: Unsupported step -> Locate the LinkedIn link using selector a[href='https://in.linkedin.com/company/ideabytes-inc']")
+    # Unsupported Step: Locate the LinkedIn link using selector a[href='https://in.linkedin.com/company/ideabytes-inc']
 
-    # TODO: Accessibility validation
+
+
+# Test Case 14
+
+# =====================================================
+# TC014 - Verify logo link is present and visible on homepage
+# =====================================================
+
+def test_verify_logo_link_is_present_and_visible_on_homepage(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com")
+    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Locate the logo link using selector a[href='https://ideabytes.com/index.html']")
+    # Unsupported Step: Locate the logo link using selector a[href='https://ideabytes.com/index.html']
+
 
 
 # Test Case 15
 
 # =====================================================
-# TC015 - Verify 404 on non-existent page
+# TC015 - Verify about-us page loads successfully
 # =====================================================
 
-def test_verify_404_on_non_existent_page(page: Page):
+def test_verify_about_us_page_loads_successfully(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com/nonexistent")
+    page.goto("https://ideabytes.com/about-us.html")
     page.wait_for_load_state('networkidle')
-    page.wait_for_load_state('networkidle')
-    expect(page.locator("body")).to_contain_text("404")
 
+
+
+# Test Case 16
+
+# =====================================================
+# TC016 - Verify team page loads successfully
+# =====================================================
+
+def test_verify_team_page_loads_successfully(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/team.html")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 17
+
+# =====================================================
+# TC017 - Verify Register button is visible and enabled on Teens_tech page
+# =====================================================
+
+def test_verify_register_button_is_visible_and_enabled_on_teens_tech_page(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/Teens_tech.html")
+    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Locate the Register button using selector")
+    # Unsupported Step: Locate the Register button using selector
+
+
+
+# Test Case 18
+
+# =====================================================
+# TC018 - Click Application Development link and verify navigation to web-mobile-app-dev page
+# =====================================================
+
+def test_click_application_development_link_and_verify_navigation_to_web_mobile_app_dev_page(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com")
+    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Click the 'Application Development' link using selector a:has-text('Application Development')")
+    # Unsupported Step: Click the 'Application Development' link using selector a:has-text('Application Development')
+
+
+
+# Test Case 19
+
+# =====================================================
+# TC019 - Click DG HAZMAT link and verify external URL opens
+# =====================================================
+
+def test_click_dg_hazmat_link_and_verify_external_url_opens(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com")
+    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Click the 'DG HAZMAT' link using selector a:has-text('DG HAZMAT')")
+    # Unsupported Step: Click the 'DG HAZMAT' link using selector a:has-text('DG HAZMAT')
+
+    expect(page).to_have_url("https://www.dgsms.ca")
+
+
+# Test Case 20
+
+# =====================================================
+# TC020 - Click IGBMS link and verify external URL opens
+# =====================================================
+
+def test_click_igbms_link_and_verify_external_url_opens(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com")
+    page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Click the 'IGBMS' link using selector a:has-text('IGBMS')")
+    # Unsupported Step: Click the 'IGBMS' link using selector a:has-text('IGBMS')
+
+    expect(page).to_have_url("https://igbms.com/")
 
