@@ -2,23 +2,57 @@ from typing import TypedDict, List, Dict, Any
 
 
 class AgentState(TypedDict):
-    # Input document (design/requirements)
+    """
+    Shared state passed between all LangGraph agents.
+    """
+
+    # -------------------------------------------------
+    # Input
+    # -------------------------------------------------
+
+    # Design document / requirements
     design_doc: str
 
-    # Elements scraped from the website
+    # Website elements collected by the scraper
     selectors: List[Dict[str, Any]]
 
-    # Planning agent output
+    # -------------------------------------------------
+    # Strategy Agent
+    # -------------------------------------------------
+
+    # Generated task plan
     task_plan: List[str]
 
-    # Architecture agent output
+    # -------------------------------------------------
+    # Architecture Agent
+    # -------------------------------------------------
+
+    # Framework architecture
     architecture_notes: str
 
-    # Code generation agent output
+    # -------------------------------------------------
+    # Code Generation Agent
+    # -------------------------------------------------
+
+    # YAML generated from the task plan
+    generated_yaml: str
+
+    # YAML validation result
+    yaml_validation: Dict[str, Any]
+
+    # Final generated Playwright code
     generated_code: str
 
-    # Code review agent output
+    # -------------------------------------------------
+    # Review Agent
+    # -------------------------------------------------
+
+    # Review comments
     review_notes: str
 
-    # Edge case analysis
+    # -------------------------------------------------
+    # Edge Cases Agent
+    # -------------------------------------------------
+
+    # Generated edge cases
     edge_cases: List[str]

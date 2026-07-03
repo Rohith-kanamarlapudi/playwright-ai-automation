@@ -12,12 +12,17 @@ def run_agent_pipeline(
 ) -> dict:
     """
     Unified entry point for the LangGraph agent pipeline.
-    Can be called from FastAPI, CLI, or other scripts.
+
+    Can be called from:
+    - FastAPI
+    - CLI
+    - main.py
     """
 
     # --------------------------------------------------
-    # Scrape website if URL is provided
+    # Run scraper if URL is provided
     # --------------------------------------------------
+
     if selectors is None and target_url:
 
         print(f"[Pipeline] Scraping {target_url}...")
@@ -39,25 +44,83 @@ def run_agent_pipeline(
     # --------------------------------------------------
     # Build LangGraph
     # --------------------------------------------------
+
     app = build_graph()
 
+    # --------------------------------------------------
+    # Initial State
+    # --------------------------------------------------
+
     initial_state: AgentState = {
+
+        # Input
         "design_doc": design_doc,
         "selectors": selectors,
+
+        # Strategy Agent
         "task_plan": [],
+
+        # Architecture Agent
         "architecture_notes": "",
+
+        # Code Generation Agent
+        "generated_yaml": "",
+        "yaml_validation": {},
         "generated_code": "",
+
+        # Review Agent
         "review_notes": "",
+
+        # Edge Cases Agent
         "edge_cases": []
     }
 
+    # --------------------------------------------------
+    # Execute LangGraph
+    # --------------------------------------------------
+
     result = app.invoke(initial_state)
 
+    # --------------------------------------------------
+    # Return useful outputs
+    # --------------------------------------------------
+
     return {
+
         "task_plan": result.get("task_plan", []),
-        "architecture_notes": result.get("architecture_notes", ""),
-        "generated_code": result.get("generated_code", ""),
-        "review_notes": result.get("review_notes", ""),
-        "edge_cases": result.get("edge_cases", []),
-        "selectors": result.get("selectors", [])
+
+        "architecture_notes": result.get(
+            "architecture_notes",
+            ""
+        ),
+
+        "generated_yaml": result.get(
+            "generated_yaml",
+            ""
+        ),
+
+        "yaml_validation": result.get(
+            "yaml_validation",
+            {}
+        ),
+
+        "generated_code": result.get(
+            "generated_code",
+            ""
+        ),
+
+        "review_notes": result.get(
+            "review_notes",
+            ""
+        ),
+
+        "edge_cases": result.get(
+            "edge_cases",
+            []
+        ),
+
+        "selectors": result.get(
+            "selectors",
+            []
+        )
     }
