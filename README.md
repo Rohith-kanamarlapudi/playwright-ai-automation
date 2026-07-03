@@ -191,7 +191,7 @@ After a run, check the `reports/` directory for:
 Built during an **AI Agents Developer Internship at Ideabytes** by:
 
 - **Rohith Kanamarlapudi** — [@Rohith-kanamarlapudi](https://github.com/Rohith-kanamarlapudi) — LangGraph multi-agent pipeline, agent design, performance engine
-- **Harshith** — Scraper, FastAPI application, YAML tooling
+- **Harshith kanamarlapudi** — Scraper, FastAPI application, YAML tooling
 
 ---
 
