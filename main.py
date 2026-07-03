@@ -24,6 +24,7 @@ def build_graph():
     graph.add_node("edge_cases", edge_cases_agent)
 
     graph.set_entry_point("strategy")
+
     graph.add_edge("strategy", "architecture")
     graph.add_edge("architecture", "code_gen")
     graph.add_edge("code_gen", "review")
@@ -64,6 +65,9 @@ if __name__ == "__main__":
 
     app = build_graph()
 
+    # ----------------------------------------------------
+    # Initial LangGraph State
+    # ----------------------------------------------------
     initial_state: AgentState = {
         "design_doc": """
 Generate Playwright automation tests for the website.
@@ -75,11 +79,25 @@ Requirements:
 - Validation
 - Responsive UI
 """,
+
+        # Scraper Output
         "selectors": selectors,
+
+        # Strategy Agent
         "task_plan": [],
+
+        # Architecture Agent
         "architecture_notes": "",
+
+        # Code Generation Agent
+        "generated_yaml": "",
+        "yaml_validation": {},
         "generated_code": "",
+
+        # Review Agent
         "review_notes": "",
+
+        # Edge Cases Agent
         "edge_cases": []
     }
 
@@ -92,6 +110,7 @@ Requirements:
     result = app.invoke(initial_state)
 
     metrics = tracker.stop(agents_completed=5)
+
     tracker.save("reports/perf_baseline.json")
 
     # ----------------------------------------------------
