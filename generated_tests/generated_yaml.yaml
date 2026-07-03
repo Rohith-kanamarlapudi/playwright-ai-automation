@@ -1,0 +1,135 @@
+test_cases:
+  - id: TC001
+    title: Verify homepage title contains Ideabytes
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Check page title contains 'Ideabytes'
+    expected_result: Page title contains the text 'Ideabytes'
+
+  - id: TC002
+    title: Navigate to Contact page via link
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a:has-text('Contact')"
+      - Wait for URL to become 'https://ideabytes.com/contact-us.html'
+    expected_result: Current URL is https://ideabytes.com/contact-us.html
+
+  - id: TC003
+    title: Navigate to Test Automation page via link
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a:has-text('Test Automation')"
+      - Wait for URL to become 'https://ideabytes.com/test-automation.html'
+    expected_result: Current URL is https://ideabytes.com/test-automation.html
+
+  - id: TC004
+    title: Navigate to Application Development page via link
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a:has-text('Application Development')"
+      - Wait for URL to become 'https://ideabytes.com/web-mobile-app-dev.html'
+    expected_result: Current URL is https://ideabytes.com/web-mobile-app-dev.html
+
+  - id: TC005
+    title: Navigate to Teens4Tech page via link
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a:has-text('Teens4Tech')"
+      - Wait for URL to become 'https://ideabytes.com/Teens_tech.html'
+    expected_result: Current URL is https://ideabytes.com/Teens_tech.html
+
+  - id: TC006
+    title: Navigate to Partnerships page via link
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a:has-text('Partnerships')"
+      - Wait for URL to become 'https://ideabytes.com/partnership.html'
+    expected_result: Current URL is https://ideabytes.com/partnership.html
+
+  - id: TC007
+    title: Navigate to IoT Solutions external site
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a:has-text('IoT Solutions')"
+      - Wait for new tab or URL change to include 'ideabytesiot.com'
+    expected_result: Either a new tab opens with URL https://www.ideabytesiot.com/ or current URL becomes that
+
+  - id: TC008
+    title: Navigate to DG HAZMAT external site
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a:has-text('DG HAZMAT')"
+      - Wait for new tab or URL change to include 'dgsms.ca'
+    expected_result: Either a new tab opens with URL https://www.dgsms.ca or current URL becomes that
+
+  - id: TC009
+    title: Navigate to IGBMS external site
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a:has-text('IGBMS')"
+      - Wait for new tab or URL change to include 'igbms.com'
+    expected_result: Either a new tab opens with URL https://igbms.com/ or current URL becomes that
+
+  - id: TC010
+    title: Navigate to LinkedIn page via link
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com
+      - Click link with selector "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+      - Wait for new tab or URL change to include 'linkedin.com'
+    expected_result: Either a new tab opens with LinkedIn URL or current URL changes to LinkedIn
+
+  - id: TC011
+    title: Mobile menu hamburger toggle on 375x667 viewport
+    priority: Medium
+    steps:
+      - Open URL https://ideabytes.com
+      - Resize viewport to 375x667 pixels
+      - Click the button with selector "button:has-text('')"
+      - Wait for navigation links such as 'Contact' and 'Test Automation' to become visible
+    expected_result: The navigation links (e.g., 'Contact', 'Test Automation') are visible after clicking the button
+
+  - id: TC012
+    title: Verify security testing article page loads successfully
+    priority: High
+    steps:
+      - Open URL https://ideabytes.com/security-testing-article-2.html
+      - Wait for page to load completely
+      - Check that HTTP status is not 404
+    expected_result: Page loads without a 404 error; status code is 200
+
+  - id: TC013
+    title: Verify certificates page contains Certificates heading
+    priority: Medium
+    steps:
+      - Open URL https://ideabytes.com/certificates.html
+      - Check that page contains heading 'Certificates' or similar equivalent
+    expected_result: The page contains a heading with text 'Certificates' or equivalent element
+
+  - id: TC014
+    title: Check homepage button for accessible name (aria-label)
+    priority: Low
+    steps:
+      - Open URL https://ideabytes.com
+      - Locate button with selector "button:has-text('')"
+      - Retrieve its accessible name attribute (aria-label)
+      - If accessible name is empty or missing, report accessibility issue
+    expected_result: The button has a non-empty accessible name (aria-label) for screen readers, or an issue is reported
+
+  - id: TC015
+    title: Verify 404 on non-existent page
+    priority: Medium
+    steps:
+      - Open URL https://ideabytes.com/nonexistent
+      - Wait for page response
+      - Check that HTTP status is 404 or page displays an error message indicating not found
+    expected_result: Page returns 404 status code or shows an error message for non-existent page

@@ -1,3 +1,5 @@
+import json
+
 from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
@@ -12,19 +14,31 @@ def strategy_agent(state: AgentState) -> AgentState:
     tracker.start()
 
     try:
+
         print("[Strategy Agent] Running...")
 
         selectors = state.get("selectors", [])
 
-        buttons = [s for s in selectors if s.get("type") == "button"]
-        inputs = [s for s in selectors if s.get("type") == "input"]
-        links = [s for s in selectors if s.get("type") == "link"]
+        buttons = [
+            s for s in selectors
+            if s.get("type") == "button"
+        ]
+
+        inputs = [
+            s for s in selectors
+            if s.get("type") == "input"
+        ]
+
+        links = [
+            s for s in selectors
+            if s.get("type") == "link"
+        ]
 
         prompt = STRATEGY_PROMPT.format(
             design_doc=state["design_doc"],
-            buttons=buttons,
-            inputs=inputs,
-            links=links
+            buttons=buttons[:10],
+            inputs=inputs[:10],
+            links=links[:10]
         )
 
         response = llm.invoke(prompt)
@@ -33,25 +47,49 @@ def strategy_agent(state: AgentState) -> AgentState:
             response.content
             if hasattr(response, "content")
             else str(response)
-        )
+        ).strip()
 
-        task_plan = []
+        # ---------------------------------------
+        # Parse JSON returned by the LLM
+        # ---------------------------------------
 
-        for line in text.splitlines():
+        try:
 
-            line = line.strip()
+            task_plan = json.loads(text)
 
-            if not line:
-                continue
+            if not isinstance(task_plan, list):
+                raise ValueError("Expected a JSON list.")
 
-            line = line.lstrip("-•0123456789. ").strip()
+            task_plan = [
+                str(task).strip()
+                for task in task_plan
+                if str(task).strip()
+            ]
 
-            if line:
-                task_plan.append(line)
+        except Exception:
+
+            print(
+                "[Strategy Agent] JSON parsing failed. "
+                "Falling back to line parsing."
+            )
+
+            task_plan = []
+
+            for line in text.splitlines():
+
+                line = line.strip()
+
+                if not line:
+                    continue
+
+                line = line.lstrip("-•0123456789. ").strip()
+
+                if line:
+                    task_plan.append(line)
 
         state["task_plan"] = task_plan
 
-        print("\n[Strategy Agent] Generated Test Plan:\n")
+        print("\n[Strategy Agent] Generated Task Plan:\n")
 
         for i, task in enumerate(task_plan, start=1):
             print(f"{i}. {task}")
