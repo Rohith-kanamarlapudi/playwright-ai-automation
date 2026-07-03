@@ -1,0 +1,4 @@
+- Click the button with selector "button:has-text('')"
+- Locate button with selector "button:has-text('')"
+- Retrieve its accessible name attribute (aria-label)
+- If accessible name is empty or missing, report accessibility issue
