@@ -1,4 +1,16 @@
-- Click the button with selector "button:has-text('')"
-- Locate button with selector "button:has-text('')"
-- Retrieve its accessible name attribute (aria-label)
-- If accessible name is empty or missing, report accessibility issue
+- Click the 'Contact' link using selector a:has-text('Contact')
+- Click the 'IoT Solutions' link using selector a:has-text('IoT Solutions')
+- Click the 'Test Automation' link using selector a:has-text('Test Automation')
+- Click the 'Teens4Tech' link using selector a:has-text('Teens4Tech')
+- Click the Register button using selector
+- Click the Register button using selector
+- Click the Register button using selector
+- Check placeholder attribute of input[name='widget-contact-form-name']
+- Check type attribute of input[name='widget-contact-form-email']
+- Check placeholder attribute of input[name='widget-contact-form-company']
+- Locate the LinkedIn link using selector a[href='https://in.linkedin.com/company/ideabytes-inc']
+- Locate the logo link using selector a[href='https://ideabytes.com/index.html']
+- Locate the Register button using selector
+- Click the 'Application Development' link using selector a:has-text('Application Development')
+- Click the 'DG HAZMAT' link using selector a:has-text('DG HAZMAT')
+- Click the 'IGBMS' link using selector a:has-text('IGBMS')

@@ -1,7 +1,7 @@
 [
   {
     "url": "https://ideabytes.com",
-    "scraped_at": "2026-07-03 12:37:34",
+    "scraped_at": "2026-07-03 14:32:11",
     "total_elements": 28,
     "buttons": [
       {
@@ -207,405 +207,16 @@
     ]
   },
   {
-    "url": "https://ideabytes.com/security-testing-article-2.html",
-    "scraped_at": "2026-07-03 12:37:34",
-    "total_elements": 17,
-    "buttons": [
-      {
-        "text": "",
-        "type": "button",
-        "id": "",
-        "class": "lines-button x",
-        "name": "",
-        "selector": "button:has-text('')"
-      }
-    ],
+    "url": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
+    "scraped_at": "2026-07-03 14:32:16",
+    "total_elements": 0,
+    "buttons": [],
     "inputs": [],
-    "links": [
-      {
-        "text": "",
-        "href": "https://in.linkedin.com/company/ideabytes-inc",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
-      },
-      {
-        "text": "Contact",
-        "href": "https://ideabytes.com/contact-us.html",
-        "id": "",
-        "class": "btn btn-md btn-rounded btn-outline",
-        "selector": "a:has-text('Contact')"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/index.html",
-        "id": "",
-        "class": "logo",
-        "selector": "a[href='https://ideabytes.com/index.html']"
-      },
-      {
-        "text": "IoT Solutions",
-        "href": "https://www.ideabytesiot.com/",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('IoT Solutions')"
-      },
-      {
-        "text": "DG HAZMAT",
-        "href": "https://www.dgsms.ca",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('DG HAZMAT')"
-      },
-      {
-        "text": "IGBMS",
-        "href": "https://igbms.com/",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('IGBMS')"
-      },
-      {
-        "text": "Test Automation",
-        "href": "https://ideabytes.com/test-automation.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Test Automation')"
-      },
-      {
-        "text": "Application Development",
-        "href": "https://ideabytes.com/web-mobile-app-dev.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Application Development')"
-      },
-      {
-        "text": "Teens4Tech",
-        "href": "https://ideabytes.com/Teens_tech.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Teens4Tech')"
-      },
-      {
-        "text": "Partnerships",
-        "href": "https://ideabytes.com/partnership.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Partnerships')"
-      },
-      {
-        "text": "About Us",
-        "href": "https://ideabytes.com/about-us.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('About Us')"
-      },
-      {
-        "text": "Certificates",
-        "href": "https://ideabytes.com/certificates.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Certificates')"
-      },
-      {
-        "text": "Team",
-        "href": "https://ideabytes.com/team.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Team')"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
-      }
-    ]
-  },
-  {
-    "url": "https://ideabytes.com/test_automation_article5.html",
-    "scraped_at": "2026-07-03 12:37:35",
-    "total_elements": 18,
-    "buttons": [
-      {
-        "text": "",
-        "type": "button",
-        "id": "",
-        "class": "lines-button x",
-        "name": "",
-        "selector": "button:has-text('')"
-      }
-    ],
-    "inputs": [],
-    "links": [
-      {
-        "text": "",
-        "href": "https://in.linkedin.com/company/ideabytes-inc",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
-      },
-      {
-        "text": "Contact",
-        "href": "https://ideabytes.com/contact-us.html",
-        "id": "",
-        "class": "btn btn-md btn-rounded btn-outline",
-        "selector": "a:has-text('Contact')"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/index.html",
-        "id": "",
-        "class": "logo",
-        "selector": "a[href='https://ideabytes.com/index.html']"
-      },
-      {
-        "text": "IoT Solutions",
-        "href": "https://www.ideabytesiot.com/",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('IoT Solutions')"
-      },
-      {
-        "text": "DG HAZMAT",
-        "href": "https://www.dgsms.ca",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('DG HAZMAT')"
-      },
-      {
-        "text": "IGBMS",
-        "href": "https://igbms.com/",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('IGBMS')"
-      },
-      {
-        "text": "Test Automation",
-        "href": "https://ideabytes.com/test-automation.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Test Automation')"
-      },
-      {
-        "text": "Application Development",
-        "href": "https://ideabytes.com/web-mobile-app-dev.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Application Development')"
-      },
-      {
-        "text": "Teens4Tech",
-        "href": "https://ideabytes.com/Teens_tech.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Teens4Tech')"
-      },
-      {
-        "text": "Partnerships",
-        "href": "https://ideabytes.com/partnership.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Partnerships')"
-      },
-      {
-        "text": "About Us",
-        "href": "https://ideabytes.com/about-us.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('About Us')"
-      },
-      {
-        "text": "Certificates",
-        "href": "https://ideabytes.com/certificates.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Certificates')"
-      },
-      {
-        "text": "Team",
-        "href": "https://ideabytes.com/team.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Team')"
-      },
-      {
-        "text": "AiTestproâ¢",
-        "href": "https://www.ideabytes.com/AiTestPro.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('AiTestproâ¢')"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
-      }
-    ]
-  },
-  {
-    "url": "https://ideabytes.com/certificates.html",
-    "scraped_at": "2026-07-03 12:37:35",
-    "total_elements": 17,
-    "buttons": [
-      {
-        "text": "",
-        "type": "button",
-        "id": "",
-        "class": "lines-button x",
-        "name": "",
-        "selector": "button:has-text('')"
-      }
-    ],
-    "inputs": [],
-    "links": [
-      {
-        "text": "",
-        "href": "https://in.linkedin.com/company/ideabytes-inc",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
-      },
-      {
-        "text": "Contact",
-        "href": "https://ideabytes.com/contact-us.html",
-        "id": "",
-        "class": "btn btn-md btn-rounded btn-outline",
-        "selector": "a:has-text('Contact')"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/index.html",
-        "id": "",
-        "class": "logo",
-        "selector": "a[href='https://ideabytes.com/index.html']"
-      },
-      {
-        "text": "IoT Solutions",
-        "href": "https://www.ideabytesiot.com/",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('IoT Solutions')"
-      },
-      {
-        "text": "DG HAZMAT",
-        "href": "https://www.dgsms.ca",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('DG HAZMAT')"
-      },
-      {
-        "text": "IGBMS",
-        "href": "https://igbms.com/",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('IGBMS')"
-      },
-      {
-        "text": "Test Automation",
-        "href": "https://ideabytes.com/test-automation.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Test Automation')"
-      },
-      {
-        "text": "Application Development",
-        "href": "https://ideabytes.com/web-mobile-app-dev.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Application Development')"
-      },
-      {
-        "text": "Teens4Tech",
-        "href": "https://ideabytes.com/Teens_tech.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Teens4Tech')"
-      },
-      {
-        "text": "Partnerships",
-        "href": "https://ideabytes.com/partnership.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Partnerships')"
-      },
-      {
-        "text": "About Us",
-        "href": "https://ideabytes.com/about-us.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('About Us')"
-      },
-      {
-        "text": "Certificates",
-        "href": "https://ideabytes.com/certificates.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Certificates')"
-      },
-      {
-        "text": "Team",
-        "href": "https://ideabytes.com/team.html",
-        "id": "",
-        "class": "",
-        "selector": "a:has-text('Team')"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
-      },
-      {
-        "text": "",
-        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
-        "id": "",
-        "class": "",
-        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
-      }
-    ]
+    "links": []
   },
   {
     "url": "https://ideabytes.com/test_automation_article4.html",
-    "scraped_at": "2026-07-03 12:37:35",
+    "scraped_at": "2026-07-03 14:32:17",
     "total_elements": 17,
     "buttons": [
       {
@@ -734,8 +345,324 @@
     ]
   },
   {
-    "url": "https://ideabytes.com/test_automation_article2.html",
-    "scraped_at": "2026-07-03 12:37:36",
+    "url": "https://ideabytes.com/web-mobile-app-dev.html",
+    "scraped_at": "2026-07-03 14:32:18",
+    "total_elements": 20,
+    "buttons": [
+      {
+        "text": "",
+        "type": "button",
+        "id": "",
+        "class": "lines-button x",
+        "name": "",
+        "selector": "button:has-text('')"
+      }
+    ],
+    "inputs": [],
+    "links": [
+      {
+        "text": "",
+        "href": "https://in.linkedin.com/company/ideabytes-inc",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+      },
+      {
+        "text": "Contact",
+        "href": "https://ideabytes.com/contact-us.html",
+        "id": "",
+        "class": "btn btn-md btn-rounded btn-outline",
+        "selector": "a:has-text('Contact')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/index.html",
+        "id": "",
+        "class": "logo",
+        "selector": "a[href='https://ideabytes.com/index.html']"
+      },
+      {
+        "text": "IoT Solutions",
+        "href": "https://www.ideabytesiot.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IoT Solutions')"
+      },
+      {
+        "text": "DG HAZMAT",
+        "href": "https://www.dgsms.ca",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('DG HAZMAT')"
+      },
+      {
+        "text": "IGBMS",
+        "href": "https://igbms.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IGBMS')"
+      },
+      {
+        "text": "Test Automation",
+        "href": "https://ideabytes.com/test-automation.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Test Automation')"
+      },
+      {
+        "text": "Application Development",
+        "href": "https://ideabytes.com/web-mobile-app-dev.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Application Development')"
+      },
+      {
+        "text": "Teens4Tech",
+        "href": "https://ideabytes.com/Teens_tech.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Teens4Tech')"
+      },
+      {
+        "text": "Partnerships",
+        "href": "https://ideabytes.com/partnership.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Partnerships')"
+      },
+      {
+        "text": "About Us",
+        "href": "https://ideabytes.com/about-us.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('About Us')"
+      },
+      {
+        "text": "Certificates",
+        "href": "https://ideabytes.com/certificates.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Certificates')"
+      },
+      {
+        "text": "Team",
+        "href": "https://ideabytes.com/team.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Team')"
+      },
+      {
+        "text": "IdeabytesIoTÂ®",
+        "href": "https://www.ideabytesiot.com",
+        "id": "",
+        "class": "cases_text1",
+        "selector": "a:has-text('IdeabytesIoTÂ®')"
+      },
+      {
+        "text": "DGTrakâ¢",
+        "href": "https://dgtrak.com",
+        "id": "",
+        "class": "cases_text1",
+        "selector": "a:has-text('DGTrakâ¢')"
+      },
+      {
+        "text": "Discover More",
+        "href": "https://ideabytes.com/web-mobile-app-dev-art2.html",
+        "id": "",
+        "class": "blog_link",
+        "selector": "a:has-text('Discover More')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
+      }
+    ]
+  },
+  {
+    "url": "https://ideabytes.com/team.html",
+    "scraped_at": "2026-07-03 14:32:19",
+    "total_elements": 22,
+    "buttons": [
+      {
+        "text": "",
+        "type": "button",
+        "id": "",
+        "class": "lines-button x",
+        "name": "",
+        "selector": "button:has-text('')"
+      }
+    ],
+    "inputs": [],
+    "links": [
+      {
+        "text": "",
+        "href": "https://in.linkedin.com/company/ideabytes-inc",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+      },
+      {
+        "text": "Contact",
+        "href": "https://ideabytes.com/contact-us.html",
+        "id": "",
+        "class": "btn btn-md btn-rounded btn-outline",
+        "selector": "a:has-text('Contact')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/index.html",
+        "id": "",
+        "class": "logo",
+        "selector": "a[href='https://ideabytes.com/index.html']"
+      },
+      {
+        "text": "IoT Solutions",
+        "href": "https://www.ideabytesiot.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IoT Solutions')"
+      },
+      {
+        "text": "DG HAZMAT",
+        "href": "https://www.dgsms.ca",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('DG HAZMAT')"
+      },
+      {
+        "text": "IGBMS",
+        "href": "https://igbms.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IGBMS')"
+      },
+      {
+        "text": "Test Automation",
+        "href": "https://ideabytes.com/test-automation.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Test Automation')"
+      },
+      {
+        "text": "Application Development",
+        "href": "https://ideabytes.com/web-mobile-app-dev.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Application Development')"
+      },
+      {
+        "text": "Teens4Tech",
+        "href": "https://ideabytes.com/Teens_tech.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Teens4Tech')"
+      },
+      {
+        "text": "Partnerships",
+        "href": "https://ideabytes.com/partnership.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Partnerships')"
+      },
+      {
+        "text": "About Us",
+        "href": "https://ideabytes.com/about-us.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('About Us')"
+      },
+      {
+        "text": "Certificates",
+        "href": "https://ideabytes.com/certificates.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Certificates')"
+      },
+      {
+        "text": "Team",
+        "href": "https://ideabytes.com/team.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Team')"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/lmcgeko",
+        "id": "",
+        "class": "btn btn-xs btn-slide btn-light",
+        "selector": "a:has-text('Facebook')"
+      },
+      {
+        "text": "Mail",
+        "href": "mailto:george.kongalath@ideabytes.com",
+        "id": "",
+        "class": "btn btn-xs btn-slide btn-light",
+        "selector": "a:has-text('Mail')"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/srinivas.reddy.katta",
+        "id": "",
+        "class": "btn btn-xs btn-slide btn-light",
+        "selector": "a:has-text('Facebook')"
+      },
+      {
+        "text": "Mail",
+        "href": "mailto:srinivas.katta@ideabytes.com",
+        "id": "",
+        "class": "btn btn-xs btn-slide btn-light",
+        "selector": "a:has-text('Mail')"
+      },
+      {
+        "text": "Mail",
+        "href": "mailto:aa@ideabytes.com",
+        "id": "",
+        "class": "btn btn-xs btn-slide btn-light",
+        "selector": "a:has-text('Mail')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
+      }
+    ]
+  },
+  {
+    "url": "https://ideabytes.com/about-us.html",
+    "scraped_at": "2026-07-03 14:32:19",
     "total_elements": 17,
     "buttons": [
       {
@@ -864,9 +791,9 @@
     ]
   },
   {
-    "url": "https://ideabytes.com/test_automation_article3.html",
-    "scraped_at": "2026-07-03 12:37:36",
-    "total_elements": 14,
+    "url": "https://ideabytes.com/security-testing-article-2.html",
+    "scraped_at": "2026-07-03 14:32:20",
+    "total_elements": 17,
     "buttons": [
       {
         "text": "",
@@ -879,6 +806,20 @@
     ],
     "inputs": [],
     "links": [
+      {
+        "text": "",
+        "href": "https://in.linkedin.com/company/ideabytes-inc",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+      },
+      {
+        "text": "Contact",
+        "href": "https://ideabytes.com/contact-us.html",
+        "id": "",
+        "class": "btn btn-md btn-rounded btn-outline",
+        "selector": "a:has-text('Contact')"
+      },
       {
         "text": "",
         "href": "https://ideabytes.com/index.html",
@@ -950,11 +891,304 @@
         "selector": "a:has-text('Certificates')"
       },
       {
-        "text": "Contact Us",
-        "href": "https://ideabytes.com/contact-us.html",
+        "text": "Team",
+        "href": "https://ideabytes.com/team.html",
         "id": "",
         "class": "",
-        "selector": "a:has-text('Contact Us')"
+        "selector": "a:has-text('Team')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
+      }
+    ]
+  },
+  {
+    "url": "https://ideabytes.com/Teens_tech.html",
+    "scraped_at": "2026-07-03 14:32:20",
+    "total_elements": 22,
+    "buttons": [
+      {
+        "text": "",
+        "type": "button",
+        "id": "",
+        "class": "lines-button x",
+        "name": "",
+        "selector": "button:has-text('')"
+      },
+      {
+        "text": "Register",
+        "type": "submit",
+        "id": "form_submit1234",
+        "class": "btn_blue_y",
+        "name": "form_submit1234",
+        "selector": "#form_submit1234"
+      }
+    ],
+    "inputs": [
+      {
+        "type": "text",
+        "name": "widget-contact-form-name",
+        "id": "",
+        "class": "form-control required name",
+        "placeholder": "Enter your Name",
+        "selector": "input[name='widget-contact-form-name']"
+      },
+      {
+        "type": "email",
+        "name": "widget-contact-form-email",
+        "id": "",
+        "class": "form-control required email",
+        "placeholder": "Enter your Email",
+        "selector": "input[name='widget-contact-form-email']"
+      },
+      {
+        "type": "text",
+        "name": "widget-contact-form-company",
+        "id": "",
+        "class": "form-control required company",
+        "placeholder": "Enter your Age",
+        "selector": "input[name='widget-contact-form-company']"
+      }
+    ],
+    "links": [
+      {
+        "text": "",
+        "href": "https://in.linkedin.com/company/ideabytes-inc",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+      },
+      {
+        "text": "Contact",
+        "href": "https://ideabytes.com/contact-us.html",
+        "id": "",
+        "class": "btn btn-md btn-rounded btn-outline",
+        "selector": "a:has-text('Contact')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/index.html",
+        "id": "",
+        "class": "logo",
+        "selector": "a[href='https://ideabytes.com/index.html']"
+      },
+      {
+        "text": "IoT Solutions",
+        "href": "https://www.ideabytesiot.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IoT Solutions')"
+      },
+      {
+        "text": "DG HAZMAT",
+        "href": "https://www.dgsms.ca",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('DG HAZMAT')"
+      },
+      {
+        "text": "IGBMS",
+        "href": "https://igbms.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IGBMS')"
+      },
+      {
+        "text": "Test Automation",
+        "href": "https://ideabytes.com/test-automation.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Test Automation')"
+      },
+      {
+        "text": "Application Development",
+        "href": "https://ideabytes.com/web-mobile-app-dev.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Application Development')"
+      },
+      {
+        "text": "Teens4Tech",
+        "href": "https://ideabytes.com/Teens_tech.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Teens4Tech')"
+      },
+      {
+        "text": "Partnerships",
+        "href": "https://ideabytes.com/partnership.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Partnerships')"
+      },
+      {
+        "text": "About Us",
+        "href": "https://ideabytes.com/about-us.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('About Us')"
+      },
+      {
+        "text": "Certificates",
+        "href": "https://ideabytes.com/certificates.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Certificates')"
+      },
+      {
+        "text": "Team",
+        "href": "https://ideabytes.com/team.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Team')"
+      },
+      {
+        "text": "Apply for the Next Cohort",
+        "href": "https://ideabytes.com/Teens_tech.html#reg",
+        "id": "",
+        "class": "btn_blue_y",
+        "selector": "a:has-text('Apply for the Next Cohort')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
+      }
+    ]
+  },
+  {
+    "url": "https://ideabytes.com/web-mobile-app-dev-art1.html",
+    "scraped_at": "2026-07-03 14:32:21",
+    "total_elements": 17,
+    "buttons": [
+      {
+        "text": "",
+        "type": "button",
+        "id": "",
+        "class": "lines-button x",
+        "name": "",
+        "selector": "button:has-text('')"
+      }
+    ],
+    "inputs": [],
+    "links": [
+      {
+        "text": "",
+        "href": "https://in.linkedin.com/company/ideabytes-inc",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+      },
+      {
+        "text": "Contact",
+        "href": "https://ideabytes.com/contact-us.html",
+        "id": "",
+        "class": "btn btn-md btn-rounded btn-outline",
+        "selector": "a:has-text('Contact')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/index.html",
+        "id": "",
+        "class": "logo",
+        "selector": "a[href='https://ideabytes.com/index.html']"
+      },
+      {
+        "text": "IoT Solutions",
+        "href": "https://www.ideabytesiot.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IoT Solutions')"
+      },
+      {
+        "text": "DG HAZMAT",
+        "href": "https://www.dgsms.ca",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('DG HAZMAT')"
+      },
+      {
+        "text": "IGBMS",
+        "href": "https://igbms.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IGBMS')"
+      },
+      {
+        "text": "Test Automation",
+        "href": "https://ideabytes.com/test-automation.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Test Automation')"
+      },
+      {
+        "text": "Application Development",
+        "href": "https://ideabytes.com/web-mobile-app-dev.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Application Development')"
+      },
+      {
+        "text": "Teens4Tech",
+        "href": "https://ideabytes.com/Teens_tech.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Teens4Tech')"
+      },
+      {
+        "text": "Partnerships",
+        "href": "https://ideabytes.com/partnership.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Partnerships')"
+      },
+      {
+        "text": "About Us",
+        "href": "https://ideabytes.com/about-us.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('About Us')"
+      },
+      {
+        "text": "Certificates",
+        "href": "https://ideabytes.com/certificates.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Certificates')"
       },
       {
         "text": "Team",
@@ -965,10 +1199,175 @@
       },
       {
         "text": "",
-        "href": "https://www.linkedin.com/company/ideabytes-inc",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
         "id": "",
         "class": "",
-        "selector": "a[href='https://www.linkedin.com/company/ideabytes-inc']"
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
+      }
+    ]
+  },
+  {
+    "url": "https://ideabytes.com/test-automation.html",
+    "scraped_at": "2026-07-03 14:32:21",
+    "total_elements": 20,
+    "buttons": [
+      {
+        "text": "",
+        "type": "button",
+        "id": "",
+        "class": "lines-button x",
+        "name": "",
+        "selector": "button:has-text('')"
+      }
+    ],
+    "inputs": [],
+    "links": [
+      {
+        "text": "",
+        "href": "https://in.linkedin.com/company/ideabytes-inc",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+      },
+      {
+        "text": "Contact",
+        "href": "https://ideabytes.com/contact-us.html",
+        "id": "",
+        "class": "btn btn-md btn-rounded btn-outline",
+        "selector": "a:has-text('Contact')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/index.html",
+        "id": "",
+        "class": "logo",
+        "selector": "a[href='https://ideabytes.com/index.html']"
+      },
+      {
+        "text": "IoT Solutions",
+        "href": "https://www.ideabytesiot.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IoT Solutions')"
+      },
+      {
+        "text": "DG HAZMAT",
+        "href": "https://www.dgsms.ca",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('DG HAZMAT')"
+      },
+      {
+        "text": "IGBMS",
+        "href": "https://igbms.com/",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('IGBMS')"
+      },
+      {
+        "text": "Test Automation",
+        "href": "https://ideabytes.com/test-automation.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Test Automation')"
+      },
+      {
+        "text": "Application Development",
+        "href": "https://ideabytes.com/web-mobile-app-dev.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Application Development')"
+      },
+      {
+        "text": "Teens4Tech",
+        "href": "https://ideabytes.com/Teens_tech.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Teens4Tech')"
+      },
+      {
+        "text": "Partnerships",
+        "href": "https://ideabytes.com/partnership.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Partnerships')"
+      },
+      {
+        "text": "About Us",
+        "href": "https://ideabytes.com/about-us.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('About Us')"
+      },
+      {
+        "text": "Certificates",
+        "href": "https://ideabytes.com/certificates.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Certificates')"
+      },
+      {
+        "text": "Team",
+        "href": "https://ideabytes.com/team.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Team')"
+      },
+      {
+        "text": "Penetration Testing",
+        "href": "https://ideabytes.com/security-testing.html",
+        "id": "",
+        "class": "",
+        "selector": "a:has-text('Penetration Testing')"
+      },
+      {
+        "text": "Discover More",
+        "href": "https://ideabytes.com/test_automation_article2.html",
+        "id": "",
+        "class": "blog_link",
+        "selector": "a:has-text('Discover More')"
+      },
+      {
+        "text": "Discover More",
+        "href": "https://ideabytes.com/test_automation_article.html",
+        "id": "",
+        "class": "blog_link",
+        "selector": "a:has-text('Discover More')"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+      },
+      {
+        "text": "",
+        "href": "https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf",
+        "id": "",
+        "class": "",
+        "selector": "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
       }
     ]
   }

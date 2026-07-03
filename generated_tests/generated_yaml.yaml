@@ -1,135 +1,160 @@
 test_cases:
   - id: TC001
-    title: Verify homepage title contains Ideabytes
+    title: Verify homepage loads with expected title
     priority: High
     steps:
-      - Open URL https://ideabytes.com
-      - Check page title contains 'Ideabytes'
-    expected_result: Page title contains the text 'Ideabytes'
+      - Open https://ideabytes.com
+    expected_result: Page title is 'Ideabytes'
 
   - id: TC002
-    title: Navigate to Contact page via link
+    title: Click Contact link and verify navigation to contact page
     priority: High
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a:has-text('Contact')"
-      - Wait for URL to become 'https://ideabytes.com/contact-us.html'
-    expected_result: Current URL is https://ideabytes.com/contact-us.html
+      - Open https://ideabytes.com
+      - Click the 'Contact' link using selector a:has-text('Contact')
+    expected_result: Current URL ends with '/contact-us.html'
 
   - id: TC003
-    title: Navigate to Test Automation page via link
-    priority: High
+    title: Click IoT Solutions link and verify external URL opens
+    priority: Medium
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a:has-text('Test Automation')"
-      - Wait for URL to become 'https://ideabytes.com/test-automation.html'
-    expected_result: Current URL is https://ideabytes.com/test-automation.html
+      - Open https://ideabytes.com
+      - Click the 'IoT Solutions' link using selector a:has-text('IoT Solutions')
+    expected_result: URL changes to 'https://www.ideabytesiot.com/'
 
   - id: TC004
-    title: Navigate to Application Development page via link
+    title: Click Test Automation link and verify navigation to test-automation page
     priority: High
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a:has-text('Application Development')"
-      - Wait for URL to become 'https://ideabytes.com/web-mobile-app-dev.html'
-    expected_result: Current URL is https://ideabytes.com/web-mobile-app-dev.html
+      - Open https://ideabytes.com
+      - Click the 'Test Automation' link using selector a:has-text('Test Automation')
+    expected_result: Current URL ends with '/test-automation.html'
 
   - id: TC005
-    title: Navigate to Teens4Tech page via link
+    title: Click Teens4Tech link and verify navigation to Teens_tech page
     priority: High
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a:has-text('Teens4Tech')"
-      - Wait for URL to become 'https://ideabytes.com/Teens_tech.html'
-    expected_result: Current URL is https://ideabytes.com/Teens_tech.html
+      - Open https://ideabytes.com
+      - Click the 'Teens4Tech' link using selector a:has-text('Teens4Tech')
+    expected_result: Current URL ends with '/Teens_tech.html'
 
   - id: TC006
-    title: Navigate to Partnerships page via link
+    title: Fill Teens_tech registration form with valid data and submit
     priority: High
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a:has-text('Partnerships')"
-      - Wait for URL to become 'https://ideabytes.com/partnership.html'
-    expected_result: Current URL is https://ideabytes.com/partnership.html
+      - Open https://ideabytes.com/Teens_tech.html
+      - Fill the name input (name='widget-contact-form-name') with 'John Doe'
+      - Fill the email input (name='widget-contact-form-email') with 'john@example.com'
+      - Fill the age input (name='widget-contact-form-company') with '15'
+      - Click the Register button using selector #form_submit1234
+    expected_result: No HTML5 validation errors are displayed; form submits successfully
 
   - id: TC007
-    title: Navigate to IoT Solutions external site
+    title: Submit empty Teens_tech registration form and verify validation errors
     priority: High
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a:has-text('IoT Solutions')"
-      - Wait for new tab or URL change to include 'ideabytesiot.com'
-    expected_result: Either a new tab opens with URL https://www.ideabytesiot.com/ or current URL becomes that
+      - Open https://ideabytes.com/Teens_tech.html
+      - Click the Register button using selector #form_submit1234
+    expected_result: HTML5 validation messages appear for each required field (name, email, age)
 
   - id: TC008
-    title: Navigate to DG HAZMAT external site
+    title: Fill only name field on Teens_tech form and verify email validation
     priority: High
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a:has-text('DG HAZMAT')"
-      - Wait for new tab or URL change to include 'dgsms.ca'
-    expected_result: Either a new tab opens with URL https://www.dgsms.ca or current URL becomes that
+      - Open https://ideabytes.com/Teens_tech.html
+      - Fill the name input (name='widget-contact-form-name') with 'John Doe'
+      - Click the Register button using selector #form_submit1234
+    expected_result: HTML5 validation message appears on the email field
 
   - id: TC009
-    title: Navigate to IGBMS external site
-    priority: High
+    title: Verify name input placeholder on Teens_tech page
+    priority: Medium
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a:has-text('IGBMS')"
-      - Wait for new tab or URL change to include 'igbms.com'
-    expected_result: Either a new tab opens with URL https://igbms.com/ or current URL becomes that
+      - Open https://ideabytes.com/Teens_tech.html
+      - Check placeholder attribute of input[name='widget-contact-form-name']
+    expected_result: Placeholder value is 'Enter your Name'
 
   - id: TC010
-    title: Navigate to LinkedIn page via link
-    priority: High
+    title: Verify email input type attribute on Teens_tech page
+    priority: Medium
     steps:
-      - Open URL https://ideabytes.com
-      - Click link with selector "a[href='https://in.linkedin.com/company/ideabytes-inc']"
-      - Wait for new tab or URL change to include 'linkedin.com'
-    expected_result: Either a new tab opens with LinkedIn URL or current URL changes to LinkedIn
+      - Open https://ideabytes.com/Teens_tech.html
+      - Check type attribute of input[name='widget-contact-form-email']
+    expected_result: Type attribute is 'email'
 
   - id: TC011
-    title: Mobile menu hamburger toggle on 375x667 viewport
+    title: Verify age input placeholder on Teens_tech page
     priority: Medium
     steps:
-      - Open URL https://ideabytes.com
-      - Resize viewport to 375x667 pixels
-      - Click the button with selector "button:has-text('')"
-      - Wait for navigation links such as 'Contact' and 'Test Automation' to become visible
-    expected_result: The navigation links (e.g., 'Contact', 'Test Automation') are visible after clicking the button
+      - Open https://ideabytes.com/Teens_tech.html
+      - Check placeholder attribute of input[name='widget-contact-form-company']
+    expected_result: Placeholder value is 'Enter your Age'
 
   - id: TC012
-    title: Verify security testing article page loads successfully
-    priority: High
+    title: Verify PDF document loads successfully
+    priority: Medium
     steps:
-      - Open URL https://ideabytes.com/security-testing-article-2.html
-      - Wait for page to load completely
-      - Check that HTTP status is not 404
-    expected_result: Page loads without a 404 error; status code is 200
+      - Open https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf
+    expected_result: URL ends with '.pdf' and page loads without errors
 
   - id: TC013
-    title: Verify certificates page contains Certificates heading
-    priority: Medium
-    steps:
-      - Open URL https://ideabytes.com/certificates.html
-      - Check that page contains heading 'Certificates' or similar equivalent
-    expected_result: The page contains a heading with text 'Certificates' or equivalent element
-
-  - id: TC014
-    title: Check homepage button for accessible name (aria-label)
+    title: Verify LinkedIn link is present and clickable on homepage
     priority: Low
     steps:
-      - Open URL https://ideabytes.com
-      - Locate button with selector "button:has-text('')"
-      - Retrieve its accessible name attribute (aria-label)
-      - If accessible name is empty or missing, report accessibility issue
-    expected_result: The button has a non-empty accessible name (aria-label) for screen readers, or an issue is reported
+      - Open https://ideabytes.com
+      - Locate the LinkedIn link using selector a[href='https://in.linkedin.com/company/ideabytes-inc']
+    expected_result: Link is visible and clickable
+
+  - id: TC014
+    title: Verify logo link is present and visible on homepage
+    priority: Low
+    steps:
+      - Open https://ideabytes.com
+      - Locate the logo link using selector a[href='https://ideabytes.com/index.html']
+    expected_result: Link is visible
 
   - id: TC015
-    title: Verify 404 on non-existent page
+    title: Verify about-us page loads successfully
     priority: Medium
     steps:
-      - Open URL https://ideabytes.com/nonexistent
-      - Wait for page response
-      - Check that HTTP status is 404 or page displays an error message indicating not found
-    expected_result: Page returns 404 status code or shows an error message for non-existent page
+      - Open https://ideabytes.com/about-us.html
+    expected_result: Page loads with HTTP 200 and no errors
+
+  - id: TC016
+    title: Verify team page loads successfully
+    priority: Medium
+    steps:
+      - Open https://ideabytes.com/team.html
+    expected_result: Page loads with HTTP 200 and no errors
+
+  - id: TC017
+    title: Verify Register button is visible and enabled on Teens_tech page
+    priority: Low
+    steps:
+      - Open https://ideabytes.com/Teens_tech.html
+      - Locate the Register button using selector #form_submit1234
+    expected_result: Button is visible and enabled
+
+  - id: TC018
+    title: Click Application Development link and verify navigation to web-mobile-app-dev page
+    priority: High
+    steps:
+      - Open https://ideabytes.com
+      - Click the 'Application Development' link using selector a:has-text('Application Development')
+    expected_result: Current URL ends with '/web-mobile-app-dev.html'
+
+  - id: TC019
+    title: Click DG HAZMAT link and verify external URL opens
+    priority: Medium
+    steps:
+      - Open https://ideabytes.com
+      - Click the 'DG HAZMAT' link using selector a:has-text('DG HAZMAT')
+    expected_result: URL changes to 'https://www.dgsms.ca'
+
+  - id: TC020
+    title: Click IGBMS link and verify external URL opens
+    priority: Medium
+    steps:
+      - Open https://ideabytes.com
+      - Click the 'IGBMS' link using selector a:has-text('IGBMS')
+    expected_result: URL changes to 'https://igbms.com/'
