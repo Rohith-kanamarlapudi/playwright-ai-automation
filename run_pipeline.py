@@ -1,5 +1,6 @@
 import os
 import json
+from performance.engine import PerformanceTracker
 
 from scraper.scraper import main as crawl_site
 from test_runner import run_generated_test
@@ -56,7 +57,9 @@ def count_selectors(data):
 
 
 def main():
-
+    tracker = PerformanceTracker(label="full_pipeline_week2")
+    tracker.start()
+    
     try:
 
         print("=" * 50)
