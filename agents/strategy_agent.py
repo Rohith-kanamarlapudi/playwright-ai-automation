@@ -6,14 +6,14 @@ from performance.engine import PerformanceTracker
 from agents.prompts.strategy_prompt import STRATEGY_PROMPT
 from agents.selector_utils import cap_selectors
 
-llm = get_llm()
-
 
 def strategy_agent(state: AgentState) -> AgentState:
     tracker = PerformanceTracker(label="strategy_agent")
     tracker.start()
 
     try:
+        llm = get_llm()
+
         print("[Strategy Agent] Running...")
 
         selectors = state.get("selectors", [])

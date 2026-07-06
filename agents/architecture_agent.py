@@ -4,7 +4,6 @@ from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 from agents.selector_utils import cap_selectors
-llm = get_llm()
 
 
 def architecture_agent(state: AgentState) -> AgentState:
@@ -13,6 +12,8 @@ def architecture_agent(state: AgentState) -> AgentState:
     tracker.start()
 
     try:
+        llm = get_llm()
+
         print("[Architecture Agent] Running...")
 
         selectors = state.get("selectors", [])
