@@ -49,6 +49,10 @@ class AgentState(TypedDict):
 
     # Review comments
     review_notes: str
+    
+    
+    # Set to True by review_agent when risk is High → triggers regen
+    needs_regen: bool
 
     # -------------------------------------------------
     # Edge Cases Agent

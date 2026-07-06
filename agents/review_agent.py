@@ -59,7 +59,14 @@ Return format:
             response.content if hasattr(response, "content") else str(response)
         )
 
-        print("[Review Agent] Review completed successfully.")
+        notes = state["review_notes"]
+        # Detect High risk — set flag so graph can re-route to code_gen
+        if "High" in notes and "Risk Level" in notes:
+            state["needs_regen"] = True
+            print("[Review Agent] HIGH risk detected — flagging for regen.")
+        else:
+            state["needs_regen"] = False
+            print("[Review Agent] Review completed. Risk acceptable.")print("[Review Agent] Review completed successfully.")
 
     except Exception as e:
         print("[Review Error]", e)

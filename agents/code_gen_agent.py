@@ -29,7 +29,6 @@ def verify_generated_code(filepath: str) -> bool:
 
 
 def code_gen_agent(state: AgentState) -> AgentState:
-
     tracker = PerformanceTracker(label="code_gen_agent")
     tracker.start()
 
@@ -57,9 +56,22 @@ def code_gen_agent(state: AgentState) -> AgentState:
         # -------------------------------------------------
         # Step 1 : Generate YAML
         # -------------------------------------------------
-
+        
+        
+        # If this is a regen pass, prepend review feedback to the task plan
+        review_notes = state.get("review_notes", "")
+        is_regen = state.get("needs_regen", False)
+        regen_prefix = ""
+        if is_regen and review_notes:
+            regen_prefix = (
+                f"PREVIOUS REVIEW FEEDBACK (fix these issues):\n{review_notes}\n\n"
+            )
+            print("[Code Gen Agent] Regen pass — injecting review feedback into prompt.")
+            
+            
+            
         yaml_prompt = YAML_PROMPT.format(
-            task_plan="\n".join(state.get("task_plan", [])),
+            task_plan=regen_prefix + "\n".join(state.get("task_plan", [])),
             buttons=buttons[:10],
             inputs=inputs[:10],
             links=links[:10]
