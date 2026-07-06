@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 import psutil
 import os
 import json
@@ -40,7 +41,11 @@ class PerformanceTracker:
         return self.results
 
     def save(self, path: str = "reports/perf_baseline.json"):
-        os.makedirs("reports", exist_ok=True)
+        # Resolve relative to the repo root (parent of this file's directory)
+        repo_root = Path(__file__).resolve().parent.parent
+        resolved = repo_root / path
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        path = str(resolved)
         
         # Load existing or start new list
         existing = []
