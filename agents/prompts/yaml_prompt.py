@@ -10,12 +10,10 @@ You are a Senior QA Automation Engineer specializing in Python Playwright.
 
 Your task is to generate executable YAML test cases.
 
-Task Plan
----------
+Website Task Plan:
 {task_plan}
 
-Architecture Notes
-------------------
+Recommended Framework Architecture (follow this POM structure):
 {architecture_notes}
 
 Available Buttons
