@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path, Request, UploadFile, File
+from fastapi import FastAPI, Request, UploadFile, File, Header, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -12,6 +12,17 @@ import os
 from app.llm_generator import generate_test_cases
 from app.yaml_validator import validate_yaml
 from app.yaml_to_playwright import convert_yaml_to_playwright
+
+APP_API_KEY = os.getenv("APP_API_KEY", "")   # set in .env for production
+
+def verify_api_key(x_api_key: str = Header(default="")):
+    """
+    Require X-API-Key header on protected endpoints.
+    Skip check if APP_API_KEY is not configured (dev mode).
+    """
+    if APP_API_KEY and x_api_key != APP_API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing X-API-Key header.")
+    
 
 app = FastAPI(title="Test Case Generator")
 
@@ -68,7 +79,8 @@ def home(request: Request):
 @app.post("/upload", response_class=HTMLResponse)
 async def upload_document(
     request: Request,
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    _: None = Depends(verify_api_key),
 ):
 
     try:
@@ -264,7 +276,7 @@ async def upload_document(
 # -------------------------------------
 
 @app.post("/agents/run")
-async def run_agents(req: PipelineRequest):
+async def run_agents(req: PipelineRequest, _: None = Depends(verify_api_key)):
     """
     Runs the complete LangGraph Agent Pipeline.
     """
