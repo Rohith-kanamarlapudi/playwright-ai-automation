@@ -26,6 +26,9 @@ Website Requirements:
 Generated Test Plan:
 {chr(10).join(state["task_plan"])}
 
+Framework Architecture (follow this POM structure):
+{state.get("architecture_notes", "No architecture provided.")}
+
 Detected Buttons:
 {json.dumps(buttons[:10], indent=2)}
 
