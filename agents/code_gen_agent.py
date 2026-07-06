@@ -29,6 +29,31 @@ def verify_generated_code(filepath: str) -> bool:
         return False
 
 
+def check_assertions(filepath: str) -> bool:
+    """Warn if generated test functions have no expect() assertions."""
+    try:
+        with open(filepath, "r") as f:
+            content = f.read()
+        import re
+        test_fns = re.findall(r"def (test_\w+)", content)
+        expect_count = content.count("expect(")
+        if test_fns and expect_count == 0:
+            print(
+                f"[Code Gen] WARNING: {len(test_fns)} test function(s) found "
+                f"but ZERO expect() assertions. These tests will never fail."
+            )
+            return False
+        print(f"[Code Gen] Assertion check OK: {expect_count} expect() call(s) found.")
+        return True
+    except Exception as e:
+        print(f"[Code Gen] Assertion check error: {e}")
+        return False
+
+# Inside code_gen_agent(), add after verify_generated_code():
+# check_assertions(str(output_path))
+
+
+
 def code_gen_agent(state: AgentState) -> AgentState:
     tracker = PerformanceTracker(label="code_gen_agent")
     tracker.start()
