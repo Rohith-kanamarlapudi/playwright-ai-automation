@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, UploadFile, File
+from fastapi import FastAPI, Path, Request, UploadFile, File
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -113,10 +113,9 @@ async def upload_document(
         # Save Uploaded File
         # ----------------------------
 
-        file_path = os.path.join(
-            "uploads",
-            file.filename
-        )
+        from pathlib import Path
+        safe_name = Path(file.filename).name
+        file_path = os.path.join("uploads", safe_name)
 
         content = await file.read()
 
@@ -139,14 +138,16 @@ async def upload_document(
 
             from pypdf import PdfReader
 
-            reader = PdfReader(file_path)
+            with open(file_path, "rb") as pdf_file:
+                reader = PdfReader(pdf_file)
 
-            for page in reader.pages:
 
-                page_text = page.extract_text()
+                for page in reader.pages:
 
-                if page_text:
-                    document_text += page_text
+                    page_text = page.extract_text()
+
+                    if page_text:
+                        document_text += page_text
 
         else:
 
@@ -156,6 +157,9 @@ async def upload_document(
             )
 
         document_text, warnings = sanitise_document(document_text)
+        
+        if not document_text.strip():
+            raise ValueError("Uploaded document contains no readable text.")
 
         if warnings:
             print(f"[Security] Document sanitised. Warnings: {warnings}")
@@ -164,25 +168,25 @@ async def upload_document(
         print(document_text[:500])
         print("==============================\n")
 
-        yaml_output = generate_test_cases(
-            document_text
-        )
+
+
 
         # ----------------------------
-        # Generate YAML
+        # Authoritative path: LangGraph Agent Pipeline
         # ----------------------------
-
-        yaml_output = generate_test_cases(
-            document_text
-        )
-        # ----------------------------
-        # Run LangGraph Agent Pipeline
-        # ----------------------------
-
         agent_result = run_agent_pipeline(
             design_doc=document_text
         )
 
+        # Use the agent pipeline's generated YAML as the primary output
+        yaml_output = agent_result.get("generated_yaml", "")
+        if not yaml_output.strip():
+            yaml_output = generate_test_cases(document_text)
+
+        # Fallback: only call llm_generator if the pipeline produced nothing
+        if not yaml_output.strip():
+            print("[Upload] Agent pipeline returned no YAML — falling back to llm_generator.")
+            yaml_output = generate_test_cases(document_text)
         print("\n========== YAML OUTPUT ==========")
         print(yaml_output)
         print("=================================\n")
