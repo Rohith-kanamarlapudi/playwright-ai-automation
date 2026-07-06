@@ -4,6 +4,8 @@ from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 from agents.prompts.strategy_prompt import STRATEGY_PROMPT
+from agents.selector_utils import cap_selectors
+
 
 llm = get_llm()
 
@@ -19,26 +21,14 @@ def strategy_agent(state: AgentState) -> AgentState:
 
         selectors = state.get("selectors", [])
 
-        buttons = [
-            s for s in selectors
-            if s.get("type") == "button"
-        ]
-
-        inputs = [
-            s for s in selectors
-            if s.get("type") == "input"
-        ]
-
-        links = [
-            s for s in selectors
-            if s.get("type") == "link"
-        ]
-
+        buttons = cap_selectors([s for s in selectors if s.get("type") == "button"], "buttons")
+        inputs  = cap_selectors([s for s in selectors if s.get("type") == "input"],  "inputs")
+        links   = cap_selectors([s for s in selectors if s.get("type") == "link"],   "links")
         prompt = STRATEGY_PROMPT.format(
             design_doc=state["design_doc"],
-            buttons=buttons[:10],
-            inputs=inputs[:10],
-            links=links[:10]
+            buttons=buttons,
+            inputs=inputs,
+            links=links
         )
 
         response = llm.invoke(prompt)
