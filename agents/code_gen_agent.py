@@ -71,7 +71,8 @@ def code_gen_agent(state: AgentState) -> AgentState:
             
             
         yaml_prompt = YAML_PROMPT.format(
-            task_plan=regen_prefix + "\n".join(state.get("task_plan", [])),
+            task_plan="\n".join(state.get("task_plan", [])),
+            architecture_notes=state.get("architecture_notes", "No architecture provided."),
             buttons=buttons[:10],
             inputs=inputs[:10],
             links=links[:10]
