@@ -10,6 +10,8 @@ from agents.python_fallback import generate_python_directly
 
 from app.yaml_validator import validate_yaml
 from app.yaml_to_playwright import convert_yaml_to_playwright
+from agents.selector_utils import cap_selectors
+
 
 llm = get_llm()
 
@@ -38,20 +40,9 @@ def code_gen_agent(state: AgentState) -> AgentState:
 
         selectors = state.get("selectors", [])
 
-        buttons = [
-            s for s in selectors
-            if s.get("type") == "button"
-        ]
-
-        inputs = [
-            s for s in selectors
-            if s.get("type") == "input"
-        ]
-
-        links = [
-            s for s in selectors
-            if s.get("type") == "link"
-        ]
+        buttons = cap_selectors([s for s in selectors if s.get("type") == "button"], "buttons")
+        inputs  = cap_selectors([s for s in selectors if s.get("type") == "input"],  "inputs")
+        links   = cap_selectors([s for s in selectors if s.get("type") == "link"],   "links")
 
         # -------------------------------------------------
         # Step 1 : Generate YAML
@@ -71,11 +62,11 @@ def code_gen_agent(state: AgentState) -> AgentState:
             
             
         yaml_prompt = YAML_PROMPT.format(
-            task_plan="\n".join(state.get("task_plan", [])),
-            architecture_notes=state.get("architecture_notes", "No architecture provided."),
-            buttons=buttons[:10],
-            inputs=inputs[:10],
-            links=links[:10]
+            task_plan=regen_prefix + "\n".join(state.get("task_plan", [])),
+            architecture_notes=state.get("architecture_notes", ""),
+            buttons=buttons,
+            inputs=inputs,
+            links=links
         )
 
         yaml_response = llm.invoke(yaml_prompt)
