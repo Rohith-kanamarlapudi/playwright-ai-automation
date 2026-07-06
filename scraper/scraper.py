@@ -19,7 +19,11 @@ from pathlib import Path
 # Configuration
 # ----------------------------------------
 
-URL = "https://ideabytes.com"
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+URL = os.getenv("TARGET_URL", "https://ideabytes.com")
 OUTPUT_FILE = "reports/website_elements.json"
 
 
@@ -389,10 +393,9 @@ def save_json(data, filename):
 # ----------------------------------------
 # Crawl Website
 # ----------------------------------------
-def main(
-    url=URL,
-    max_pages=7
-):
+def main(url: str = None, max_pages: int = None):
+    url = url or os.getenv("TARGET_URL", URL)
+    max_pages = max_pages or int(os.getenv("MAX_PAGES", "10"))
 
     print("=" * 50)
     print("Starting Crawl")
