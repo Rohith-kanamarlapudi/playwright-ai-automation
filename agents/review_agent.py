@@ -15,6 +15,12 @@ def review_agent(state: AgentState) -> AgentState:
         print("[Review Agent] Running...")
 
         code = state.get("generated_code", "")
+        
+        if not code.strip():
+            print("[Review Agent] No generated code to review.")
+            state["review_notes"] = "No generated code available."
+            state["needs_regen"] = True
+            return state
 
         prompt = f"""
 You are a Senior QA Automation Code Reviewer for Playwright (Python + Pytest).
@@ -36,7 +42,9 @@ Evaluate:
 8. Invalid selectors
 9. Flaky execution risks
 10. Overall maintainability
-
+11. CRITICAL: Count the expect() assertions in the code. If any test function
+    has zero expect() calls, set Critical Execution Issues to Yes.
+    A test that never calls expect() cannot detect failures — it is not a real test.
 IMPORTANT RULES
 
 - Ignore formatting/style issues.
@@ -75,15 +83,14 @@ Yes / No
 
         history = state.get("review_history", [])
         history.append(notes)
-        state["review_history"] = history
-
+        MAX_HISTORY = 5
+        state["review_history"] = history[-MAX_HISTORY:]
         print("\n" + "=" * 70)
         print("REVIEW REPORT")
         print("=" * 70)
         print(notes)
         print("=" * 70 + "\n")
 
-        notes_lower = notes.lower()
 
         # -------------------------------------------------
         # Detect critical execution problems
@@ -93,7 +100,7 @@ Yes / No
         # ### Critical Execution Issues\nYes / No
         critical_execution = False
         match = re.search(
-            r"###\s*Critical Execution Issues\s*\n\s*(yes|no)",
+            r"###\s*Critical Execution Issues\s*[\r\n]+\s*(Yes|No)\b",
             notes,
             re.IGNORECASE,
         )
@@ -108,6 +115,7 @@ Yes / No
                     break
 
         state["needs_regen"] = critical_execution
+        print(f"[Review Agent] Critical Execution Issues: {critical_execution}")
 
 
         if state["needs_regen"]:

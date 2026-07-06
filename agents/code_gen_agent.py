@@ -34,6 +34,9 @@ def verify_generated_code(filepath: str) -> bool:
         return False
 
 
+
+
+
 def generate_conftest(output_dir: Path) -> None:
     """
     Write a conftest.py with browser fixture next to the generated test.
@@ -103,13 +106,6 @@ def check_assertions(filepath: str) -> bool:
         print(f"[Code Gen] Assertion check error: {e}")
         return False
     
-    
-
-# Inside code_gen_agent(), add after verify_generated_code():
-# check_assertions(str(output_path))
-
-
-
 
 def code_gen_agent(state: AgentState) -> AgentState:
     tracker = PerformanceTracker(label="code_gen_agent")
@@ -204,6 +200,8 @@ def code_gen_agent(state: AgentState) -> AgentState:
             playwright = convert_yaml_to_playwright(yaml_text)
 
             code = playwright.get("code", "")
+            if not code.strip():
+                raise ValueError("YAML conversion returned empty Playwright code.")
 
             unsupported = playwright.get(
                 "unsupported_steps",
@@ -224,6 +222,8 @@ def code_gen_agent(state: AgentState) -> AgentState:
                 state,
                 llm,
             )
+            if not code.strip():
+                raise ValueError("Python fallback returned empty code.")
             
             
 
@@ -237,7 +237,10 @@ def code_gen_agent(state: AgentState) -> AgentState:
         output_dir.mkdir(exist_ok=True)
 
         # Generate conftest.py only after ensuring the directory exists
-        generate_conftest(output_dir)
+        conftest_path = output_dir / "conftest.py"
+
+        if not conftest_path.exists():
+            generate_conftest(output_dir)
 
         output_path = output_dir / "generated_test.py"
 
@@ -278,13 +281,26 @@ def code_gen_agent(state: AgentState) -> AgentState:
                 # Assertion Check
                 # -----------------------------
                 assertions_ok = check_assertions(str(output_path))
-
                 state["assertions_passed"] = assertions_ok
 
-                state["best_code"] = code
-                state["needs_regen"] = False
+                if assertions_ok:
 
-                print("[Code Gen] Best generated code updated.")
+                    state["best_code"] = code
+                    state["needs_regen"] = False
+
+                    print("[Code Gen] Best generated code updated.")
+
+                else:
+
+                    print(
+                        "[Code Gen] Generated test contains no assertions. "
+                        "Requesting regeneration."
+                    )
+
+                    state["needs_regen"] = True
+
+                    if state.get("best_code"):
+                        state["generated_code"] = state["best_code"]
 
         else:
 
