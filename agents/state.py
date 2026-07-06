@@ -49,10 +49,24 @@ class AgentState(TypedDict):
 
     # Review comments
     review_notes: str
-    
-    
-    # Set to True by review_agent when risk is High → triggers regen
+
+    # True if regeneration is required
     needs_regen: bool
+
+    # Number of regeneration attempts
+    regen_count: int
+
+    # History of all review comments
+    review_history: List[str]
+
+    # Best valid YAML generated so far
+    best_yaml: str
+
+    # Best valid Playwright code generated so far
+    best_code: str
+
+    # Whether the generated code passed syntax validation
+    syntax_passed: bool
 
     # -------------------------------------------------
     # Edge Cases Agent

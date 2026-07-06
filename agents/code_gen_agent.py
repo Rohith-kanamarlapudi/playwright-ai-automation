@@ -12,7 +12,6 @@ from app.yaml_validator import validate_yaml
 from app.yaml_to_playwright import convert_yaml_to_playwright
 from agents.selector_utils import cap_selectors
 
-
 llm = get_llm()
 
 
@@ -35,39 +34,51 @@ def code_gen_agent(state: AgentState) -> AgentState:
     tracker.start()
 
     try:
-
         print("[Code Gen Agent] Running...")
+
+        if state.get("regen_count", 0) > 0:
+            print(
+                f"[Code Gen Agent] Regeneration Pass #{state['regen_count']}"
+            )
 
         selectors = state.get("selectors", [])
 
-        buttons = cap_selectors([s for s in selectors if s.get("type") == "button"], "buttons")
-        inputs  = cap_selectors([s for s in selectors if s.get("type") == "input"],  "inputs")
-        links   = cap_selectors([s for s in selectors if s.get("type") == "link"],   "links")
+        buttons = cap_selectors(
+            [s for s in selectors if s.get("type") == "button"],
+            "buttons",
+        )
 
-        # -------------------------------------------------
-        # Step 1 : Generate YAML
-        # -------------------------------------------------
-        
-        
-        # If this is a regen pass, prepend review feedback to the task plan
+        inputs = cap_selectors(
+            [s for s in selectors if s.get("type") == "input"],
+            "inputs",
+        )
+
+        links = cap_selectors(
+            [s for s in selectors if s.get("type") == "link"],
+            "links",
+        )
+
         review_notes = state.get("review_notes", "")
-        is_regen = state.get("needs_regen", False)
         regen_prefix = ""
-        if is_regen and review_notes:
+
+        if state.get("needs_regen") and review_notes:
             regen_prefix = (
-                f"PREVIOUS REVIEW FEEDBACK (fix these issues):\n{review_notes}\n\n"
+                "PREVIOUS REVIEW FEEDBACK\n"
+                "Fix these issues before generating again:\n\n"
+                f"{review_notes}\n\n"
             )
-            print("[Code Gen Agent] Regen pass — injecting review feedback into prompt.")
-            
-            
-            
+
         yaml_prompt = YAML_PROMPT.format(
             task_plan=regen_prefix + "\n".join(state.get("task_plan", [])),
             architecture_notes=state.get("architecture_notes", ""),
             buttons=buttons,
             inputs=inputs,
-            links=links
+            links=links,
         )
+
+        # -------------------------------------------------
+        # Generate YAML
+        # -------------------------------------------------
 
         yaml_response = llm.invoke(yaml_prompt)
 
@@ -77,17 +88,11 @@ def code_gen_agent(state: AgentState) -> AgentState:
             else str(yaml_response)
         )
 
-        state["generated_yaml"] = yaml_text
-
         print("\n" + "=" * 80)
         print("GENERATED YAML")
         print("=" * 80)
         print(yaml_text)
         print("=" * 80 + "\n")
-
-        # -------------------------------------------------
-        # Step 2 : Validate YAML
-        # -------------------------------------------------
 
         validation = validate_yaml(yaml_text)
 
@@ -95,69 +100,105 @@ def code_gen_agent(state: AgentState) -> AgentState:
 
         print(f"[Code Gen] YAML valid: {validation['valid']}")
 
-        # -------------------------------------------------
-        # Step 3 : YAML -> Playwright
-        # -------------------------------------------------
-
+        # Keep last valid YAML
         if validation["valid"]:
+            state["generated_yaml"] = yaml_text
+            state["best_yaml"] = yaml_text
 
-            # No selectors argument until the converter supports it
+        elif state.get("best_yaml"):
+            print("[Code Gen] Reusing previous valid YAML.")
+            yaml_text = state["best_yaml"]
+
+        # -------------------------------------------------
+        # Generate Playwright
+        # -------------------------------------------------
+
+        if validation["valid"] or state.get("best_yaml"):
+
             playwright = convert_yaml_to_playwright(yaml_text)
 
             code = playwright.get("code", "")
 
+            unsupported = playwright.get(
+                "unsupported_steps",
+                []
+            )
+
             print(
-                "[Code Gen] YAML successfully converted to Playwright."
+                f"[Code Gen] Unsupported Steps: {len(unsupported)}"
             )
 
         else:
 
-            print("[Code Gen] YAML validation failed.")
-            print("[Code Gen] Falling back to direct Python generation...")
+            print(
+                "[Code Gen] Falling back to direct Python generation..."
+            )
 
             code = generate_python_directly(
                 state,
-                llm
+                llm,
             )
 
         # -------------------------------------------------
-        # Step 4 : Save generated code
+        # Save Generated Code
         # -------------------------------------------------
 
         state["generated_code"] = code
 
-        Path("generated_tests").mkdir(exist_ok=True)
+        output_dir = Path("generated_tests")
+        output_dir.mkdir(exist_ok=True)
 
-        output_path = (
-            Path("generated_tests")
-            / "generated_test.py"
+        output_path = output_dir / "generated_test.py"
+
+        output_path.write_text(
+            code,
+            encoding="utf-8",
         )
-
-        with open(
-            output_path,
-            "w",
-            encoding="utf-8"
-        ) as f:
-            f.write(code)
 
         print(f"[Code Gen] Script saved to {output_path}")
 
         # -------------------------------------------------
-        # Step 5 : Syntax Check
+        # Syntax Check
         # -------------------------------------------------
 
-        verify_generated_code(str(output_path))
+        syntax_ok = verify_generated_code(
+            str(output_path)
+        )
+
+        state["syntax_passed"] = syntax_ok
+
+        if syntax_ok:
+
+            state["best_code"] = code
+            state["needs_regen"] = False
+
+            print("[Code Gen] Best generated code updated.")
+
+        else:
+
+            print(
+                "[Code Gen] Syntax failed. Keeping previous best code."
+            )
+
+            if state.get("best_code"):
+                state["generated_code"] = state["best_code"]
+
+            state["needs_regen"] = True
 
     except Exception as e:
 
-        print("[Code Gen Error]", e)
+        print(f"[Code Gen Error] {e}")
 
-        state["generated_code"] = ""
-        state["generated_yaml"] = ""
+        state["generated_code"] = state.get("best_code", "")
+        state["generated_yaml"] = state.get("best_yaml", "")
+
         state["yaml_validation"] = {
             "valid": False,
-            "errors": [str(e)]
+            "errors": [str(e)],
         }
+
+        state["syntax_passed"] = False
+        state["needs_regen"] = True
 
     finally:
 
