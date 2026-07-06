@@ -3,6 +3,8 @@ import yaml
 from typing import List
 from typing import Dict
 from typing import Any
+import os
+
 
 
 # ==========================================================
@@ -22,7 +24,7 @@ from playwright.sync_api import (
 
 @pytest.fixture
 def base_url():
-    return "https://ideabytes.com"
+    return os.getenv("BASE_URL", os.getenv("TARGET_URL", "http://localhost:3000"))
 """
 
 # ==========================================================
