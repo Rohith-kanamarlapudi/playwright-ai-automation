@@ -23,11 +23,23 @@ def run_generated_test():
     start_time = time.time()
 
 
-    result = subprocess.run(
-        [sys.executable, test_file],
-        capture_output=True,
-        text=True
-    )
+    TIMEOUT_SECONDS = 60
+
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "pytest", test_file, "-v", "--tb=short"],
+            capture_output=True,
+            text=True,
+            timeout=TIMEOUT_SECONDS
+        )
+    except subprocess.TimeoutExpired:
+        print(f"[Test Runner] TIMEOUT after {TIMEOUT_SECONDS}s — killing process.")
+        return {
+            "return_code": -1,
+            "stdout": "",
+            "stderr": f"Test timed out after {TIMEOUT_SECONDS} seconds.",
+            "execution_time": TIMEOUT_SECONDS
+        }
 
     end_time = time.time()
 
