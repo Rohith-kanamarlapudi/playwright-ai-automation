@@ -4,6 +4,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from agents.pipeline import run_agent_pipeline
+from agents.doc_sanitiser import sanitise_document
+
 
 import os
 
@@ -153,9 +155,18 @@ async def upload_document(
                 errors="ignore"
             )
 
+        document_text, warnings = sanitise_document(document_text)
+
+        if warnings:
+            print(f"[Security] Document sanitised. Warnings: {warnings}")
+
         print("\n========== DOCUMENT ==========")
         print(document_text[:500])
         print("==============================\n")
+
+        yaml_output = generate_test_cases(
+            document_text
+        )
 
         # ----------------------------
         # Generate YAML
