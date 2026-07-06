@@ -1,4 +1,6 @@
 import json
+from agents.selector_utils import cap_selectors
+
 
 
 def generate_python_directly(state, llm) -> str:
@@ -11,9 +13,9 @@ def generate_python_directly(state, llm) -> str:
 
     selectors = state.get("selectors", [])
 
-    buttons = [s for s in selectors if s.get("type") == "button"]
-    inputs = [s for s in selectors if s.get("type") == "input"]
-    links = [s for s in selectors if s.get("type") == "link"]
+    buttons = cap_selectors([s for s in selectors if s.get("type") == "button"], "buttons")
+    inputs  = cap_selectors([s for s in selectors if s.get("type") == "input"],  "inputs")
+    links   = cap_selectors([s for s in selectors if s.get("type") == "link"],   "links")
 
     prompt = f"""
 You are a Senior Python Playwright Automation Engineer.
@@ -26,17 +28,14 @@ Website Requirements:
 Generated Test Plan:
 {chr(10).join(state["task_plan"])}
 
-Framework Architecture (follow this POM structure):
-{state.get("architecture_notes", "No architecture provided.")}
-
 Detected Buttons:
-{json.dumps(buttons[:10], indent=2)}
+{json.dumps(buttons, indent=2)}
 
 Detected Inputs:
-{json.dumps(inputs[:10], indent=2)}
+{json.dumps(inputs, indent=2)}
 
 Detected Links:
-{json.dumps(links[:10], indent=2)}
+{json.dumps(links, indent=2)}
 
 Requirements:
 
