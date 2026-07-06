@@ -2,7 +2,64 @@ import subprocess
 import time
 import os
 import sys
+import ast
 
+BANNED_ATTR_CALLS = {
+    "os.system",
+    "os.popen",
+}
+
+BANNED_FUNCTIONS = {
+    "eval",
+    "exec",
+    "__import__",
+    "compile",
+}
+
+
+def ast_safety_check(filepath: str) -> tuple[bool, str]:
+    """
+    Parse the generated file with AST and reject any file that
+    contains dangerous calls or imports.
+
+    Returns:
+        (is_safe: bool, reason: str)
+    """
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            source = f.read()
+
+        tree = ast.parse(source)
+
+        for node in ast.walk(tree):
+            # Block: import os / import subprocess
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name in ("os", "subprocess"):
+                        return False, f"Banned import: {alias.name}"
+
+            # Block: from os import system
+            if isinstance(node, ast.ImportFrom):
+                if node.module in ("os", "subprocess", "sys"):
+                    return False, f"Banned from-import: {node.module}"
+
+            # Block: eval(...) / exec(...) / __import__(...)
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name):
+                    if node.func.id in BANNED_FUNCTIONS:
+                        return False, f"Banned call: {node.func.id}()"
+                if isinstance(node.func, ast.Attribute):
+                    full = f"{getattr(node.func.value, 'id', '')}."
+                    full += node.func.attr
+                    if full in BANNED_ATTR_CALLS:
+                        return False, f"Banned call: {full}()"
+
+        return True, "OK"
+
+    except SyntaxError as e:
+        return False, f"Syntax error in generated file: {e}"
+    except Exception as e:
+        return False, f"AST check failed: {e}"
 
 def run_generated_test():
     """
@@ -24,13 +81,23 @@ def run_generated_test():
 
 
     TIMEOUT_SECONDS = 60
+    is_safe, reason = ast_safety_check(test_file)
+    if not is_safe:
+        print(f"[Test Runner] SAFETY BLOCK: {reason}")
+        return {
+            "return_code": -2,
+            "stdout": "",
+            "stderr": f"Generated file blocked by safety check: {reason}",
+            "execution_time": 0,
+        }
 
     try:
         result = subprocess.run(
             [sys.executable, "-m", "pytest", test_file, "-v", "--tb=short"],
             capture_output=True,
             text=True,
-            timeout=TIMEOUT_SECONDS
+            timeout=TIMEOUT_SECONDS,
+            check=False  # We handle return codes ourselves
         )
     except subprocess.TimeoutExpired:
         print(f"[Test Runner] TIMEOUT after {TIMEOUT_SECONDS}s — killing process.")
