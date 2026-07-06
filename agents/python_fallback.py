@@ -50,7 +50,10 @@ from playwright.sync_api import sync_playwright, expect
 6. Use page.goto().
 7. Use page.click().
 8. Use page.fill().
-9. Use expect() assertions.
+9. Every test function MUST include at least one expect() assertion.
+   Use: expect(page.locator("selector")).to_be_visible()
+   Or:  expect(page).to_have_url("/expected-path")
+   A function with zero expect() calls is INVALID — do not generate it.
 10. Use ONLY the detected selectors.
 11. Do NOT invent selectors.
 12. Do NOT use time.sleep().

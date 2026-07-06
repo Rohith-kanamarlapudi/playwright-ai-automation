@@ -35,11 +35,14 @@ STRICT RULES
 3. Never invent selectors.
 4. Use ONLY supplied selectors.
 5. Ignore selectors with empty text.
-6. Every step must be executable by Playwright.
-7. Every expected result must be measurable.
-8. Do NOT generate unsupported Playwright actions.
-9. Keep steps short.
-10. Preserve task order.
+6. Steps should be short, sequential, and executable.
+7. REQUIRED: Every test case MUST include at least one step starting with
+   "Verify" or "Assert". Example: "Verify the dashboard heading is visible."
+8. Expected results must be measurable and specific.
+9. A test case with zero Verify/Assert steps is INVALID — do not generate it.
+10. Do NOT generate unsupported Playwright actions.
+11. Keep steps short.
+12. Preserve task order.
 
 Allowed Playwright Actions
 
