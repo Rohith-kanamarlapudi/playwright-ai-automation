@@ -21,6 +21,11 @@ def review_agent(state: AgentState) -> AgentState:
             print("[Review Agent] No generated code to review.")
             state["review_notes"] = "No generated code available."
             state["needs_regen"] = True
+            state["regen_count"] = state.get("regen_count", 0) + 1
+
+            print(
+                f"[Review Agent] regen_count={state['regen_count']}"
+            )
             return state
 
         prompt = f"""

@@ -34,31 +34,20 @@ def build_graph():
     graph.add_edge("code_gen", "review")
 
     def route_after_review(state: AgentState) -> str:
-        """
-        Decide whether to regenerate code or continue.
-
-        Regeneration is limited to MAX_REGEN attempts.
-        """
-
         regen_count = state.get("regen_count", 0)
 
         print(f"[Graph] Current regen count: {regen_count}")
 
-        if state.get("needs_regen", False):
+        if not state.get("needs_regen", False):
+            return "edge_cases"
 
-            regen_count += 1
-            state["regen_count"] = regen_count
+        if regen_count >= MAX_REGEN:
+            print("[Graph] Maximum regeneration attempts reached.")
+            return "edge_cases"
 
-            print(f"[Graph] Regen attempt {regen_count}/{MAX_REGEN}")
-
-            # Stop after MAX_REGEN attempts
-            if regen_count >= MAX_REGEN:
-                print("[Graph] Maximum regeneration attempts reached.")
-                state["needs_regen"] = False
-                return "edge_cases"
-
-            print("[Graph] Routing back to code generation.")
-            return "code_gen"
+        print(f"[Graph] Regen attempt {regen_count + 1}/{MAX_REGEN}")
+        print("[Graph] Routing back to code generation.")
+        return "code_gen"
 
         return "edge_cases"
 
@@ -114,6 +103,7 @@ if __name__ == "__main__":
         "best_yaml": "",
         "best_code": "",
         "syntax_passed": False,
+        "duplicate_generation": False,
 
         # Design Document
         "design_doc": """
