@@ -14,6 +14,10 @@ from scraper.scraper import main as scrape_website
 from performance.engine import PerformanceTracker
 
 
+# Maximum number of regeneration attempts
+MAX_REGEN = 2
+
+
 def build_graph():
     graph = StateGraph(AgentState)
 
@@ -30,18 +34,42 @@ def build_graph():
     graph.add_edge("code_gen", "review")
 
     def route_after_review(state: AgentState) -> str:
-        """Re-run code_gen if review flagged High risk, else proceed."""
+        """
+        Decide whether to regenerate code or continue.
+
+        Regeneration is limited to MAX_REGEN attempts.
+        """
+
+        regen_count = state.get("regen_count", 0)
+
+        print(f"[Graph] Current regen count: {regen_count}")
+
         if state.get("needs_regen", False):
-            print("[Graph] Routing back to code_gen for regen.")
-            return "code_gen"
+
+            regen_count += 1
+            state["regen_count"] = regen_count
+
+            print(f"[Graph] Regen attempt {regen_count}/{MAX_REGEN}")
+
+            if regen_count <= MAX_REGEN:
+                print("[Graph] Routing back to code generation.")
+                return "code_gen"
+
+            print("[Graph] Maximum regeneration attempts reached.")
+            print("[Graph] Continuing with best available output.")
+
+            state["needs_regen"] = False
+
         return "edge_cases"
 
     graph.add_conditional_edges(
         "review",
         route_after_review,
-        {"code_gen": "code_gen", "edge_cases": "edge_cases"}
+        {
+            "code_gen": "code_gen",
+            "edge_cases": "edge_cases",
+        },
     )
-
 
     graph.add_edge("edge_cases", END)
 
@@ -56,18 +84,12 @@ if __name__ == "__main__":
     print("STEP 1: Running Website Scraper")
     print("=" * 70)
 
-    # ----------------------------------------------------
-    # Run multi-page scraper
-    # ----------------------------------------------------
     crawl_data = scrape_website()
 
     if crawl_data is None:
         print("[Main] Scraper failed.")
         crawl_data = []
 
-    # ----------------------------------------------------
-    # Convert multi-page crawl into flat selector list
-    # ----------------------------------------------------
     selectors = build_selectors_from_crawl(crawl_data)
 
     print(f"[Main] Pages crawled : {len(crawl_data)}")
@@ -82,8 +104,18 @@ if __name__ == "__main__":
     # ----------------------------------------------------
     # Initial LangGraph State
     # ----------------------------------------------------
+
     initial_state: AgentState = {
+
+        # Pipeline State
         "needs_regen": False,
+        "regen_count": 0,
+        "review_history": [],
+        "best_yaml": "",
+        "best_code": "",
+        "syntax_passed": False,
+
+        # Design Document
         "design_doc": """
 Generate Playwright automation tests for the website.
 
@@ -104,7 +136,7 @@ Requirements:
         # Architecture Agent
         "architecture_notes": "",
 
-        # Code Generation Agent
+        # Code Generation
         "generated_yaml": "",
         "yaml_validation": {},
         "generated_code": "",
@@ -113,12 +145,9 @@ Requirements:
         "review_notes": "",
 
         # Edge Cases Agent
-        "edge_cases": []
+        "edge_cases": [],
     }
 
-    # ----------------------------------------------------
-    # Performance Tracking
-    # ----------------------------------------------------
     tracker = PerformanceTracker(label="full_pipeline_run")
     tracker.start()
 
@@ -128,9 +157,6 @@ Requirements:
 
     tracker.save("reports/perf_baseline.json")
 
-    # ----------------------------------------------------
-    # OUTPUT
-    # ----------------------------------------------------
     print("\n" + "=" * 70)
     print("FINAL STATE")
     print("=" * 70)
@@ -142,9 +168,6 @@ Requirements:
 
     print("\nWorkflow completed successfully.")
 
-    # ----------------------------------------------------
-    # PERFORMANCE REPORT
-    # ----------------------------------------------------
     print("\n" + "=" * 70)
     print("PERFORMANCE REPORT")
     print("=" * 70)

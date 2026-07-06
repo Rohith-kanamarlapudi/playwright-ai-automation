@@ -1,160 +1,267 @@
 test_cases:
   - id: TC001
-    title: Verify homepage loads with expected title
+    title: Verify no JavaScript error when clicking empty button on homepage
     priority: High
     steps:
-      - Open https://ideabytes.com
-    expected_result: Page title is 'Ideabytes'
+      - Open homepage at https://ideabytes.com
+      - Listen for console errors
+      - Click button with selector "button:has-text('')"
+    expected_result: No JavaScript console errors are recorded during the click
 
   - id: TC002
-    title: Click Contact link and verify navigation to contact page
-    priority: High
+    title: Click empty button on partnership page
+    priority: Medium
     steps:
-      - Open https://ideabytes.com
-      - Click the 'Contact' link using selector a:has-text('Contact')
-    expected_result: Current URL ends with '/contact-us.html'
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click button with selector "button:has-text('')"
+    expected_result: Button is clicked without errors
 
   - id: TC003
-    title: Click IoT Solutions link and verify external URL opens
+    title: Click empty button on web-mobile-app-dev-art2 page
     priority: Medium
     steps:
-      - Open https://ideabytes.com
-      - Click the 'IoT Solutions' link using selector a:has-text('IoT Solutions')
-    expected_result: URL changes to 'https://www.ideabytesiot.com/'
+      - Open page at https://ideabytes.com/web-mobile-app-dev-art2.html
+      - Click button with selector "button:has-text('')"
+    expected_result: Button is clicked without errors
 
   - id: TC004
-    title: Click Test Automation link and verify navigation to test-automation page
-    priority: High
+    title: Click empty button on test_automation_article4 page
+    priority: Medium
     steps:
-      - Open https://ideabytes.com
-      - Click the 'Test Automation' link using selector a:has-text('Test Automation')
-    expected_result: Current URL ends with '/test-automation.html'
+      - Open page at https://ideabytes.com/test_automation_article4.html
+      - Click button with selector "button:has-text('')"
+    expected_result: Button is clicked without errors
 
   - id: TC005
-    title: Click Teens4Tech link and verify navigation to Teens_tech page
-    priority: High
+    title: Click empty button on test_automation_article page
+    priority: Medium
     steps:
-      - Open https://ideabytes.com
-      - Click the 'Teens4Tech' link using selector a:has-text('Teens4Tech')
-    expected_result: Current URL ends with '/Teens_tech.html'
+      - Open page at https://ideabytes.com/test_automation_article.html
+      - Click button with selector "button:has-text('')"
+    expected_result: Button is clicked without errors
 
   - id: TC006
-    title: Fill Teens_tech registration form with valid data and submit
-    priority: High
+    title: Click empty button on index page
+    priority: Medium
     steps:
-      - Open https://ideabytes.com/Teens_tech.html
-      - Fill the name input (name='widget-contact-form-name') with 'John Doe'
-      - Fill the email input (name='widget-contact-form-email') with 'john@example.com'
-      - Fill the age input (name='widget-contact-form-company') with '15'
-      - Click the Register button using selector #form_submit1234
-    expected_result: No HTML5 validation errors are displayed; form submits successfully
+      - Open index page at https://ideabytes.com/index.html
+      - Click button with selector "button:has-text('')"
+    expected_result: Button is clicked without errors
 
   - id: TC007
-    title: Submit empty Teens_tech registration form and verify validation errors
-    priority: High
+    title: Click empty button on security-testing-article-3 page
+    priority: Medium
     steps:
-      - Open https://ideabytes.com/Teens_tech.html
-      - Click the Register button using selector #form_submit1234
-    expected_result: HTML5 validation messages appear for each required field (name, email, age)
+      - Open page at https://ideabytes.com/security-testing-article-3.html
+      - Click button with selector "button:has-text('')"
+    expected_result: Button is clicked without errors
 
   - id: TC008
-    title: Fill only name field on Teens_tech form and verify email validation
-    priority: High
+    title: Click empty button on Teens_tech page
+    priority: Medium
     steps:
-      - Open https://ideabytes.com/Teens_tech.html
-      - Fill the name input (name='widget-contact-form-name') with 'John Doe'
-      - Click the Register button using selector #form_submit1234
-    expected_result: HTML5 validation message appears on the email field
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Click button with selector "button:has-text('')"
+    expected_result: Button is clicked without errors
 
   - id: TC009
-    title: Verify name input placeholder on Teens_tech page
+    title: Click empty button on test_automation_article5 page
     priority: Medium
     steps:
-      - Open https://ideabytes.com/Teens_tech.html
-      - Check placeholder attribute of input[name='widget-contact-form-name']
-    expected_result: Placeholder value is 'Enter your Name'
+      - Open page at https://ideabytes.com/test_automation_article5.html
+      - Click button with selector "button:has-text('')"
+    expected_result: Button is clicked without errors
 
   - id: TC010
-    title: Verify email input type attribute on Teens_tech page
+    title: Fill name input on Teens_tech page
     priority: Medium
     steps:
-      - Open https://ideabytes.com/Teens_tech.html
-      - Check type attribute of input[name='widget-contact-form-email']
-    expected_result: Type attribute is 'email'
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Fill input with selector "input[name='widget-contact-form-name']" with text 'John Doe'
+    expected_result: The name field is populated with 'John Doe'
 
   - id: TC011
-    title: Verify age input placeholder on Teens_tech page
+    title: Fill email input on Teens_tech page
     priority: Medium
     steps:
-      - Open https://ideabytes.com/Teens_tech.html
-      - Check placeholder attribute of input[name='widget-contact-form-company']
-    expected_result: Placeholder value is 'Enter your Age'
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Fill input with selector "input[name='widget-contact-form-email']" with text 'john.doe@example.com'
+    expected_result: The email field is populated with 'john.doe@example.com'
 
   - id: TC012
-    title: Verify PDF document loads successfully
+    title: Fill age input on Teens_tech page
     priority: Medium
     steps:
-      - Open https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf
-    expected_result: URL ends with '.pdf' and page loads without errors
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Fill input with selector "input[name='widget-contact-form-company']" with text '25'
+    expected_result: The age field is populated with '25'
 
   - id: TC013
-    title: Verify LinkedIn link is present and clickable on homepage
-    priority: Low
-    steps:
-      - Open https://ideabytes.com
-      - Locate the LinkedIn link using selector a[href='https://in.linkedin.com/company/ideabytes-inc']
-    expected_result: Link is visible and clickable
-
-  - id: TC014
-    title: Verify logo link is present and visible on homepage
-    priority: Low
-    steps:
-      - Open https://ideabytes.com
-      - Locate the logo link using selector a[href='https://ideabytes.com/index.html']
-    expected_result: Link is visible
-
-  - id: TC015
-    title: Verify about-us page loads successfully
-    priority: Medium
-    steps:
-      - Open https://ideabytes.com/about-us.html
-    expected_result: Page loads with HTTP 200 and no errors
-
-  - id: TC016
-    title: Verify team page loads successfully
-    priority: Medium
-    steps:
-      - Open https://ideabytes.com/team.html
-    expected_result: Page loads with HTTP 200 and no errors
-
-  - id: TC017
-    title: Verify Register button is visible and enabled on Teens_tech page
-    priority: Low
-    steps:
-      - Open https://ideabytes.com/Teens_tech.html
-      - Locate the Register button using selector #form_submit1234
-    expected_result: Button is visible and enabled
-
-  - id: TC018
-    title: Click Application Development link and verify navigation to web-mobile-app-dev page
+    title: Verify validation messages on empty register form on Teens_tech page
     priority: High
     steps:
-      - Open https://ideabytes.com
-      - Click the 'Application Development' link using selector a:has-text('Application Development')
-    expected_result: Current URL ends with '/web-mobile-app-dev.html'
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Click button with selector "#form_submit1234"
+    expected_result: Validation error messages are displayed for required fields
+
+  - id: TC014
+    title: Register with valid data on Teens_tech page
+    priority: High
+    steps:
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Fill input with selector "input[name='widget-contact-form-name']" with text 'Jane Doe'
+      - Fill input with selector "input[name='widget-contact-form-email']" with text 'jane.doe@example.com'
+      - Fill input with selector "input[name='widget-contact-form-company']" with text '16'
+      - Click button with selector "#form_submit1234"
+    expected_result: Form submission is successful, success message appears or page redirects
+
+  - id: TC015
+    title: Verify email validation error for invalid email on Teens_tech page
+    priority: High
+    steps:
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Fill input with selector "input[name='widget-contact-form-name']" with text 'Jane Doe'
+      - Fill input with selector "input[name='widget-contact-form-email']" with text 'notanemail'
+      - Fill input with selector "input[name='widget-contact-form-company']" with text '16'
+      - Click button with selector "#form_submit1234"
+    expected_result: Validation error for invalid email is displayed
+
+  - id: TC016
+    title: Verify email required validation on Teens_tech page
+    priority: High
+    steps:
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Fill input with selector "input[name='widget-contact-form-name']" with text 'Jane Doe'
+      - Fill input with selector "input[name='widget-contact-form-company']" with text '16'
+      - Click button with selector "#form_submit1234"
+    expected_result: Validation error "Email is required" is displayed
+
+  - id: TC017
+    title: Verify age required validation on Teens_tech page
+    priority: High
+    steps:
+      - Open Teens_tech page at https://ideabytes.com/Teens_tech.html
+      - Fill input with selector "input[name='widget-contact-form-name']" with text 'Jane Doe'
+      - Fill input with selector "input[name='widget-contact-form-email']" with text 'jane.doe@example.com'
+      - Click button with selector "#form_submit1234"
+    expected_result: Validation error "Age is required" is displayed
+
+  - id: TC018
+    title: Click LinkedIn link on homepage and verify URL
+    priority: High
+    steps:
+      - Open homepage at https://ideabytes.com
+      - Click link with selector "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+    expected_result: A new tab or window opens with URL containing 'linkedin.com'
 
   - id: TC019
-    title: Click DG HAZMAT link and verify external URL opens
-    priority: Medium
+    title: Click ISO9001 certificate link on homepage and verify PDF response
+    priority: High
     steps:
-      - Open https://ideabytes.com
-      - Click the 'DG HAZMAT' link using selector a:has-text('DG HAZMAT')
-    expected_result: URL changes to 'https://www.dgsms.ca'
+      - Open homepage at https://ideabytes.com
+      - Click link with selector "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+    expected_result: PDF file is downloaded or opened in browser with content type application/pdf
 
   - id: TC020
-    title: Click IGBMS link and verify external URL opens
+    title: Click ISO27001 certificate link on homepage and verify PDF response
+    priority: High
+    steps:
+      - Open homepage at https://ideabytes.com
+      - Click link with selector "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+    expected_result: PDF file is downloaded or opened in browser with content type application/pdf
+
+  - id: TC021
+    title: Click ISO27017 certificate link on homepage and verify PDF response
+    priority: High
+    steps:
+      - Open homepage at https://ideabytes.com
+      - Click link with selector "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
+    expected_result: PDF file is downloaded or opened in browser with content type application/pdf
+
+  - id: TC022
+    title: Click LinkedIn link on partnership page and verify URL
+    priority: High
+    steps:
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://in.linkedin.com/company/ideabytes-inc']"
+    expected_result: A new tab or window opens with URL containing 'linkedin.com'
+
+  - id: TC023
+    title: Click Conformiq link on partnership page and verify URL
     priority: Medium
     steps:
-      - Open https://ideabytes.com
-      - Click the 'IGBMS' link using selector a:has-text('IGBMS')
-    expected_result: URL changes to 'https://igbms.com/'
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://www.conformiq.com/']"
+    expected_result: A new tab or window opens with URL containing 'conformiq.com'
+
+  - id: TC024
+    title: Click Eggplant link on partnership page and verify URL
+    priority: Medium
+    steps:
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://eggplant.io/']"
+    expected_result: A new tab or window opens with URL containing 'eggplant.io'
+
+  - id: TC025
+    title: Click Kii link on partnership page and verify URL
+    priority: Medium
+    steps:
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://en.kii.com/']"
+    expected_result: A new tab or window opens with URL containing 'kii.com'
+
+  - id: TC026
+    title: Click Beyond Security link on partnership page and verify URL
+    priority: Medium
+    steps:
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://www.beyondsecurity.com/']"
+    expected_result: A new tab or window opens with URL containing 'beyondsecurity.com'
+
+  - id: TC027
+    title: Click ISO9001 certificate link on partnership page and verify PDF response
+    priority: High
+    steps:
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']"
+    expected_result: PDF file is downloaded or opened in browser with content type application/pdf
+
+  - id: TC028
+    title: Click ISO27001 certificate link on partnership page and verify PDF response
+    priority: High
+    steps:
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']"
+    expected_result: PDF file is downloaded or opened in browser with content type application/pdf
+
+  - id: TC029
+    title: Click ISO27017 certificate link on partnership page and verify PDF response
+    priority: High
+    steps:
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']"
+    expected_result: PDF file is downloaded or opened in browser with content type application/pdf
+
+  - id: TC030
+    title: Click index link from web-mobile-app-dev-art2 page navigates to homepage
+    priority: High
+    steps:
+      - Open web-mobile-app-dev-art2 page at https://ideabytes.com/web-mobile-app-dev-art2.html
+      - Click link with selector "a[href='https://ideabytes.com/index.html']"
+    expected_result: Browser navigates to https://ideabytes.com/index.html (homepage)
+
+  - id: TC031
+    title: Click index link on homepage triggers same page reload
+    priority: Medium
+    steps:
+      - Open homepage at https://ideabytes.com
+      - Click link with selector "a[href='https://ideabytes.com/index.html']"
+    expected_result: Page reloads and URL remains https://ideabytes.com/index.html
+
+  - id: TC032
+    title: Click index link from partnership page navigates to homepage
+    priority: High
+    steps:
+      - Open partnership page at https://ideabytes.com/partnership.html
+      - Click link with selector "a[href='https://ideabytes.com/index.html']"
+    expected_result: Browser navigates to https://ideabytes.com/index.html (homepage)

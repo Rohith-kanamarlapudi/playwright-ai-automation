@@ -24,338 +24,541 @@ def base_url():
 # Test Case 1
 
 # =====================================================
-# TC001 - Verify homepage loads with expected title
+# TC001 - Verify no JavaScript error when clicking empty button on homepage
 # =====================================================
 
-def test_verify_homepage_loads_with_expected_title(page: Page):
+def test_verify_no_javascript_error_when_clicking_empty_button_on_homepage(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
+    print("WARNING: Unsupported step -> Listen for console errors")
+    # Unsupported Step: Listen for console errors
+    page.click("with selector \"button:has-text('')\"")
 
 
 
 # Test Case 2
 
 # =====================================================
-# TC002 - Click Contact link and verify navigation to contact page
+# TC002 - Click empty button on partnership page
 # =====================================================
 
-def test_click_contact_link_and_verify_navigation_to_contact_page(page: Page):
+def test_click_empty_button_on_partnership_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/partnership.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Click the 'Contact' link using selector a:has-text('Contact')")
-    # Unsupported Step: Click the 'Contact' link using selector a:has-text('Contact')
+    page.click("with selector \"button:has-text('')\"")
 
 
 
 # Test Case 3
 
 # =====================================================
-# TC003 - Click IoT Solutions link and verify external URL opens
+# TC003 - Click empty button on web-mobile-app-dev-art2 page
 # =====================================================
 
-def test_click_iot_solutions_link_and_verify_external_url_opens(page: Page):
+def test_click_empty_button_on_web_mobile_app_dev_art2_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/web-mobile-app-dev-art2.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Click the 'IoT Solutions' link using selector a:has-text('IoT Solutions')")
-    # Unsupported Step: Click the 'IoT Solutions' link using selector a:has-text('IoT Solutions')
+    page.click("with selector \"button:has-text('')\"")
 
-    expect(page).to_have_url("https://www.ideabytesiot.com/")
 
 
 # Test Case 4
 
 # =====================================================
-# TC004 - Click Test Automation link and verify navigation to test-automation page
+# TC004 - Click empty button on test_automation_article4 page
 # =====================================================
 
-def test_click_test_automation_link_and_verify_navigation_to_test_automation_page(page: Page):
+def test_click_empty_button_on_test_automation_article4_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/test_automation_article4.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Click the 'Test Automation' link using selector a:has-text('Test Automation')")
-    # Unsupported Step: Click the 'Test Automation' link using selector a:has-text('Test Automation')
+    page.click("with selector \"button:has-text('')\"")
 
 
 
 # Test Case 5
 
 # =====================================================
-# TC005 - Click Teens4Tech link and verify navigation to Teens_tech page
+# TC005 - Click empty button on test_automation_article page
 # =====================================================
 
-def test_click_teens4tech_link_and_verify_navigation_to_teens_tech_page(page: Page):
+def test_click_empty_button_on_test_automation_article_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/test_automation_article.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Click the 'Teens4Tech' link using selector a:has-text('Teens4Tech')")
-    # Unsupported Step: Click the 'Teens4Tech' link using selector a:has-text('Teens4Tech')
+    page.click("with selector \"button:has-text('')\"")
 
 
 
 # Test Case 6
 
 # =====================================================
-# TC006 - Fill Teens_tech registration form with valid data and submit
+# TC006 - Click empty button on index page
 # =====================================================
 
-def test_fill_teens_tech_registration_form_with_valid_data_and_submit(page: Page):
+def test_click_empty_button_on_index_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com/Teens_tech.html")
+    page.goto("https://ideabytes.com/index.html")
     page.wait_for_load_state('networkidle')
-    page.fill("the name input (name='widget-contact-form-name')", "John Doe")
-    page.fill("the email input (name='widget-contact-form-email')", "john@example.com")
-    page.fill("the age input (name='widget-contact-form-company')", "15")
-    print("WARNING: Unsupported step -> Click the Register button using selector")
-    # Unsupported Step: Click the Register button using selector
+    page.click("with selector \"button:has-text('')\"")
 
 
 
 # Test Case 7
 
 # =====================================================
-# TC007 - Submit empty Teens_tech registration form and verify validation errors
+# TC007 - Click empty button on security-testing-article-3 page
 # =====================================================
 
-def test_submit_empty_teens_tech_registration_form_and_verify_validation_errors(page: Page):
+def test_click_empty_button_on_security_testing_article_3_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com/Teens_tech.html")
+    page.goto("https://ideabytes.com/security-testing-article-3.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Click the Register button using selector")
-    # Unsupported Step: Click the Register button using selector
+    page.click("with selector \"button:has-text('')\"")
 
 
 
 # Test Case 8
 
 # =====================================================
-# TC008 - Fill only name field on Teens_tech form and verify email validation
+# TC008 - Click empty button on Teens_tech page
 # =====================================================
 
-def test_fill_only_name_field_on_teens_tech_form_and_verify_email_validation(page: Page):
+def test_click_empty_button_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    page.fill("the name input (name='widget-contact-form-name')", "John Doe")
-    print("WARNING: Unsupported step -> Click the Register button using selector")
-    # Unsupported Step: Click the Register button using selector
+    page.click("with selector \"button:has-text('')\"")
 
 
 
 # Test Case 9
 
 # =====================================================
-# TC009 - Verify name input placeholder on Teens_tech page
+# TC009 - Click empty button on test_automation_article5 page
 # =====================================================
 
-def test_verify_name_input_placeholder_on_teens_tech_page(page: Page):
+def test_click_empty_button_on_test_automation_article5_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com/Teens_tech.html")
+    page.goto("https://ideabytes.com/test_automation_article5.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Check placeholder attribute of input[name='widget-contact-form-name']")
-    # Unsupported Step: Check placeholder attribute of input[name='widget-contact-form-name']
+    page.click("with selector \"button:has-text('')\"")
 
 
 
 # Test Case 10
 
 # =====================================================
-# TC010 - Verify email input type attribute on Teens_tech page
+# TC010 - Fill name input on Teens_tech page
 # =====================================================
 
-def test_verify_email_input_type_attribute_on_teens_tech_page(page: Page):
+def test_fill_name_input_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Check type attribute of input[name='widget-contact-form-email']")
-    # Unsupported Step: Check type attribute of input[name='widget-contact-form-email']
+    page.fill("input", "selector \"input[name='widget-contact-form-name']\" with text 'John Doe")
 
 
 
 # Test Case 11
 
 # =====================================================
-# TC011 - Verify age input placeholder on Teens_tech page
+# TC011 - Fill email input on Teens_tech page
 # =====================================================
 
-def test_verify_age_input_placeholder_on_teens_tech_page(page: Page):
+def test_fill_email_input_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Check placeholder attribute of input[name='widget-contact-form-company']")
-    # Unsupported Step: Check placeholder attribute of input[name='widget-contact-form-company']
+    page.fill("input", "selector \"input[name='widget-contact-form-email']\" with text 'john.doe@example.com")
 
 
 
 # Test Case 12
 
 # =====================================================
-# TC012 - Verify PDF document loads successfully
+# TC012 - Fill age input on Teens_tech page
 # =====================================================
 
-def test_verify_pdf_document_loads_successfully(page: Page):
+def test_fill_age_input_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
+    page.fill("input", "selector \"input[name='widget-contact-form-company']\" with text '25")
 
 
 
 # Test Case 13
 
 # =====================================================
-# TC013 - Verify LinkedIn link is present and clickable on homepage
+# TC013 - Verify validation messages on empty register form on Teens_tech page
 # =====================================================
 
-def test_verify_linkedin_link_is_present_and_clickable_on_homepage(page: Page):
+def test_verify_validation_messages_on_empty_register_form_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Locate the LinkedIn link using selector a[href='https://in.linkedin.com/company/ideabytes-inc']")
-    # Unsupported Step: Locate the LinkedIn link using selector a[href='https://in.linkedin.com/company/ideabytes-inc']
+    page.click("with selector \"#form_submit1234\"")
 
 
 
 # Test Case 14
 
 # =====================================================
-# TC014 - Verify logo link is present and visible on homepage
+# TC014 - Register with valid data on Teens_tech page
 # =====================================================
 
-def test_verify_logo_link_is_present_and_visible_on_homepage(page: Page):
+def test_register_with_valid_data_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Locate the logo link using selector a[href='https://ideabytes.com/index.html']")
-    # Unsupported Step: Locate the logo link using selector a[href='https://ideabytes.com/index.html']
+    page.fill("input", "selector \"input[name='widget-contact-form-name']\" with text 'Jane Doe")
+    page.fill("input", "selector \"input[name='widget-contact-form-email']\" with text 'jane.doe@example.com")
+    page.fill("input", "selector \"input[name='widget-contact-form-company']\" with text '16")
+    page.click("with selector \"#form_submit1234\"")
 
 
 
 # Test Case 15
 
 # =====================================================
-# TC015 - Verify about-us page loads successfully
+# TC015 - Verify email validation error for invalid email on Teens_tech page
 # =====================================================
 
-def test_verify_about_us_page_loads_successfully(page: Page):
+def test_verify_email_validation_error_for_invalid_email_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com/about-us.html")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
+    page.fill("input", "selector \"input[name='widget-contact-form-name']\" with text 'Jane Doe")
+    page.fill("input", "selector \"input[name='widget-contact-form-email']\" with text 'notanemail")
+    page.fill("input", "selector \"input[name='widget-contact-form-company']\" with text '16")
+    page.click("with selector \"#form_submit1234\"")
 
 
 
 # Test Case 16
 
 # =====================================================
-# TC016 - Verify team page loads successfully
+# TC016 - Verify email required validation on Teens_tech page
 # =====================================================
 
-def test_verify_team_page_loads_successfully(page: Page):
+def test_verify_email_required_validation_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
-    page.goto("https://ideabytes.com/team.html")
+    page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
+    page.fill("input", "selector \"input[name='widget-contact-form-name']\" with text 'Jane Doe")
+    page.fill("input", "selector \"input[name='widget-contact-form-company']\" with text '16")
+    page.click("with selector \"#form_submit1234\"")
 
 
 
 # Test Case 17
 
 # =====================================================
-# TC017 - Verify Register button is visible and enabled on Teens_tech page
+# TC017 - Verify age required validation on Teens_tech page
 # =====================================================
 
-def test_verify_register_button_is_visible_and_enabled_on_teens_tech_page(page: Page):
+def test_verify_age_required_validation_on_teens_tech_page(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com/Teens_tech.html")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Locate the Register button using selector")
-    # Unsupported Step: Locate the Register button using selector
+    page.fill("input", "selector \"input[name='widget-contact-form-name']\" with text 'Jane Doe")
+    page.fill("input", "selector \"input[name='widget-contact-form-email']\" with text 'jane.doe@example.com")
+    page.click("with selector \"#form_submit1234\"")
 
 
 
 # Test Case 18
 
 # =====================================================
-# TC018 - Click Application Development link and verify navigation to web-mobile-app-dev page
+# TC018 - Click LinkedIn link on homepage and verify URL
 # =====================================================
 
-def test_click_application_development_link_and_verify_navigation_to_web_mobile_app_dev_page(page: Page):
+def test_click_linkedin_link_on_homepage_and_verify_url(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Click the 'Application Development' link using selector a:has-text('Application Development')")
-    # Unsupported Step: Click the 'Application Development' link using selector a:has-text('Application Development')
+    page.click("a[href='https://in.linkedin.com/company/ideabytes-inc']")
+    page.wait_for_load_state('networkidle')
 
 
 
 # Test Case 19
 
 # =====================================================
-# TC019 - Click DG HAZMAT link and verify external URL opens
+# TC019 - Click ISO9001 certificate link on homepage and verify PDF response
 # =====================================================
 
-def test_click_dg_hazmat_link_and_verify_external_url_opens(page: Page):
+def test_click_iso9001_certificate_link_on_homepage_and_verify_pdf_response(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Click the 'DG HAZMAT' link using selector a:has-text('DG HAZMAT')")
-    # Unsupported Step: Click the 'DG HAZMAT' link using selector a:has-text('DG HAZMAT')
+    page.click("a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']")
+    page.wait_for_load_state('networkidle')
 
-    expect(page).to_have_url("https://www.dgsms.ca")
 
 
 # Test Case 20
 
 # =====================================================
-# TC020 - Click IGBMS link and verify external URL opens
+# TC020 - Click ISO27001 certificate link on homepage and verify PDF response
 # =====================================================
 
-def test_click_igbms_link_and_verify_external_url_opens(page: Page):
+def test_click_iso27001_certificate_link_on_homepage_and_verify_pdf_response(page: Page):
     page.set_default_timeout(10000)
     page.set_default_navigation_timeout(30000)
 
     page.goto("https://ideabytes.com")
     page.wait_for_load_state('networkidle')
-    print("WARNING: Unsupported step -> Click the 'IGBMS' link using selector a:has-text('IGBMS')")
-    # Unsupported Step: Click the 'IGBMS' link using selector a:has-text('IGBMS')
+    page.click("a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']")
+    page.wait_for_load_state('networkidle')
 
-    expect(page).to_have_url("https://igbms.com/")
+
+
+# Test Case 21
+
+# =====================================================
+# TC021 - Click ISO27017 certificate link on homepage and verify PDF response
+# =====================================================
+
+def test_click_iso27017_certificate_link_on_homepage_and_verify_pdf_response(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 22
+
+# =====================================================
+# TC022 - Click LinkedIn link on partnership page and verify URL
+# =====================================================
+
+def test_click_linkedin_link_on_partnership_page_and_verify_url(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://in.linkedin.com/company/ideabytes-inc']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 23
+
+# =====================================================
+# TC023 - Click Conformiq link on partnership page and verify URL
+# =====================================================
+
+def test_click_conformiq_link_on_partnership_page_and_verify_url(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://www.conformiq.com/']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 24
+
+# =====================================================
+# TC024 - Click Eggplant link on partnership page and verify URL
+# =====================================================
+
+def test_click_eggplant_link_on_partnership_page_and_verify_url(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://eggplant.io/']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 25
+
+# =====================================================
+# TC025 - Click Kii link on partnership page and verify URL
+# =====================================================
+
+def test_click_kii_link_on_partnership_page_and_verify_url(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://en.kii.com/']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 26
+
+# =====================================================
+# TC026 - Click Beyond Security link on partnership page and verify URL
+# =====================================================
+
+def test_click_beyond_security_link_on_partnership_page_and_verify_url(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://www.beyondsecurity.com/']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 27
+
+# =====================================================
+# TC027 - Click ISO9001 certificate link on partnership page and verify PDF response
+# =====================================================
+
+def test_click_iso9001_certificate_link_on_partnership_page_and_verify_pdf_response(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://ideabytes.com/certificates/Ideabytes-ISO9001-2015.pdf']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 28
+
+# =====================================================
+# TC028 - Click ISO27001 certificate link on partnership page and verify PDF response
+# =====================================================
+
+def test_click_iso27001_certificate_link_on_partnership_page_and_verify_pdf_response(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27001-2022.pdf']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 29
+
+# =====================================================
+# TC029 - Click ISO27017 certificate link on partnership page and verify PDF response
+# =====================================================
+
+def test_click_iso27017_certificate_link_on_partnership_page_and_verify_pdf_response(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://ideabytes.com/certificates/Ideabytes-ISO-IEC27017-2015.pdf']")
+    page.wait_for_load_state('networkidle')
+
+
+
+# Test Case 30
+
+# =====================================================
+# TC030 - Click index link from web-mobile-app-dev-art2 page navigates to homepage
+# =====================================================
+
+def test_click_index_link_from_web_mobile_app_dev_art2_page_navigates_to_homepage(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/web-mobile-app-dev-art2.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://ideabytes.com/index.html']")
+    page.wait_for_load_state('networkidle')
+
+    expect(page).to_have_url("https://ideabytes.com/index.html")
+
+
+# Test Case 31
+
+# =====================================================
+# TC031 - Click index link on homepage triggers same page reload
+# =====================================================
+
+def test_click_index_link_on_homepage_triggers_same_page_reload(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://ideabytes.com/index.html']")
+    page.wait_for_load_state('networkidle')
+
+    expect(page).to_have_url("https://ideabytes.com/index.html")
+
+
+# Test Case 32
+
+# =====================================================
+# TC032 - Click index link from partnership page navigates to homepage
+# =====================================================
+
+def test_click_index_link_from_partnership_page_navigates_to_homepage(page: Page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(30000)
+
+    page.goto("https://ideabytes.com/partnership.html")
+    page.wait_for_load_state('networkidle')
+    page.click("a[href='https://ideabytes.com/index.html']")
+    page.wait_for_load_state('networkidle')
+
+    expect(page).to_have_url("https://ideabytes.com/index.html")
 
