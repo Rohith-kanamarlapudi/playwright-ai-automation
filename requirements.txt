@@ -1,15 +1,29 @@
+# Core agent orchestration
 langgraph
 langchain
-langchain-openai
-langchain-community
-langchain-ollama
+langchain-openai          # DeepSeek via OpenAI-compatible API
+# Removed: langchain-ollama (unused), langchain-community (unused)
+
+# Web framework
 fastapi
 uvicorn[standard]
+jinja2
+python-multipart
+
+# Scraping
 beautifulsoup4
 requests
-psutil
 playwright
+
+# Data + config
 pyyaml
 python-dotenv
+psutil
+
+# PDF support (used in app/main.py upload route)
+pypdf
+
+# Testing
 pytest
 pytest-asyncio
+pytest-playwright
