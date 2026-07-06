@@ -123,20 +123,46 @@ async def upload_document(
             )
 
         # ----------------------------
-        # Save Uploaded File
+        # Read & Validate Uploaded File
         # ----------------------------
-
-        from pathlib import Path
-        safe_name = Path(file.filename).name
-        file_path = os.path.join("uploads", safe_name)
 
         content = await file.read()
 
-        with open(
-            file_path,
-            "wb"
-        ) as f:
+        # Validate file size (max 2 MB)
+        MAX_BYTES = 2 * 1024 * 1024
 
+        if len(content) > MAX_BYTES:
+            return templates.TemplateResponse(
+                request=request,
+                name="results.html",
+                context={
+                    "request": request,
+                    "error": "File too large (max 2 MB)."
+                }
+            )
+
+        # Validate UTF-8 for text files
+        if extension in (".txt", ".md"):
+            try:
+                content.decode("utf-8")
+            except UnicodeDecodeError:
+                return templates.TemplateResponse(
+                    request=request,
+                    name="results.html",
+                    context={
+                        "request": request,
+                        "error": "File is not valid UTF-8 text."
+                    }
+                )
+
+        # Safe filename
+        from pathlib import Path
+
+        safe_name = Path(file.filename).name
+        file_path = os.path.join("uploads", safe_name)
+
+        # Save uploaded file
+        with open(file_path, "wb") as f:
             f.write(content)
 
         print("File saved:", file_path)
