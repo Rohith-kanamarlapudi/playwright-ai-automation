@@ -70,6 +70,12 @@ def run_agent_pipeline(
 
         # Review Agent
         "review_notes": "",
+        "needs_regen": False,
+        "regen_count": 0,
+        "review_history": [],
+        "best_yaml": "",
+        "best_code": "",
+        "syntax_passed": False,
 
         # Edge Cases Agent
         "edge_cases": []
