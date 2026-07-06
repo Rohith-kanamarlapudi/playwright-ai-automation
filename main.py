@@ -28,7 +28,21 @@ def build_graph():
     graph.add_edge("strategy", "architecture")
     graph.add_edge("architecture", "code_gen")
     graph.add_edge("code_gen", "review")
-    graph.add_edge("review", "edge_cases")
+
+    def route_after_review(state: AgentState) -> str:
+        """Re-run code_gen if review flagged High risk, else proceed."""
+        if state.get("needs_regen", False):
+            print("[Graph] Routing back to code_gen for regen.")
+            return "code_gen"
+        return "edge_cases"
+
+    graph.add_conditional_edges(
+        "review",
+        route_after_review,
+        {"code_gen": "code_gen", "edge_cases": "edge_cases"}
+    )
+
+
     graph.add_edge("edge_cases", END)
 
     return graph.compile()
@@ -69,6 +83,7 @@ if __name__ == "__main__":
     # Initial LangGraph State
     # ----------------------------------------------------
     initial_state: AgentState = {
+        "needs_regen": False,
         "design_doc": """
 Generate Playwright automation tests for the website.
 
