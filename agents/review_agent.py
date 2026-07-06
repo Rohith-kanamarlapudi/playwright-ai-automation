@@ -1,6 +1,8 @@
 from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
+import re
+
 
 llm = get_llm()
 
@@ -87,34 +89,26 @@ Yes / No
         # Detect critical execution problems
         # -------------------------------------------------
 
-        critical_keywords = [
-            "syntax error",
-            "invalid syntax",
-            "indentationerror",
-            "runtime error",
-            "playwright error",
-            "locator not found",
-            "invalid locator",
-            "broken test",
-            "cannot execute",
-            "execution will fail",
-            "missing assertion",
-            "no assertion",
-        ]
-
-        has_critical_keyword = any(
-            keyword in notes_lower
-            for keyword in critical_keywords
+        # Parse the structured section the prompt guarantees:
+        # ### Critical Execution Issues\nYes / No
+        critical_execution = False
+        match = re.search(
+            r"###\s*Critical Execution Issues\s*\n\s*(yes|no)",
+            notes,
+            re.IGNORECASE,
         )
+        if match:
+            critical_execution = match.group(1).lower() == "yes"
+        else:
+            # Fallback: look for the line in isolation to avoid false positives
+            for line in notes.splitlines():
+                stripped = line.strip().lower()
+                if stripped in ("yes", "yes."):
+                    critical_execution = True
+                    break
 
-        critical_execution = (
-            "critical execution issues" in notes_lower
-            and "yes" in notes_lower
-        )
+        state["needs_regen"] = critical_execution
 
-        state["needs_regen"] = (
-            critical_execution or has_critical_keyword
-        )
 
         if state["needs_regen"]:
             print("[Review Agent] Critical execution issues detected.")
