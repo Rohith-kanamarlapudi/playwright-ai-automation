@@ -248,3 +248,22 @@ credentials.json
 # OS files
 .DS_Store
 Thumbs.db
+
+
+# ── Generated runtime artifacts ──────────────────────────
+reports/website_elements.json
+website_elements.json
+generated_tests/generated_test.py
+generated_tests/generated_yaml.yaml
+generated_tests/test_generated.py
+generated_tests/unsupported_steps.txt
+generated_tests/conftest.py
+performance/benchmark_results.csv
+reports/test_execution_report.json
+reports/test_execution_report.html
+reports/perf_baseline.json
+reports/per_agent_perf.json
+reports/perf_week2.json
+uploads/
+!generated_tests/.gitkeep
+!reports/.gitkeep
