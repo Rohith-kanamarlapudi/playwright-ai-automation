@@ -113,7 +113,10 @@ def code_gen_agent(state: AgentState) -> AgentState:
     try:
         llm = get_llm()
         print("[Code Gen Agent] Running...")
-
+        print(
+            f"[Code Gen Agent] regen_count={state.get('regen_count', 0)} "
+            f"needs_regen={state.get('needs_regen', False)}"
+        )
         if state.get("regen_count", 0) > 0:
             print(
                 f"[Code Gen Agent] Regeneration Pass #{state['regen_count']}"
@@ -203,9 +206,10 @@ def code_gen_agent(state: AgentState) -> AgentState:
             previous_code = state.get("best_code", "")
 
             if previous_code and code == previous_code:
-                print("[Code Gen] Generated code is identical to previous version.")
-                state["needs_regen"] = False
-                return state
+                print("[Code Gen] Generated code identical to previous attempt.")
+                state["duplicate_generation"] = True
+            else:
+                state["duplicate_generation"] = False
             if not code.strip():
                 raise ValueError("YAML conversion returned empty Playwright code.")
 
