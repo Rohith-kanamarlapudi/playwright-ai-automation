@@ -17,7 +17,6 @@ from agents.selector_utils import cap_selectors
 from test_runner import ast_safety_check
 
 
-llm = get_llm()
 
 
 def verify_generated_code(filepath: str) -> bool:
@@ -112,6 +111,7 @@ def code_gen_agent(state: AgentState) -> AgentState:
     tracker.start()
 
     try:
+        llm = get_llm()
         print("[Code Gen Agent] Running...")
 
         if state.get("regen_count", 0) > 0:

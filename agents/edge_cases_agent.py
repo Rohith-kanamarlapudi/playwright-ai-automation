@@ -2,7 +2,6 @@ from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 
-llm = get_llm()
 
 
 def edge_cases_agent(state: AgentState) -> AgentState:
@@ -11,6 +10,8 @@ def edge_cases_agent(state: AgentState) -> AgentState:
     tracker.start()
 
     try:
+        llm = get_llm()
+
         print("[Edge Cases Agent] Running...")
 
         task_plan = state.get("task_plan", [])
