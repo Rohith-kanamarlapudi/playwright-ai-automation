@@ -10,8 +10,27 @@ from report_generator import (
 )
 
 
-URL = "https://ideabytes.com"
-MAX_PAGES = 10
+import argparse
+from dotenv import load_dotenv
+load_dotenv()
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Run the Playwright AI automation pipeline."
+    )
+    parser.add_argument(
+        "--url",
+        type=str,
+        default=os.getenv("TARGET_URL", "https://ideabytes.com"),
+        help="Target website URL to scrape and test"
+    )
+    parser.add_argument(
+        "--max-pages",
+        type=int,
+        default=int(os.getenv("MAX_PAGES", "10")),
+        help="Maximum pages to crawl (default: 10)"
+    )
+    return parser.parse_args()
 
 
 def generate_playwright_script():
@@ -57,11 +76,17 @@ def count_selectors(data):
 
 
 def main():
+    args = parse_args()
+    URL = args.url
+    MAX_PAGES = args.max_pages
+
+    print(f"[Pipeline] Target URL : {URL}")
+    print(f"[Pipeline] Max pages  : {MAX_PAGES}")
+
     tracker = PerformanceTracker(label="full_pipeline_week2")
     tracker.start()
-    
-    try:
 
+    try:
         print("=" * 50)
         print("Starting Crawl...")
         print("=" * 50)
@@ -71,9 +96,7 @@ def main():
             max_pages=MAX_PAGES
         )
 
-        pages_crawled = len(
-            crawl_data
-        )
+        pages_crawled = len(crawl_data)
 
         print(
             f"\nPages Crawled: {pages_crawled}"
