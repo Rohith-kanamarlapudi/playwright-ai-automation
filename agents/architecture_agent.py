@@ -1,7 +1,9 @@
+
+
 from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
-
+from agents.selector_utils import cap_selectors
 llm = get_llm()
 
 
@@ -15,9 +17,9 @@ def architecture_agent(state: AgentState) -> AgentState:
 
         selectors = state.get("selectors", [])
 
-        buttons = [s for s in selectors if s.get("type") == "button"]
-        inputs = [s for s in selectors if s.get("type") == "input"]
-        links = [s for s in selectors if s.get("type") == "link"]
+        buttons = cap_selectors([s for s in selectors if s.get("type") == "button"], "buttons")
+        inputs  = cap_selectors([s for s in selectors if s.get("type") == "input"],  "inputs")
+        links   = cap_selectors([s for s in selectors if s.get("type") == "link"],   "links")
 
         prompt = f"""
 You are a Senior Python Playwright Test Automation Architect.
@@ -25,7 +27,7 @@ You are a Senior Python Playwright Test Automation Architect.
 Your task is to design a scalable Playwright automation framework.
 
 Website Description:
-{state["design_doc"]}
+{state.get("design_doc", "No design document available.")}
 
 Detected Website Elements
 
@@ -39,7 +41,7 @@ Links:
 {links}
 
 Generated Test Plan:
-{state["task_plan"]}
+{state.get("task_plan", [])}
 
 Requirements:
 
