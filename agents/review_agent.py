@@ -4,7 +4,6 @@ from performance.engine import PerformanceTracker
 import re
 
 
-llm = get_llm()
 
 
 def review_agent(state: AgentState) -> AgentState:
@@ -12,6 +11,8 @@ def review_agent(state: AgentState) -> AgentState:
     tracker.start()
 
     try:
+        llm = get_llm()
+
         print("[Review Agent] Running...")
 
         code = state.get("generated_code", "")
