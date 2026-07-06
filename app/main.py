@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from agents.pipeline import run_agent_pipeline
 from agents.doc_sanitiser import sanitise_document
+import asyncio
 
 
 import os
@@ -186,8 +187,9 @@ async def upload_document(
         # ----------------------------
         # Authoritative path: LangGraph Agent Pipeline
         # ----------------------------
-        agent_result = run_agent_pipeline(
-            design_doc=document_text
+        agent_result = await asyncio.to_thread(
+            run_agent_pipeline,
+            design_doc=document_text,
         )
 
         # Use the agent pipeline's generated YAML as the primary output
@@ -283,10 +285,11 @@ async def run_agents(req: PipelineRequest, _: None = Depends(verify_api_key)):
 
     try:
 
-        result = run_agent_pipeline(
+        result = await asyncio.to_thread(
+            run_agent_pipeline,
             design_doc=req.design_doc,
             target_url=req.target_url
-        )
+            )
 
         return {
             "status": "success",
