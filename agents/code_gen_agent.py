@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import re
 import py_compile
 
 from agents.state import AgentState
@@ -10,7 +12,10 @@ from agents.python_fallback import generate_python_directly
 
 from app.yaml_validator import validate_yaml
 from app.yaml_to_playwright import convert_yaml_to_playwright
+
 from agents.selector_utils import cap_selectors
+from test_runner import ast_safety_check
+
 
 llm = get_llm()
 
@@ -27,9 +32,12 @@ def verify_generated_code(filepath: str) -> bool:
     except py_compile.PyCompileError as e:
         print(f"[Code Gen] Syntax check FAILED:\n{e}")
         return False
+
+
 def generate_conftest(output_dir: Path) -> None:
-    """Write a conftest.py with browser fixture next to the generated test."""
-    import os
+    """
+    Write a conftest.py with browser fixture next to the generated test.
+    """
     base_url = os.getenv("BASE_URL", "http://localhost:3000")
 
     content = f'''"""
@@ -46,47 +54,56 @@ BASE_URL = "{base_url}"
 def browser():
     """Session-scoped Playwright browser fixture."""
     with sync_playwright() as p:
-        b = p.chromium.launch(headless=True)
-        yield b
-        b.close()
+        browser = p.chromium.launch(headless=True)
+        yield browser
+        browser.close()
 
 
 @pytest.fixture
 def page(browser: Browser) -> Page:
     """Function-scoped page with BASE_URL pre-set."""
-    ctx = browser.new_context(base_url=BASE_URL)
-    pg = ctx.new_page()
-    yield pg
-    ctx.close()
+    context = browser.new_context(base_url=BASE_URL)
+    page = context.new_page()
+    yield page
+    context.close()
 '''
     path = output_dir / "conftest.py"
+
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
+
     print(f"[Code Gen] conftest.py written to {path}")
-
-generate_conftest(Path("generated_tests"))
-
 
 
 def check_assertions(filepath: str) -> bool:
-    """Warn if generated test functions have no expect() assertions."""
+    """
+    Warn if generated test functions have no expect() assertions.
+    """
     try:
-        with open(filepath, "r") as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             content = f.read()
-        import re
+
         test_fns = re.findall(r"def (test_\w+)", content)
         expect_count = content.count("expect(")
+
         if test_fns and expect_count == 0:
             print(
-                f"[Code Gen] WARNING: {len(test_fns)} test function(s) found "
-                f"but ZERO expect() assertions. These tests will never fail."
+                f"[Code Gen] WARNING: {len(test_fns)} test function(s) "
+                "found but ZERO expect() assertions."
             )
             return False
-        print(f"[Code Gen] Assertion check OK: {expect_count} expect() call(s) found.")
+
+        print(
+            f"[Code Gen] Assertion check OK: "
+            f"{expect_count} expect() call(s) found."
+        )
         return True
+
     except Exception as e:
         print(f"[Code Gen] Assertion check error: {e}")
         return False
+    
+    
 
 # Inside code_gen_agent(), add after verify_generated_code():
 # check_assertions(str(output_path))
@@ -152,7 +169,8 @@ def code_gen_agent(state: AgentState) -> AgentState:
             if hasattr(yaml_response, "content")
             else str(yaml_response)
         )
-
+        
+        
         print("\n" + "=" * 80)
         print("GENERATED YAML")
         print("=" * 80)
@@ -165,7 +183,10 @@ def code_gen_agent(state: AgentState) -> AgentState:
 
         print(f"[Code Gen] YAML valid: {validation['valid']}")
 
-        # Keep last valid YAML
+        # -------------------------------------------------
+        # Keep the last valid YAML
+        # -------------------------------------------------
+
         if validation["valid"]:
             state["generated_yaml"] = yaml_text
             state["best_yaml"] = yaml_text
@@ -175,7 +196,7 @@ def code_gen_agent(state: AgentState) -> AgentState:
             yaml_text = state["best_yaml"]
 
         # -------------------------------------------------
-        # Generate Playwright
+        # Generate Playwright Code
         # -------------------------------------------------
 
         if validation["valid"] or state.get("best_yaml"):
@@ -186,7 +207,7 @@ def code_gen_agent(state: AgentState) -> AgentState:
 
             unsupported = playwright.get(
                 "unsupported_steps",
-                []
+                [],
             )
 
             print(
@@ -203,6 +224,8 @@ def code_gen_agent(state: AgentState) -> AgentState:
                 state,
                 llm,
             )
+            
+            
 
         # -------------------------------------------------
         # Save Generated Code
@@ -212,6 +235,9 @@ def code_gen_agent(state: AgentState) -> AgentState:
 
         output_dir = Path("generated_tests")
         output_dir.mkdir(exist_ok=True)
+
+        # Generate conftest.py only after ensuring the directory exists
+        generate_conftest(output_dir)
 
         output_path = output_dir / "generated_test.py"
 
@@ -223,21 +249,42 @@ def code_gen_agent(state: AgentState) -> AgentState:
         print(f"[Code Gen] Script saved to {output_path}")
 
         # -------------------------------------------------
-        # Syntax Check
+        # Validate Generated Code
         # -------------------------------------------------
 
-        syntax_ok = verify_generated_code(
-            str(output_path)
-        )
-
+        syntax_ok = verify_generated_code(str(output_path))
         state["syntax_passed"] = syntax_ok
 
         if syntax_ok:
 
-            state["best_code"] = code
-            state["needs_regen"] = False
+            # -----------------------------
+            # AST Safety Check
+            # -----------------------------
+            is_safe, reason = ast_safety_check(str(output_path))
 
-            print("[Code Gen] Best generated code updated.")
+            if not is_safe:
+
+                print(f"[Code Gen] SAFETY BLOCK: {reason}")
+
+                state["needs_regen"] = True
+                state["syntax_passed"] = False
+
+                if state.get("best_code"):
+                    state["generated_code"] = state["best_code"]
+
+            else:
+
+                # -----------------------------
+                # Assertion Check
+                # -----------------------------
+                assertions_ok = check_assertions(str(output_path))
+
+                state["assertions_passed"] = assertions_ok
+
+                state["best_code"] = code
+                state["needs_regen"] = False
+
+                print("[Code Gen] Best generated code updated.")
 
         else:
 
@@ -256,6 +303,7 @@ def code_gen_agent(state: AgentState) -> AgentState:
 
         state["generated_code"] = state.get("best_code", "")
         state["generated_yaml"] = state.get("best_yaml", "")
+        
 
         state["yaml_validation"] = {
             "valid": False,
@@ -263,6 +311,7 @@ def code_gen_agent(state: AgentState) -> AgentState:
         }
 
         state["syntax_passed"] = False
+        state["assertions_passed"] = False
         state["needs_regen"] = True
 
     finally:
