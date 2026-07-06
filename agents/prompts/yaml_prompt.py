@@ -22,6 +22,9 @@ Your task is to generate YAML test cases.
 Website Task Plan:
 {task_plan}
 
+Framework Architecture (follow this POM structure):
+{architecture_notes}
+
 Available Buttons:
 {buttons}
 
