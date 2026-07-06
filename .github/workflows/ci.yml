@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: playwright install chromium
+
+      - name: Validate imports (smoke test)
+        run: |
+          python -c "from agents.state import AgentState; print('state OK')"
+          python -c "from agents.llm_client import get_llm; print('llm_client OK')"
+          python -c "from agents.scraper_adapter import build_selectors_from_crawl; print('adapter OK')"
+          python -c "from main import build_graph; print('graph OK')"
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_BASE_URL: https://api.deepseek.com
+          TARGET_URL: https://ideabytes.com
+
+      - name: Run unit tests
+        run: pytest test_llm.py test_prompts.py -v --tb=short
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_BASE_URL: https://api.deepseek.com
+          TARGET_URL: https://ideabytes.com
