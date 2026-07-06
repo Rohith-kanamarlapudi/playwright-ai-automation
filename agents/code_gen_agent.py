@@ -200,6 +200,12 @@ def code_gen_agent(state: AgentState) -> AgentState:
             playwright = convert_yaml_to_playwright(yaml_text)
 
             code = playwright.get("code", "")
+            previous_code = state.get("best_code", "")
+
+            if previous_code and code == previous_code:
+                print("[Code Gen] Generated code is identical to previous version.")
+                state["needs_regen"] = False
+                return state
             if not code.strip():
                 raise ValueError("YAML conversion returned empty Playwright code.")
 

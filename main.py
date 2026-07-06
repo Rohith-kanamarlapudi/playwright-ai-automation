@@ -51,14 +51,14 @@ def build_graph():
 
             print(f"[Graph] Regen attempt {regen_count}/{MAX_REGEN}")
 
-            if regen_count <= MAX_REGEN:
-                print("[Graph] Routing back to code generation.")
-                return "code_gen"
+            # Stop after MAX_REGEN attempts
+            if regen_count >= MAX_REGEN:
+                print("[Graph] Maximum regeneration attempts reached.")
+                state["needs_regen"] = False
+                return "edge_cases"
 
-            print("[Graph] Maximum regeneration attempts reached.")
-            print("[Graph] Continuing with best available output.")
-
-            state["needs_regen"] = False
+            print("[Graph] Routing back to code generation.")
+            return "code_gen"
 
         return "edge_cases"
 
