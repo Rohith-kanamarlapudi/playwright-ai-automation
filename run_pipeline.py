@@ -1,6 +1,10 @@
 import os
+import sys
 import json
+import subprocess
 from performance.engine import PerformanceTracker
+
+GENERATION_TIMEOUT_SECONDS = int(os.getenv("GENERATION_TIMEOUT_SECONDS", "600"))
 
 from scraper.scraper import main as crawl_site
 from test_runner import run_generated_test
@@ -39,20 +43,34 @@ def generate_playwright_script():
         "\nGenerating Playwright Script..."
     )
 
-    result = os.system(
-        "python llm_playwright_generator.py"
-    )
-
-    if result != 0:
-
+    try:
+        result = subprocess.run(
+            [sys.executable, "llm_playwright_generator.py"],
+            capture_output=True,
+            text=True,
+            timeout=GENERATION_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as e:
         raise Exception(
-            "Playwright generation failed"
+            f"Playwright generation timed out after "
+            f"{GENERATION_TIMEOUT_SECONDS}s — check MAX_REGEN/"
+            f"regen_count logic.\nPartial output:\n{e.stdout or ''}"
+        )
+
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr, file=sys.stderr)
+
+    if result.returncode != 0:
+        raise Exception(
+            f"Playwright generation failed with exit code {result.returncode}"
         )
 
     print(
         "Generation Complete"
     )
-
 
 def count_selectors(data):
 
@@ -175,6 +193,8 @@ def main():
         )
 
         print(str(e))
+
+        sys.exit(1)
 
 
 if __name__ == "__main__":

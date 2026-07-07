@@ -85,8 +85,13 @@ def run_agent_pipeline(
     # Execute LangGraph
     # --------------------------------------------------
 
-    result = app.invoke(initial_state)
+    from main import MAX_REGEN
+    RECURSION_LIMIT = (MAX_REGEN + 2) * 4
 
+    result = app.invoke(
+        initial_state,
+        config={"recursion_limit": RECURSION_LIMIT},
+    )
     # --------------------------------------------------
     # Return useful outputs
     # --------------------------------------------------
