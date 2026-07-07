@@ -35,7 +35,8 @@ def build_graph():
 
     def route_after_review(state: AgentState) -> str:
         regen_count = state.get("regen_count", 0)
-
+        regen_count += 1
+        state["regen_count"] = regen_count
         print(f"[Graph] Current regen count: {regen_count}")
 
         if not state.get("needs_regen", False):
