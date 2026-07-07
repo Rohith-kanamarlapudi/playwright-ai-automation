@@ -34,9 +34,13 @@ def build_graph():
     graph.add_edge("code_gen", "review")
 
     def route_after_review(state: AgentState) -> str:
+        # NOTE: this function is a LangGraph conditional-edge router,
+        # not a node — any mutation to `state` here is silently
+        # discarded by LangGraph (verified empirically). It must stay
+        # read-only. The real counter increment lives in
+        # agents/code_gen_agent.py, which IS a node and whose returned
+        # state actually persists.
         regen_count = state.get("regen_count", 0)
-        regen_count += 1
-        state["regen_count"] = regen_count
         print(f"[Graph] Current regen count: {regen_count}")
 
         if not state.get("needs_regen", False):
