@@ -117,7 +117,12 @@ def code_gen_agent(state: AgentState) -> AgentState:
             f"[Code Gen Agent] regen_count={state.get('regen_count', 0)} "
             f"needs_regen={state.get('needs_regen', False)}"
         )
-        if state.get("regen_count", 0) > 0:
+
+        # Single source of truth for regen counting — bump the counter when
+        # re-entering because a previous review/safety/syntax check asked
+        # for regeneration. Without this, regen_count stays 0 forever.
+        if state.get("needs_regen", False):
+            state["regen_count"] = state.get("regen_count", 0) + 1
             print(
                 f"[Code Gen Agent] Regeneration Pass #{state['regen_count']}"
             )

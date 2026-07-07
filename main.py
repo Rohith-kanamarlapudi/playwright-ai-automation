@@ -35,7 +35,8 @@ def build_graph():
 
     def route_after_review(state: AgentState) -> str:
         regen_count = state.get("regen_count", 0)
-
+        regen_count += 1
+        state["regen_count"] = regen_count
         print(f"[Graph] Current regen count: {regen_count}")
 
         if not state.get("needs_regen", False):
@@ -48,8 +49,6 @@ def build_graph():
         print(f"[Graph] Regen attempt {regen_count + 1}/{MAX_REGEN}")
         print("[Graph] Routing back to code generation.")
         return "code_gen"
-
-        return "edge_cases"
 
     graph.add_conditional_edges(
         "review",
@@ -141,7 +140,16 @@ Requirements:
     tracker = PerformanceTracker(label="full_pipeline_run")
     tracker.start()
 
-    result = app.invoke(initial_state)
+    RECURSION_LIMIT = (MAX_REGEN + 2) * 4  # hard safety net
+
+    try:
+        result = app.invoke(
+            initial_state,
+            config={"recursion_limit": RECURSION_LIMIT},
+        )
+    except Exception as e:
+        print(f"[Main] Graph execution stopped: {e}")
+        raise
 
     metrics = tracker.stop(agents_completed=5)
 
