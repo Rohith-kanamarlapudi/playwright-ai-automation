@@ -50,8 +50,6 @@ def build_graph():
         print("[Graph] Routing back to code generation.")
         return "code_gen"
 
-        return "edge_cases"
-
     graph.add_conditional_edges(
         "review",
         route_after_review,
@@ -142,7 +140,16 @@ Requirements:
     tracker = PerformanceTracker(label="full_pipeline_run")
     tracker.start()
 
-    result = app.invoke(initial_state)
+    RECURSION_LIMIT = (MAX_REGEN + 2) * 4  # hard safety net
+
+    try:
+        result = app.invoke(
+            initial_state,
+            config={"recursion_limit": RECURSION_LIMIT},
+        )
+    except Exception as e:
+        print(f"[Main] Graph execution stopped: {e}")
+        raise
 
     metrics = tracker.stop(agents_completed=5)
 
