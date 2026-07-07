@@ -21,13 +21,12 @@ def review_agent(state: AgentState) -> AgentState:
             print("[Review Agent] No generated code to review.")
             state["review_notes"] = "No generated code available."
             state["needs_regen"] = True
-            state["regen_count"] = state.get("regen_count", 0) + 1
-
+            # regen_count is NOT incremented here — code_gen_agent is the
+            # single place that does it, to avoid double-counting one cycle.
             print(
-                f"[Review Agent] regen_count={state['regen_count']}"
+                f"[Review Agent] regen_count={state.get('regen_count', 0)}"
             )
             return state
-
         prompt = f"""
 You are a Senior QA Automation Code Reviewer for Playwright (Python + Pytest).
 
