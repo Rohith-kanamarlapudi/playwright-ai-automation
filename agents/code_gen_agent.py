@@ -7,7 +7,10 @@ from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 
-from agents.prompts.yaml_prompt import YAML_PROMPT
+from agents.prompts.yaml_prompt import (
+    YAML_PROMPT,
+    LIVE_DATA_INSTRUCTIONS,
+)
 from agents.python_fallback import generate_python_directly
 
 from app.yaml_validator import validate_yaml
@@ -155,12 +158,14 @@ def code_gen_agent(state: AgentState) -> AgentState:
             )
 
         yaml_prompt = YAML_PROMPT.format(
+            live_data_instructions=LIVE_DATA_INSTRUCTIONS,
             task_plan=regen_prefix + "\n".join(state.get("task_plan", [])),
             architecture_notes=state.get("architecture_notes", ""),
             buttons=buttons,
             inputs=inputs,
             links=links,
         )
+        
 
         # -------------------------------------------------
         # Generate YAML
