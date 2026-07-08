@@ -1,15 +1,21 @@
+from wsgiref import headers
+
 import requests
 import json
 from bs4 import BeautifulSoup
 try:
     from scraper.playwright_check import (
         check_page,
-        get_rendered_html
+        get_rendered_html,
+
+
     )
 except ModuleNotFoundError:
     from playwright_check import (
         check_page,
-        get_rendered_html
+        get_rendered_html,
+
+
     )
 from urllib.parse import urljoin, urlparse
 from datetime import datetime
@@ -21,9 +27,19 @@ from pathlib import Path
 
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
-URL = os.getenv("TARGET_URL", "https://ideabytes.com")
+# Week 3 Live Application Configuration
+URL = os.getenv(
+    "TARGET_URL",
+    "https://live.ideabytesiot.com/demolive"
+)
+
+MAX_PAGES = int(
+    os.getenv("MAX_PAGES", "10")
+)
+
 OUTPUT_FILE = "reports/website_elements.json"
 
 
@@ -41,7 +57,7 @@ def get_page(url):
         response = requests.get(
             url,
             headers=headers,
-            timeout=5
+            timeout=15
         )
 
         response.raise_for_status()
@@ -79,9 +95,17 @@ def get_internal_links(soup, base_url):
 
     base_domain = urlparse(base_url).netloc
 
-    for link in soup.find_all("a"):
+    for link in soup.find_all(["a", "button"]):
 
-        href = link.get("href", "").strip()
+        href = (
+            link.get("href")
+            or link.get("routerLink")
+            or link.get("routerlink")
+            or ""
+        ).strip()
+        
+        if "logout" in href.lower():
+            continue
 
         if not href:
             continue
@@ -282,9 +306,17 @@ def extract_elements(soup, url):
 
     seen_links = set()
 
-    for link in soup.find_all("a"):
+    for link in soup.find_all(["a", "button"]):
 
-        href = link.get("href", "").strip()
+        href = (
+            link.get("href")
+            or link.get("routerLink")
+            or link.get("routerlink")
+            or ""
+        ).strip()
+        
+        if "logout" in href.lower():
+            continue
 
         if not href:
             continue
@@ -408,7 +440,20 @@ def main(url: str = None, max_pages: int = None):
         return []
 
     visited = set()
+
     to_visit = [url]
+    BASE = "https://live.ideabytesiot.com/demolive/"
+    KNOWN_ROUTES = [
+        "dashboard/status-list",
+        "reports/scheduled",
+        "alerts",
+        "devices",
+        "alarms",
+        "users/users-management",
+    ]
+
+    for route in KNOWN_ROUTES:
+        to_visit.append(urljoin(BASE, route))
 
     all_pages_data = []
 
@@ -437,53 +482,18 @@ def main(url: str = None, max_pages: int = None):
             #    current_url
             #)
 
-            soup = get_page(
-                current_url
-            )
+            html = get_rendered_html(current_url)
 
-            if soup is None:
+            if not html:
                 continue
 
-            total_elements = (
-                len(
-                    soup.find_all(
-                        "button"
-                    )
-                )
-                +
-                len(
-                    soup.find_all(
-                        "input"
-                    )
-                )
-                +
-                len(
-                    soup.find_all(
-                        "a"
-                    )
-                )
+            soup = BeautifulSoup(
+                html,
+                "html.parser"
             )
 
-            if total_elements < 3:
 
-                print(
-                    "Possible JS-heavy page detected"
-                )
-
-                html = get_rendered_html(
-                    current_url
-                )
-
-                if html:
-
-                    soup = BeautifulSoup(
-                        html,
-                        "html.parser"
-                    )
-
-                    print(
-                        "Using Playwright rendered HTML"
-                    )
+            print("Using Playwright rendered HTML")
 
             page_data = extract_elements(
                 soup,
@@ -517,18 +527,18 @@ def main(url: str = None, max_pages: int = None):
 
             internal_links = get_internal_links(
                 soup,
-                url
+                current_url
             )
+            
 
-            for link in internal_links:
+            for link in sorted(internal_links):
 
                 if (
                     link not in visited
                     and link not in to_visit
                 ):
-                    to_visit.append(
-                        link
-                    )
+                    print(f"[DISCOVERED] {link}")
+                    to_visit.append(link)
 
         except Exception as e:
 
@@ -562,7 +572,14 @@ def main(url: str = None, max_pages: int = None):
 # ----------------------------------------
 if __name__ == "__main__":
 
+    print("=" * 60)
+    print("Playwright AI Automation - Week 3 Live App Crawl")
+    print("=" * 60)
+    print(f"Target URL : {URL}")
+    print(f"Max Pages  : {MAX_PAGES}")
+    print()
+
     main(
         url=URL,
-        max_pages=7
+        max_pages=MAX_PAGES
     )

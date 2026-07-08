@@ -1,4 +1,8 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from langgraph.graph import StateGraph, END
 
@@ -16,6 +20,14 @@ from performance.engine import PerformanceTracker
 
 # Maximum number of regeneration attempts
 MAX_REGEN = 2
+# ----------------------------------------------------
+# Week 3 Live App Configuration
+# ----------------------------------------------------
+
+LIVE_URL = os.getenv(
+    "TARGET_URL",
+    "https://live.ideabytesiot.com/demolive"
+)
 
 
 def build_graph():
@@ -109,14 +121,22 @@ if __name__ == "__main__":
         "duplicate_generation": False,
 
         # Design Document
-        "design_doc": """
-Generate Playwright automation tests for the website.
+"design_doc": f"""
+Generate Playwright automation tests for the live IoT monitoring application.
+
+Target URL:
+{LIVE_URL}
 
 Requirements:
 - Login functionality
-- Form submission
+- Dashboard validation
 - Navigation
-- Validation
+- Reports module
+- Alerts module
+- Devices module
+- Alarms module
+- Users module
+- Angular SPA handling
 - Responsive UI
 """,
 
@@ -139,6 +159,19 @@ Requirements:
 
         # Edge Cases Agent
         "edge_cases": [],
+        
+        # ----------------------------------------------------
+        # Week 3 Live App Context
+        # ----------------------------------------------------
+
+        # Live application URL
+        "target_url": LIVE_URL,
+
+        # Authentication required (confirmed during Day 11)
+        "auth_required": True,
+
+        # Angular SPA hydration state
+        "spa_hydrated": False,
     }
 
     tracker = PerformanceTracker(label="full_pipeline_run")
