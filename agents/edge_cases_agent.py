@@ -1,3 +1,4 @@
+import json
 from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
@@ -15,64 +16,102 @@ def edge_cases_agent(state: AgentState) -> AgentState:
         print("[Edge Cases Agent] Running...")
 
         task_plan = state.get("task_plan", [])
-        generated_code = state.get("generated_code", "")
+        
 
-        prompt = f"""
-You are a Senior QA Automation Engineer specializing in Playwright testing.
+        LIVE_EDGE_CASE_PROMPT = """
 
-Your task is to generate high-quality edge cases for the automation test suite.
+What edge cases are unique to a live IoT dashboard?
 
-Test Plan:
+- What if a sensor goes offline? (widget shows '--' or 'N/A')
+- What if data hasn't refreshed yet? (stale timestamp)
+- What if websocket disconnects? (fallback UI)
+- What if a chart has no data? (empty state)
+- What if a user navigates during a live refresh?
+
+
+You are a QA Automation Expert for Live IoT dashboards.
+
+Task Plan:
 {task_plan}
 
-Generated Playwright Code:
-{generated_code}
+Architecture:
+{architecture_notes}
 
-Instructions:
+Target URL:
+{target_url}
 
-Generate edge cases covering:
+Generate exactly 6 execution-focused edge cases.
 
-- Empty inputs
-- Invalid inputs
-- Boundary values
-- Large data inputs
-- Special characters
-- SQL Injection attempts
-- XSS attempts
-- Network failures
-- Slow response scenarios
-- Browser compatibility issues
-- Session expiration
-- Authentication failures
-- UI responsiveness issues
-- Missing elements
-- Click failures
-- Form validation failures
+Focus on:
 
-Rules:
-- One edge case per line
-- No numbering
-- No explanations
-- Be practical and execution-focused
+1. Sensor offline / null data
+2. Network interruption during widget load
+3. Stale timestamp / outdated data
+4. Empty chart / empty table
+5. Rapid navigation between dashboard pages
+6. Widget rendering during live refresh
+
+Rules
+
+- Return ONLY a JSON array.
+- One edge case per item.
+- No markdown.
+- No explanations.
 """
+
+        prompt = LIVE_EDGE_CASE_PROMPT.format(
+            task_plan="\n".join(task_plan),
+            architecture_notes=state.get("architecture_notes", ""),
+            target_url=state.get("target_url", ""),
+        )
 
         response = llm.invoke(prompt)
 
         text = response.content if hasattr(response, "content") else str(response)
+        
+        
+        
 
-        edge_cases = []
+        
 
-        for line in text.splitlines():
-            line = line.strip()
+        try:
 
-            if not line:
-                continue
+            edge_cases = json.loads(text)
 
-            # clean numbering if model adds it
-            line = line.lstrip("-•0123456789. ").strip()
+            if not isinstance(edge_cases, list):
+                raise ValueError("Expected JSON list")
 
-            if line:
-                edge_cases.append(line)
+            edge_cases = [
+                str(case).strip()
+                for case in edge_cases
+                if str(case).strip()
+            ]
+            
+            # Keep only the first 6 edge cases
+            edge_cases = edge_cases[:6]
+
+        except Exception:
+
+            edge_cases = []
+
+            for line in text.splitlines():
+
+                line = line.strip()
+
+                if not line:
+                    continue
+
+                line = line.lstrip("-•0123456789. ").strip()
+
+                if line:
+                    edge_cases.append(line)
+                # Ensure exactly 6 edge cases
+                edge_cases = edge_cases[:6]
+                
+                
+                
+                
+                
 
         state["edge_cases"] = edge_cases
 
