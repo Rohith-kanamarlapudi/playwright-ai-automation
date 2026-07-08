@@ -5,7 +5,63 @@ Generates structured YAML test cases that can be converted directly
 into Python Playwright tests.
 """
 
+LIVE_DATA_INSTRUCTIONS = """
+CRITICAL — Live IoT Dashboard Rules
+
+- NEVER assert exact numeric values.
+  Sensor values change continuously.
+
+- ALWAYS verify:
+  - widget visibility
+  - element presence
+  - page structure
+  - navigation
+  - tables are rendered
+  - charts are rendered
+
+- For numeric widgets:
+  Verify the widget exists and displays a value.
+  Do NOT verify the exact value.
+
+- For charts and gauges:
+  Verify the chart/canvas/SVG is rendered.
+  Do NOT verify plotted values.
+
+- For dashboard cards:
+  Verify the card is visible.
+  Verify labels exist.
+  Verify values are displayed.
+
+- For tables:
+  Verify rows load successfully.
+  Do NOT verify live data values.
+
+- For navigation:
+  Verify buttons and links are visible and clickable.
+
+- For status indicators:
+  Verify the status indicator exists.
+  Do NOT verify its exact live state.
+
+VALID Assertions
+----------------
+- Verify dashboard is visible.
+- Verify temperature widget is displayed.
+- Verify humidity widget contains a value.
+- Verify reports table is rendered.
+- Verify alerts page loads.
+
+INVALID Assertions
+------------------
+- Verify temperature equals 23.5°C.
+- Verify humidity equals 65%.
+- Verify warning count equals 0.
+"""
+
+
 YAML_PROMPT = """
+{live_data_instructions}
+
 You are a Senior QA Automation Engineer specializing in Python Playwright.
 
 Your task is to generate executable YAML test cases.

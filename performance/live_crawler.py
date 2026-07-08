@@ -64,8 +64,8 @@ def run_live_baseline(routes: list = None, runs: int = 3) -> dict:
     if routes is None:
         base = LIVE_URL.rstrip("/")
         routes = [
-            (LIVE_URL, "dashboard"),
-            (base + "/dashboard/status-list", "status_dashboard"),
+            (LIVE_URL, "home"),
+            (base + "/dashboard/status-list", "dashboard"),
             (base + "/reports/scheduled", "reports"),
             (base + "/alerts", "alerts"),
             (base + "/devices", "devices"),
@@ -132,4 +132,17 @@ def run_live_baseline(routes: list = None, runs: int = 3) -> dict:
 
 
 if __name__ == "__main__":
-    run_live_baseline(runs=3)
+
+    base = LIVE_URL.rstrip("/")
+
+    routes = [
+        (LIVE_URL, "home"),
+        (base + "/dashboard/status-list", "dashboard"),
+        (base + "/reports/scheduled", "reports"),
+        (base + "/alerts", "alerts"),
+        (base + "/devices", "devices"),
+        (base + "/alarms", "alarms"),
+        (base + "/users/users-management", "users"),
+    ]
+
+    run_live_baseline(routes=routes, runs=3)
