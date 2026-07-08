@@ -3,7 +3,7 @@ import json
 from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
-from agents.prompts.strategy_prompt import STRATEGY_PROMPT
+from agents.prompts.strategy_prompt import LIVE_APP_CONTEXT, STRATEGY_PROMPT
 from agents.selector_utils import cap_selectors
 
 
@@ -16,6 +16,11 @@ def strategy_agent(state: AgentState) -> AgentState:
 
         print("[Strategy Agent] Running...")
 
+        # -------------------------------------------------
+        # Read state
+        # -------------------------------------------------
+
+        design_doc = state.get("design_doc", "")
         selectors = state.get("selectors", [])
 
         # -------------------------------------------------
@@ -51,7 +56,8 @@ def strategy_agent(state: AgentState) -> AgentState:
         )
 
         prompt = STRATEGY_PROMPT.format(
-            design_doc=state["design_doc"],
+            live_app_context=LIVE_APP_CONTEXT,
+            design_doc=design_doc,
             buttons=buttons,
             inputs=inputs,
             links=links,
@@ -104,7 +110,7 @@ def strategy_agent(state: AgentState) -> AgentState:
                     task_plan.append(line)
 
         # -------------------------------------------------
-        # Remove duplicate tasks while preserving order
+        # Remove duplicate tasks
         # -------------------------------------------------
 
         unique_tasks = []
