@@ -74,3 +74,19 @@ class AgentState(TypedDict):
 
     # Generated edge cases
     edge_cases: List[str]
+
+    # -------------------------------------------------
+    # Live App Context (Week 3)
+    # -------------------------------------------------
+
+    # Target URL currently being tested
+    target_url: str
+
+    # Whether authentication is required for the target application
+    auth_required: bool
+
+    # True once the Angular SPA has fully loaded/hydrated
+    spa_hydrated: bool
+    
+    # Prevent duplicate generation cycles
+    duplicate_generation: bool
