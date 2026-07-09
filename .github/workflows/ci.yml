@@ -9,48 +9,171 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      DEEPSEEK_BASE_URL: https://api.deepseek.com
+
+      TARGET_URL: https://live.ideabytesiot.com/demolive
+      LIVE_APP_URL: https://live.ideabytesiot.com/demolive
+      BASE_URL: https://live.ideabytesiot.com/demolive
+
+      MAX_PAGES: "10"
+      SELECTOR_CAP: "25"
+      SPA_WAIT_TIMEOUT: "15000"
+      MAX_TESTS: "30"
+      GENERATION_TIMEOUT_SECONDS: "240"
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
+          cache: pip
+
+      - name: Upgrade pip
+        run: |
+          python -m pip install --upgrade pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
 
       - name: Install Playwright browsers
-        run: playwright install chromium
+        run: |
+          playwright install chromium
+          playwright install-deps || true
 
-      - name: Smoke test — validate all imports
+      ########################################################
+      # Smoke import checks
+      ########################################################
+
+      - name: Validate imports
         run: |
           python -c "from agents.state import AgentState; print('state OK')"
           python -c "from agents.llm_client import get_llm; print('llm_client OK')"
           python -c "from agents.scraper_adapter import build_selectors_from_crawl; print('adapter OK')"
           python -c "from agents.selector_utils import cap_selectors; print('selector_utils OK')"
           python -c "from main import build_graph; print('graph OK')"
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          DEEPSEEK_BASE_URL: https://api.deepseek.com
-          TARGET_URL: https://ideabytes.com
+
+      ########################################################
+      # Source syntax check
+      ########################################################
+
+      - name: Compile project
+        run: |
+          python -m compileall agents scraper
+
+      ########################################################
+      # Unit tests
+      ########################################################
 
       - name: Run unit tests
-        run: pytest test_llm.py test_prompts.py tests/ -v --tb=short
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          DEEPSEEK_BASE_URL: https://api.deepseek.com
-          TARGET_URL: https://ideabytes.com
+        run: |
+          pytest test_llm.py test_prompts.py tests/ -v --tb=short
 
-      - name: Smoke-run the full pipeline (regen-loop regression guard)
-        timeout-minutes: 5
-        run: python run_pipeline.py --max-pages 2
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          DEEPSEEK_BASE_URL: https://api.deepseek.com
-          TARGET_URL: https://ideabytes.com
-          GENERATION_TIMEOUT_SECONDS: "240"
+      ########################################################
+      # Pipeline regression
+      ########################################################
+
+      - name: Run pipeline
+        timeout-minutes: 8
+        run: |
+          python run_pipeline.py --max-pages 2
+
+      ########################################################
+      # Validate generated Python
+      ########################################################
+
+      - name: Validate generated Playwright code
+        run: |
+          python -m py_compile generated_tests/generated_test.py
+
+      ########################################################
+      # Validate generated YAML
+      ########################################################
+
+      - name: Validate generated YAML
+        run: |
+          python - <<'EOF'
+          import yaml
+
+          with open(
+              "generated_tests/generated_yaml.yaml",
+              "r",
+              encoding="utf-8"
+          ) as f:
+              yaml.safe_load(f)
+
+          print("Generated YAML OK")
+          EOF
+
+      ########################################################
+      # Reject invalid generated selectors
+      ########################################################
+
+      - name: Validate generated selectors
+        run: |
+          python - <<'EOF'
+          from pathlib import Path
+
+          text = Path(
+              "generated_tests/generated_test.py"
+          ).read_text(
+              encoding="utf-8"
+          )
+
+          invalid_patterns = [
+
+              "input[name='']",
+              'input[name=""]',
+
+              "input[id='']",
+              'input[id=""]',
+
+              "button:has-text('')",
+              'button:has-text("")',
+
+              "a:has-text('')",
+              'a:has-text("")',
+
+              "#temperature-widget",
+              "#humidity-widget",
+              "#sensor-widget",
+              "#chart-widget",
+              "#id-hidden-input",
+
+              "Assuming a",
+              "generic selector",
+          ]
+
+          found = [
+              p
+              for p in invalid_patterns
+              if p in text
+          ]
+
+          if found:
+              raise RuntimeError(
+                  f"Invalid generated selectors found: {found}"
+              )
+
+          print("Generated selector validation passed.")
+          EOF
+
+      ########################################################
+      # Upload generated artifacts
+      ########################################################
+
+      - name: Upload generated artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-artifacts
+          path: |
+            generated_tests/
+            reports/
