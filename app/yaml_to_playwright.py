@@ -131,15 +131,51 @@ def _extract_page_keyword(step: str) -> str:
 # ==========================================================
 # EXTERNAL LINK DETECTOR  (FIX 6)
 # ==========================================================
+#
+# BUG FIX: this used to be a bare regex substring search
+# (r"...|t\.co") which matches "t.co" as a substring ANYWHERE in the
+# URL — including inside completely unrelated domains, e.g.
+# "ideabytesiot.com" contains the literal substring "t.com", which
+# starts with "t.co". That falsely flagged the app's own domain as
+# "external" on every single "Open page <url>" step, wrapping every
+# generated test's page.goto() in a with page.context.expect_page()
+# block that then hung for the full default timeout waiting for a
+# popup that never opens.
+#
+# Fixed by parsing the actual hostname out of the URL and comparing
+# it (or its parent domain, for subdomains) against an exact set of
+# known external domains, instead of substring-matching the raw URL.
  
-_EXTERNAL_DOMAINS = re.compile(
-    r"(linkedin\.com|twitter\.com|facebook\.com|instagram\.com|"
-    r"github\.com|youtube\.com|t\.co)",
-    re.IGNORECASE,
-)
+from urllib.parse import urlparse
+ 
+_EXTERNAL_DOMAINS = {
+    "linkedin.com",
+    "twitter.com",
+    "x.com",
+    "facebook.com",
+    "instagram.com",
+    "github.com",
+    "youtube.com",
+    "t.co",
+}
  
 def _is_external_link(url: str) -> bool:
-    return bool(_EXTERNAL_DOMAINS.search(url or ""))
+    if not url:
+        return False
+ 
+    host = urlparse(url).netloc.lower()
+    host = host.split(":")[0]  # drop a port if present, e.g. example.com:8080
+ 
+    if not host:
+        return False
+ 
+    if host.startswith("www."):
+        host = host[4:]
+ 
+    return any(
+        host == domain or host.endswith("." + domain)
+        for domain in _EXTERNAL_DOMAINS
+    )
  
  
 # ==========================================================
@@ -360,7 +396,7 @@ def convert_step(step: str) -> List[str]:
         label = re.sub(r"\s*(button|link|icon|tab)$", "", raw, flags=re.IGNORECASE).strip()
         
         if label.startswith("#") or label.startswith("."):
-
+ 
             code.append(f'page.locator("{quote(label)}").click()')
             code.append("page.wait_for_load_state('networkidle')")
             return code
@@ -879,21 +915,21 @@ def generate_test_case(test_case: Dict[str, Any]) -> List[str]:
  
     has_assertion = False
  
-
+ 
     for step in steps:
         commands = convert_step(step)
-
+ 
         inside_with = False
-
+ 
         for cmd in commands:
-
+ 
             if cmd.startswith("with "):
                 writer.add(f"    {cmd}")
                 inside_with = True
                 continue
-
+ 
             if inside_with:
-
+ 
                 if (
                     cmd.startswith("popup")
                     or cmd.startswith("download")
@@ -903,16 +939,16 @@ def generate_test_case(test_case: Dict[str, Any]) -> List[str]:
                 ):
                     writer.add(f"        {cmd}")
                     continue
-
+ 
                 inside_with = False
-
+ 
             writer.add(f"    {cmd}")
-
+ 
             if "expect(" in cmd or cmd.strip().startswith("assert "):
                 has_assertion = True
-
-
-
+ 
+ 
+ 
  
     writer.blank()
  
@@ -1081,4 +1117,3 @@ def convert_yaml_to_playwright(yaml_text: str) -> Dict[str, Any]:
         "unsupported": unsupported,
         "test_cases": test_cases,
     }
- 
