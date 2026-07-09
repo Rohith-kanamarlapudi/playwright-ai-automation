@@ -149,6 +149,9 @@ def extract_elements(soup, url):
         text = button.get_text(
             strip=True
         ).replace("'", "\\'")
+        
+        if not text and not button.get("id"):
+            continue
 
         buttons.append({
 
@@ -245,11 +248,16 @@ def extract_elements(soup, url):
             })
 
     # Inputs
+    # Inputs
     inputs = []
 
     SKIP_INPUT_TYPES = {
         "submit",
-        "button"
+        "button",
+        "hidden",
+        "file",
+        "image",
+        "reset",
     }
 
     for inp in soup.find_all("input"):
@@ -259,48 +267,68 @@ def extract_elements(soup, url):
             "text"
         ).lower()
 
+        # Skip non-interactable inputs
         if input_type in SKIP_INPUT_TYPES:
+            continue
+
+        # Skip disabled inputs
+        if inp.has_attr("disabled"):
+            continue
+
+        # Skip readonly inputs
+        if inp.has_attr("readonly"):
+            continue
+
+        # Skip CSS-hidden inputs
+        style = inp.get("style", "").lower()
+
+        if "display:none" in style:
+            continue
+
+        if "visibility:hidden" in style:
+            continue
+
+        selector = (
+            f"#{inp.get('id')}"
+            if inp.get("id")
+            else f"input[name='{inp.get('name', '')}']"
+        )
+
+        # Skip empty selectors
+        if selector in (
+            "input[name='']",
+            'input[name=""]',
+        ):
             continue
 
         inputs.append({
 
-            "type":
-            input_type,
+            "type": input_type,
 
-            "name":
-            inp.get(
+            "name": inp.get(
                 "name",
                 ""
             ),
 
-            "id":
-            inp.get(
+            "id": inp.get(
                 "id",
                 ""
             ),
 
-            "class":
-            " ".join(
+            "class": " ".join(
                 inp.get(
                     "class",
                     []
                 )
             ),
 
-            "placeholder":
-            inp.get(
+            "placeholder": inp.get(
                 "placeholder",
                 ""
             ),
 
-            "selector":
-            (
-                f"#{inp.get('id')}"
-                if inp.get("id")
-                else f"input[name='{inp.get('name', '')}']"
-            )
+            "selector": selector,
         })
-
     # Links
     links = []
 
@@ -314,7 +342,7 @@ def extract_elements(soup, url):
             or link.get("routerlink")
             or ""
         ).strip()
-        
+
         if "logout" in href.lower():
             continue
 
@@ -324,46 +352,39 @@ def extract_elements(soup, url):
         if href == "#":
             continue
 
-        full_url = urljoin(
-            url,
-            href
-        )
+        full_url = urljoin(url, href)
 
         if full_url in seen_links:
             continue
 
         seen_links.add(full_url)
 
-        text = link.get_text(
-            strip=True
-        )
+        text = link.get_text(strip=True)
+        if text == "":
+            continue
 
-        lid = link.get(
-            "id",
-            ""
-        )
+        lid = link.get("id", "")
+
+        # Skip completely empty links
+        if not text and not lid and not href:
+            continue
 
         links.append({
 
-            "text":
-            text or "",
+            "text": text or "",
 
-            "href":
-            full_url,
+            "href": full_url,
 
-            "id":
-            lid,
+            "id": lid,
 
-            "class":
-            " ".join(
+            "class": " ".join(
                 link.get(
                     "class",
                     []
                 )
             ),
 
-            "selector":
-            (
+            "selector": (
                 f"#{lid}"
                 if lid
                 else f"a:has-text('{text}')"
@@ -371,7 +392,6 @@ def extract_elements(soup, url):
                 else f"a[href='{full_url}']"
             )
         })
-
     return {
 
         "url":

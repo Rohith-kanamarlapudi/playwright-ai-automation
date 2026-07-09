@@ -1,5 +1,4 @@
 # performance/live_crawler.py  (new file)
-from email.mime import base
 import time
 import os
 import json
@@ -130,6 +129,49 @@ def run_live_baseline(routes: list = None, runs: int = 3) -> dict:
 
     return output
 
+def build_sitemap_report(baseline: dict) -> str:
+    """
+    Generate a simple markdown sitemap with load-time labels.
+    Used for documentation/demo slides.
+    """
+
+    lines = [
+        "# Live App Sitemap - Load Time Report",
+        "",
+        f"Generated: {baseline.get('generated_at')}",
+        f"Target: {baseline.get('live_url')}",
+        "",
+    ]
+
+    for route, avg in baseline.get("averages", {}).items():
+
+        ttfb = avg.get("avg_ttfb_seconds")
+        total = avg.get("avg_total_seconds")
+        codes = avg.get("status_codes", [])
+
+        status = "✅"
+
+        if not codes or any(code >= 400 for code in codes):
+            status = "❌"
+
+        lines.append(
+            f"{status} "
+            f"{route:<25} "
+            f"TTFB={ttfb}s  "
+            f"Load={total}s  "
+            f"HTTP={codes}"
+        )
+
+    report = "\n".join(lines)
+
+    out = REPORTS_DIR / "live_sitemap.md"
+
+    out.write_text(report, encoding="utf-8")
+
+    print(f"[Sitemap] Saved to {out}")
+
+    return report
+
 
 if __name__ == "__main__":
 
@@ -145,4 +187,9 @@ if __name__ == "__main__":
         (base + "/users/users-management", "users"),
     ]
 
-    run_live_baseline(routes=routes, runs=3)
+    baseline = run_live_baseline(
+        routes=routes,
+        runs=3,
+    )
+
+    build_sitemap_report(baseline)

@@ -9,7 +9,7 @@ def login_and_save_state():
     with sync_playwright() as p:
         print("[INFO] Launching browser...")
 
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
 
         context = browser.new_context()
 

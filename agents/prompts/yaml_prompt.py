@@ -100,8 +100,121 @@ STRICT RULES
 11. Keep steps short.
 12. Preserve task order.
 
-Allowed Playwright Actions
+Widget Rules
 
+If no selector exists for a widget,
+DO NOT invent one.
+Instead generate a test verifying:
+- page loaded
+- table visible
+- heading visible
+- surrounding section visible
+Never generate placeholder selectors.
+Selector Rules
+
+
+- Use ONLY selectors provided in:
+  - Available Buttons
+  - Available Inputs
+  - Available Links
+
+Never invent selectors such as:
+
+.dashboard-card
+.temperature-widget
+.humidity-widget
+.chart-widget
+.device-list
+.device-count-widget
+.widget
+.sidebar
+.filter
+
+unless they are explicitly present in the selector list.
+
+If a selector does not exist,
+omit that verification instead of inventing one.
+
+Hidden Elements
+
+Do NOT generate visibility assertions for:
+
+- <input type="hidden">
+- hidden form fields
+- invisible framework inputs
+- authentication tokens
+
+Skip hidden elements entirely unless the test explicitly verifies their existence.
+Navigation Rules
+
+Use only these navigations:
+
+Dashboard
+page.goto("https://live.ideabytesiot.com/demolive/dashboard/status-list")
+
+Reports
+page.goto("https://live.ideabytesiot.com/demolive/reports/scheduled")
+
+Alerts
+page.goto("https://live.ideabytesiot.com/demolive/alerts")
+
+Devices
+page.goto("https://live.ideabytesiot.com/demolive/devices")
+
+Alarms
+page.goto("https://live.ideabytesiot.com/demolive/alarms")
+
+Users
+page.goto("https://live.ideabytesiot.com/demolive/users/users-management")
+
+Login tests only
+
+Use:
+
+page.goto("/")
+
+
+Route Rules
+Generate page.goto() only for routes that were discovered by the crawler.
+Never invent application routes.
+If a required page was not discovered,
+omit that test.
+
+All other tests must navigate directly to their target page.
+- Never use page.context.expect_page() unless a popup is explicitly opened.
+
+
+SPA Rules
+
+- After every page.goto(), generate:
+  - Wait for live SPA
+  - Wait for widget visible
+- Do not interact with elements before these waits complete.
+
+Authentication Rules
+
+- The Playwright browser already loads auth.json through conftest.py.
+- Assume the browser starts in an authenticated session.
+- DO NOT generate login steps unless the task explicitly tests authentication.
+- DO NOT generate:
+  - Enter username
+  - Enter password
+  - Click Login
+  - Click Sign In
+- For authenticated scenarios start directly on the required page using page.goto().
+- Only Login and Invalid Login scenarios should interact with username/password fields.
+
+Never prepend login steps to every test.
+Only authentication scenarios may perform login.
+If auth.json is used:
+
+- Never generate page.fill("#username")
+- Never generate page.fill("#password")
+- Never generate page.click("#kc-login")
+
+unless the test title explicitly contains Login.
+
+Playwright Actions
 - Open page
 - Click
 - Fill
@@ -111,6 +224,8 @@ Allowed Playwright Actions
 - Uncheck
 - Hover
 - Focus
+- Wait for live SPA
+- Wait for widget visible
 - Wait for visible
 - Wait for URL
 - Verify text
@@ -144,17 +259,14 @@ test_cases:
     title: Login with valid credentials
     priority: High
     steps:
-      - Open login page
-      - Enter username
-      - Enter password
-      - Click Login button
-      - Verify dashboard page
+      - Open dashboard page
+      - Wait for live SPA
+      - Verify dashboard page loaded
     expected_result: User successfully reaches the dashboard
 
 Priority Rules
 
 High
-- Login
 - Registration
 - Checkout
 - Forms
@@ -199,4 +311,15 @@ Do NOT include explanations.
 Do NOT include blank text before or after the YAML.
 
 The YAML must be directly parseable using yaml.safe_load().
+
+
+Generate at most 30 test cases.
+
+Prioritize:
+1. Critical
+2. High
+3. Medium
+
+If more scenarios exist,
+return only the top 30.
 """

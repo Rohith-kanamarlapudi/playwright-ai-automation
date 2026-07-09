@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-08T14:34:46.484975",
+  "generated_at": "2026-07-08T15:50:12.973462",
   "live_url": "https://live.ideabytesiot.com/demolive",
   "runs": 3,
   "raw": [
@@ -7,10 +7,10 @@
       {
         "label": "home_run1",
         "url": "https://live.ideabytesiot.com/demolive",
-        "timestamp": "2026-07-08T14:33:48.547964",
+        "timestamp": "2026-07-08T15:49:22.636692",
         "status_code": 200,
-        "ttfb_seconds": 0.4,
-        "total_seconds": 0.454,
+        "ttfb_seconds": 0.492,
+        "total_seconds": 0.545,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive"
@@ -18,10 +18,10 @@
       {
         "label": "dashboard_run1",
         "url": "https://live.ideabytesiot.com/demolive/dashboard/status-list",
-        "timestamp": "2026-07-08T14:33:51.183248",
+        "timestamp": "2026-07-08T15:49:25.033364",
         "status_code": 200,
-        "ttfb_seconds": 0.579,
-        "total_seconds": 0.632,
+        "ttfb_seconds": 0.346,
+        "total_seconds": 0.394,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/dashboard/status-list"
@@ -29,10 +29,10 @@
       {
         "label": "reports_run1",
         "url": "https://live.ideabytesiot.com/demolive/reports/scheduled",
-        "timestamp": "2026-07-08T14:33:53.611454",
+        "timestamp": "2026-07-08T15:49:27.462181",
         "status_code": 200,
-        "ttfb_seconds": 0.368,
-        "total_seconds": 0.425,
+        "ttfb_seconds": 0.369,
+        "total_seconds": 0.427,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/reports/scheduled"
@@ -40,10 +40,10 @@
       {
         "label": "alerts_run1",
         "url": "https://live.ideabytesiot.com/demolive/alerts",
-        "timestamp": "2026-07-08T14:33:56.032795",
+        "timestamp": "2026-07-08T15:49:29.861308",
         "status_code": 200,
-        "ttfb_seconds": 0.351,
-        "total_seconds": 0.418,
+        "ttfb_seconds": 0.341,
+        "total_seconds": 0.396,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/alerts"
@@ -51,10 +51,10 @@
       {
         "label": "devices_run1",
         "url": "https://live.ideabytesiot.com/demolive/devices",
-        "timestamp": "2026-07-08T14:33:58.932730",
+        "timestamp": "2026-07-08T15:49:32.225309",
         "status_code": 200,
-        "ttfb_seconds": 0.711,
-        "total_seconds": 0.897,
+        "ttfb_seconds": 0.319,
+        "total_seconds": 0.361,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/devices"
@@ -62,10 +62,10 @@
       {
         "label": "alarms_run1",
         "url": "https://live.ideabytesiot.com/demolive/alarms",
-        "timestamp": "2026-07-08T14:34:01.356912",
+        "timestamp": "2026-07-08T15:49:34.605210",
         "status_code": 200,
-        "ttfb_seconds": 0.366,
-        "total_seconds": 0.421,
+        "ttfb_seconds": 0.309,
+        "total_seconds": 0.376,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/alarms"
@@ -73,10 +73,10 @@
       {
         "label": "users_run1",
         "url": "https://live.ideabytesiot.com/demolive/users/users-management",
-        "timestamp": "2026-07-08T14:34:03.790674",
+        "timestamp": "2026-07-08T15:49:36.996597",
         "status_code": 200,
-        "ttfb_seconds": 0.372,
-        "total_seconds": 0.43,
+        "ttfb_seconds": 0.344,
+        "total_seconds": 0.388,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/users/users-management"
@@ -86,10 +86,10 @@
       {
         "label": "home_run2",
         "url": "https://live.ideabytesiot.com/demolive",
-        "timestamp": "2026-07-08T14:34:06.311639",
+        "timestamp": "2026-07-08T15:49:39.386159",
         "status_code": 200,
-        "ttfb_seconds": 0.474,
-        "total_seconds": 0.519,
+        "ttfb_seconds": 0.346,
+        "total_seconds": 0.386,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive"
@@ -97,10 +97,10 @@
       {
         "label": "dashboard_run2",
         "url": "https://live.ideabytesiot.com/demolive/dashboard/status-list",
-        "timestamp": "2026-07-08T14:34:08.876107",
+        "timestamp": "2026-07-08T15:49:41.813574",
         "status_code": 200,
-        "ttfb_seconds": 0.524,
-        "total_seconds": 0.563,
+        "ttfb_seconds": 0.368,
+        "total_seconds": 0.424,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/dashboard/status-list"
@@ -108,10 +108,10 @@
       {
         "label": "reports_run2",
         "url": "https://live.ideabytesiot.com/demolive/reports/scheduled",
-        "timestamp": "2026-07-08T14:34:11.949816",
+        "timestamp": "2026-07-08T15:49:44.251544",
         "status_code": 200,
-        "ttfb_seconds": 1.014,
-        "total_seconds": 1.059,
+        "ttfb_seconds": 0.367,
+        "total_seconds": 0.436,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/reports/scheduled"
@@ -119,10 +119,10 @@
       {
         "label": "alerts_run2",
         "url": "https://live.ideabytesiot.com/demolive/alerts",
-        "timestamp": "2026-07-08T14:34:14.884450",
+        "timestamp": "2026-07-08T15:49:46.599247",
         "status_code": 200,
-        "ttfb_seconds": 0.88,
-        "total_seconds": 0.932,
+        "ttfb_seconds": 0.307,
+        "total_seconds": 0.344,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/alerts"
@@ -130,10 +130,10 @@
       {
         "label": "devices_run2",
         "url": "https://live.ideabytesiot.com/demolive/devices",
-        "timestamp": "2026-07-08T14:34:17.944071",
+        "timestamp": "2026-07-08T15:49:48.964720",
         "status_code": 200,
-        "ttfb_seconds": 1.01,
-        "total_seconds": 1.056,
+        "ttfb_seconds": 0.327,
+        "total_seconds": 0.363,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/devices"
@@ -141,10 +141,10 @@
       {
         "label": "alarms_run2",
         "url": "https://live.ideabytesiot.com/demolive/alarms",
-        "timestamp": "2026-07-08T14:34:20.974033",
+        "timestamp": "2026-07-08T15:49:51.376385",
         "status_code": 200,
-        "ttfb_seconds": 0.974,
-        "total_seconds": 1.027,
+        "ttfb_seconds": 0.367,
+        "total_seconds": 0.409,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/alarms"
@@ -152,10 +152,10 @@
       {
         "label": "users_run2",
         "url": "https://live.ideabytesiot.com/demolive/users/users-management",
-        "timestamp": "2026-07-08T14:34:23.859800",
+        "timestamp": "2026-07-08T15:49:53.751048",
         "status_code": 200,
-        "ttfb_seconds": 0.829,
-        "total_seconds": 0.883,
+        "ttfb_seconds": 0.334,
+        "total_seconds": 0.372,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/users/users-management"
@@ -165,10 +165,10 @@
       {
         "label": "home_run3",
         "url": "https://live.ideabytesiot.com/demolive",
-        "timestamp": "2026-07-08T14:34:26.996007",
+        "timestamp": "2026-07-08T15:49:56.169612",
         "status_code": 200,
-        "ttfb_seconds": 1.073,
-        "total_seconds": 1.129,
+        "ttfb_seconds": 0.364,
+        "total_seconds": 0.416,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive"
@@ -176,10 +176,10 @@
       {
         "label": "dashboard_run3",
         "url": "https://live.ideabytesiot.com/demolive/dashboard/status-list",
-        "timestamp": "2026-07-08T14:34:29.728825",
+        "timestamp": "2026-07-08T15:49:58.563579",
         "status_code": 200,
-        "ttfb_seconds": 0.681,
-        "total_seconds": 0.728,
+        "ttfb_seconds": 0.351,
+        "total_seconds": 0.391,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/dashboard/status-list"
@@ -187,10 +187,10 @@
       {
         "label": "reports_run3",
         "url": "https://live.ideabytesiot.com/demolive/reports/scheduled",
-        "timestamp": "2026-07-08T14:34:33.026203",
+        "timestamp": "2026-07-08T15:50:00.927031",
         "status_code": 200,
-        "ttfb_seconds": 1.173,
-        "total_seconds": 1.294,
+        "ttfb_seconds": 0.325,
+        "total_seconds": 0.362,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/reports/scheduled"
@@ -198,10 +198,10 @@
       {
         "label": "alerts_run3",
         "url": "https://live.ideabytesiot.com/demolive/alerts",
-        "timestamp": "2026-07-08T14:34:36.004203",
+        "timestamp": "2026-07-08T15:50:03.304336",
         "status_code": 200,
-        "ttfb_seconds": 0.928,
-        "total_seconds": 0.974,
+        "ttfb_seconds": 0.34,
+        "total_seconds": 0.375,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/alerts"
@@ -209,10 +209,10 @@
       {
         "label": "devices_run3",
         "url": "https://live.ideabytesiot.com/demolive/devices",
-        "timestamp": "2026-07-08T14:34:38.879984",
+        "timestamp": "2026-07-08T15:50:05.716980",
         "status_code": 200,
-        "ttfb_seconds": 0.82,
-        "total_seconds": 0.867,
+        "ttfb_seconds": 0.361,
+        "total_seconds": 0.409,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/devices"
@@ -220,10 +220,10 @@
       {
         "label": "alarms_run3",
         "url": "https://live.ideabytesiot.com/demolive/alarms",
-        "timestamp": "2026-07-08T14:34:41.659818",
+        "timestamp": "2026-07-08T15:50:08.125835",
         "status_code": 200,
-        "ttfb_seconds": 0.735,
-        "total_seconds": 0.777,
+        "ttfb_seconds": 0.364,
+        "total_seconds": 0.406,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/alarms"
@@ -231,10 +231,10 @@
       {
         "label": "users_run3",
         "url": "https://live.ideabytesiot.com/demolive/users/users-management",
-        "timestamp": "2026-07-08T14:34:44.468840",
+        "timestamp": "2026-07-08T15:50:10.970616",
         "status_code": 200,
-        "ttfb_seconds": 0.755,
-        "total_seconds": 0.798,
+        "ttfb_seconds": 0.804,
+        "total_seconds": 0.843,
         "content_length_bytes": 66476,
         "redirected": false,
         "final_url": "https://live.ideabytesiot.com/demolive/users/users-management"
@@ -243,50 +243,50 @@
   ],
   "averages": {
     "home": {
-      "avg_ttfb_seconds": 0.649,
-      "avg_total_seconds": 0.701,
+      "avg_ttfb_seconds": 0.401,
+      "avg_total_seconds": 0.449,
       "status_codes": [
         200
       ]
     },
     "dashboard": {
-      "avg_ttfb_seconds": 0.595,
-      "avg_total_seconds": 0.641,
+      "avg_ttfb_seconds": 0.355,
+      "avg_total_seconds": 0.403,
       "status_codes": [
         200
       ]
     },
     "reports": {
-      "avg_ttfb_seconds": 0.852,
-      "avg_total_seconds": 0.926,
+      "avg_ttfb_seconds": 0.354,
+      "avg_total_seconds": 0.408,
       "status_codes": [
         200
       ]
     },
     "alerts": {
-      "avg_ttfb_seconds": 0.72,
-      "avg_total_seconds": 0.775,
+      "avg_ttfb_seconds": 0.329,
+      "avg_total_seconds": 0.372,
       "status_codes": [
         200
       ]
     },
     "devices": {
-      "avg_ttfb_seconds": 0.847,
-      "avg_total_seconds": 0.94,
+      "avg_ttfb_seconds": 0.336,
+      "avg_total_seconds": 0.378,
       "status_codes": [
         200
       ]
     },
     "alarms": {
-      "avg_ttfb_seconds": 0.692,
-      "avg_total_seconds": 0.742,
+      "avg_ttfb_seconds": 0.347,
+      "avg_total_seconds": 0.397,
       "status_codes": [
         200
       ]
     },
     "users": {
-      "avg_ttfb_seconds": 0.652,
-      "avg_total_seconds": 0.704,
+      "avg_ttfb_seconds": 0.494,
+      "avg_total_seconds": 0.534,
       "status_codes": [
         200
       ]
