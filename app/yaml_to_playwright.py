@@ -393,8 +393,34 @@ def convert_step(step: str) -> List[str]:
     # -------------------------------------------------------
     if sl.startswith("click "):
         raw = step[len("click "):].strip()
-        label = re.sub(r"\s*(button|link|icon|tab)$", "", raw, flags=re.IGNORECASE).strip()
-        
+ 
+        # BUG FIX: this used to strip the trailing role word
+        # ("button"/"link"/"icon"/"tab") for a clean `name=`, but then
+        # unconditionally emitted get_by_role("button", ...) — even
+        # for text that explicitly said "... link" or "... nav link".
+        # Real navigation items are almost always <a> elements, so
+        # "Click Reports link" was being converted to
+        # get_by_role("button", name="Reports"), which never matches
+        # and times out. Now the actual word that was stripped decides
+        # the role, and we also fall back to the other role once in
+        # case the live markup doesn't match the wording exactly.
+        role_match = re.search(
+            r"\b(nav(?:igation)?\s+link|button|link|icon|tab)$",
+            raw,
+            flags=re.IGNORECASE,
+        )
+        role = "button"  # preserve the original default for ambiguous wording
+        if role_match:
+            word = role_match.group(1).lower()
+            role = "button" if word == "button" else "link"
+ 
+        label = re.sub(
+            r"\s*(nav(?:igation)?\s+link|button|link|icon|tab)$",
+            "",
+            raw,
+            flags=re.IGNORECASE,
+        ).strip()
+ 
         if label.startswith("#") or label.startswith("."):
  
             code.append(f'page.locator("{quote(label)}").click()')
@@ -408,7 +434,12 @@ def convert_step(step: str) -> List[str]:
             # FIX 1: CSS selector → locator, not get_by_text
             code.append(f'page.locator("{quote(label)}").click()')
         else:
-            code.append(f'page.get_by_role("button", name="{quote(label)}").click()')
+            other_role = "button" if role == "link" else "link"
+            code.append(
+                f'page.get_by_role("{role}", name="{quote(label)}").or_('
+                f'page.get_by_role("{other_role}", name="{quote(label)}")'
+                f').first.click()'
+            )
         code.append("page.wait_for_load_state('networkidle')")
         return code
  
