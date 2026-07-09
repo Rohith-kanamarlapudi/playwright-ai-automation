@@ -12,6 +12,7 @@ from agents.prompts.yaml_prompt import (
     LIVE_DATA_INSTRUCTIONS,
 )
 from agents.python_fallback import generate_python_directly
+from agents.popup_sanitizer import sanitize_unjustified_popups
  
 from app.yaml_validator import validate_yaml
 from app.yaml_to_playwright import convert_yaml_to_playwright
@@ -434,9 +435,14 @@ def code_gen_agent(state: AgentState) -> AgentState:
  
             code = playwright.get("code", "")
             code = strip_markdown_code_fences(code)
-            if "expect_page(" in code and "popup" not in code.lower():
-                print("[Code Gen] Invalid expect_page() detected.")
-                state["needs_regen"] = True
+            if "expect_page(" in code:
+                before = code
+                code = sanitize_unjustified_popups(code)
+                if code != before:
+                    print(
+                        "[Code Gen] Removed unjustified expect_page() "
+                        "popup block(s) with no target=\"_blank\" evidence."
+                    )
             previous_code = state.get("best_code", "")
  
             if previous_code and code == previous_code:
@@ -474,6 +480,14 @@ def code_gen_agent(state: AgentState) -> AgentState:
                 llm,
             )
             code = strip_markdown_code_fences(code)
+            if "expect_page(" in code:
+                before = code
+                code = sanitize_unjustified_popups(code)
+                if code != before:
+                    print(
+                        "[Code Gen] Removed unjustified expect_page() "
+                        "popup block(s) with no target=\"_blank\" evidence."
+                    )
             if not code.strip():
                 raise ValueError("Python fallback returned empty code.")
  
