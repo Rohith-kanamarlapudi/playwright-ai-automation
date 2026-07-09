@@ -58,7 +58,9 @@ def get_rendered_html(url):
     try:
         with sync_playwright() as p:
 
-            browser = p.chromium.launch(headless=True)
+            browser = p.chromium.launch(
+                headless=True
+            )
 
             if os.path.exists(AUTH_STATE):
                 context = browser.new_context(
@@ -105,7 +107,9 @@ def get_rendered_routes(url):
     try:
         with sync_playwright() as p:
 
-            browser = p.chromium.launch(headless=True)
+            browser = p.chromium.launch(
+                headless=True
+            )
 
             if os.path.exists(AUTH_STATE):
                 context = browser.new_context(
