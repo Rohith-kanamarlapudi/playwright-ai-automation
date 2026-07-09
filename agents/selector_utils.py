@@ -3,7 +3,7 @@
 import os
 
 # Increase selector cap for the larger live IoT application
-SELECTOR_CAP = int(os.getenv("SELECTOR_CAP", "30"))
+SELECTOR_CAP = int(os.getenv("SELECTOR_CAP", "25"))
 
 
 def prioritise_selectors(selectors: list) -> list:
@@ -15,17 +15,83 @@ def prioritise_selectors(selectors: list) -> list:
     1 -> id selectors
     2 -> input[name] / a[href]
     3 -> semantic widget classes
-    4 -> everything else
+    4 -> buttons / inputs
+    5 -> everything else
+
+    Invalid selectors are discarded completely.
     """
+
+    cleaned = []
+
+    INVALID_PATTERNS = (
+        "input[name='']",
+        'input[name=""]',
+        "input[id='']",
+        'input[id=""]',
+        "a[href='']",
+        'a[href=""]',
+        "button:has-text('')",
+        'button:has-text("")',
+        "a:has-text('')",
+        'a:has-text("")',
+        "#",
+        ".",
+    )
+
+    for s in selectors:
+
+        sel = str(s.get("selector", "")).strip()
+        
+        
+        element_type = str(s.get("type", "")).lower()
+
+        attributes = str(s.get("attributes", "")).lower()
+
+        if "type=\"hidden\"" in attributes:
+            continue
+
+        if "type='hidden'" in attributes:
+            continue
+
+        if element_type == "hidden":
+            continue
+
+        # ---------------------------------------------
+        # Reject empty selectors
+        # ---------------------------------------------
+
+        if not sel:
+            continue
+
+        # ---------------------------------------------
+        # Reject invalid selectors
+        # ---------------------------------------------
+
+        if sel in INVALID_PATTERNS:
+            continue
+
+        if "has-text('')" in sel or 'has-text("")' in sel:
+            continue
+
+        if "input[name='']" in sel or 'input[name=""]' in sel:
+            continue
+
+        if "input[id='']" in sel or 'input[id=""]' in sel:
+            continue
+
+        if "a[href='']" in sel or 'a[href=""]' in sel:
+            continue
+
+        cleaned.append(s)
 
     def score(s):
 
         sel = str(s.get("selector", ""))
         sel_type = str(s.get("type", ""))
 
-        # -------------------------------------------------
-        # Most stable selectors
-        # -------------------------------------------------
+        # ---------------------------------------------
+        # Highest priority
+        # ---------------------------------------------
 
         if (
             sel.startswith("[data-testid")
@@ -33,16 +99,16 @@ def prioritise_selectors(selectors: list) -> list:
         ):
             return 0
 
-        # -------------------------------------------------
+        # ---------------------------------------------
         # ID selectors
-        # -------------------------------------------------
+        # ---------------------------------------------
 
         if sel.startswith("#"):
             return 1
 
-        # -------------------------------------------------
-        # Name / href selectors
-        # -------------------------------------------------
+        # ---------------------------------------------
+        # Stable attribute selectors
+        # ---------------------------------------------
 
         if (
             sel.startswith("input[name")
@@ -50,9 +116,9 @@ def prioritise_selectors(selectors: list) -> list:
         ):
             return 2
 
-        # -------------------------------------------------
-        # Semantic Angular / IoT widgets
-        # -------------------------------------------------
+        # ---------------------------------------------
+        # Semantic selectors
+        # ---------------------------------------------
 
         semantic_keywords = (
             "widget",
@@ -67,25 +133,29 @@ def prioritise_selectors(selectors: list) -> list:
             "alarm",
             "device",
             "table",
+            "grid",
+            "list",
+            "menu",
+            "navbar",
+            "sidebar",
+            "panel",
+            "dialog",
+            "modal",
         )
 
         if any(keyword in sel.lower() for keyword in semantic_keywords):
             return 3
 
-        # -------------------------------------------------
-        # Prefer buttons/inputs slightly over generic text
-        # -------------------------------------------------
+        # ---------------------------------------------
+        # Buttons / Inputs
+        # ---------------------------------------------
 
         if sel_type in ("button", "input"):
             return 4
 
-        # -------------------------------------------------
-        # Least stable
-        # -------------------------------------------------
-
         return 5
 
-    return sorted(selectors, key=score)
+    return sorted(cleaned, key=score)
 
 
 def cap_selectors(selectors: list, label: str) -> list:
@@ -93,14 +163,15 @@ def cap_selectors(selectors: list, label: str) -> list:
     Apply selector cap and report dropped selectors.
     """
 
+    selectors = prioritise_selectors(selectors)
+
     total = len(selectors)
 
-    capped = prioritise_selectors(selectors)[:SELECTOR_CAP]
+    capped = selectors[:SELECTOR_CAP]
 
     dropped = total - len(capped)
 
     if dropped > 0:
-
         print(
             f"[Selector Cap] {label}: "
             f"using {len(capped)}/{total} "
