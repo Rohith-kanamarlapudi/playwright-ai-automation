@@ -16,6 +16,8 @@ Special Guidelines:
 - Live charts, gauges, widgets, and sensor values may auto-refresh.
 - Test that dynamic widgets render correctly instead of checking fixed readings.
 - Authentication is required before accessing the dashboard.
+    Authenticated browser state is already available.
+    Do NOT generate repeated login scenarios unless the workflow explicitly tests authentication.
 - Focus on testing navigation, dashboard modules, forms, reports, alerts, alarms, devices, users, filters, search, downloads, and responsive behavior.
 
 Examples
@@ -72,6 +74,18 @@ STRICT RULES
 12. Verify widget visibility, page structure, navigation, and behavior instead.
 13. Use dynamic assertions such as "is visible", "contains numeric value", or "updates correctly".
 
+Do NOT generate login workflows.
+Authentication is handled through auth.json.
+Generate only authenticated application workflows.
+
+Authentication Policy
+The application is tested using auth.json.
+Generate ONLY authenticated application workflows.
+Do NOT generate login workflows.
+Do NOT generate username/password interactions.
+Exception:
+Generate a login workflow only if the task explicitly says to test authentication.
+
 Cover these areas whenever possible:
 
 - Authentication / Login
@@ -109,7 +123,7 @@ Good Examples
 
 - Login using valid credentials and verify dashboard loads.
 - Verify dashboard cards are visible.
-- Verify temperature widget displays a numeric value.
+- Verify dashboard telemetry section renders
 - Verify humidity widget is rendered.
 - Navigate to Reports and verify scheduled reports table is displayed.
 - Navigate to Alerts and verify filters are visible.
@@ -144,4 +158,15 @@ Return JSON only.
 Do NOT return Markdown.
 Do NOT use code fences.
 Do NOT include explanations.
+
+
+Generate at most 30 test cases.
+
+Prioritize:
+1. Critical
+2. High
+3. Medium
+
+If more scenarios exist,
+return only the top 30.
 """
