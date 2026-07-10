@@ -723,7 +723,7 @@ def convert_step(step: str) -> List[str]:
         sel = extract_selector(step)
         if sel:
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}")).to_be_visible()')
+                code.append(f'expect(page.locator("{quote(sel)}").first).to_be_visible()')
             else:
                 code.append(f'expect(page.get_by_text("{quote(sel)}", exact=False).first).to_be_visible()')
             return code
@@ -735,7 +735,7 @@ def convert_step(step: str) -> List[str]:
         m = re.search(r"['\"]([^'\"]+)['\"]", step)
         if m:
             code.append(
-                f'expect(page.get_by_role("heading", name="{quote(m.group(1))}")).to_be_visible()'
+                f'expect(page.get_by_role("heading", name="{quote(m.group(1))}").first).to_be_visible()'
             )
         else:
             # FIX 3: check structural heading element, not English text
@@ -800,12 +800,12 @@ def convert_step(step: str) -> List[str]:
         sel = extract_selector(step)
         if sel and url2:
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}")).to_have_attribute("href", "{quote(url2)}")')
+                code.append(f'expect(page.locator("{quote(sel)}").first).to_have_attribute("href", "{quote(url2)}")')
             else:
-                code.append(f'expect(page.get_by_role("link", name="{quote(sel)}")).to_have_attribute("href", "{quote(url2)}")')
+                code.append(f'expect(page.get_by_role("link", name="{quote(sel)}").first).to_have_attribute("href", "{quote(url2)}")')
         elif url2:
             # FIX 1: use locator(a[href=...]) not get_by_text
-            code.append(f'expect(page.locator("a[href=\\"{quote(url2)}\\"]")).to_be_visible()')
+            code.append(f'expect(page.locator("a[href=\\"{quote(url2)}\\"]").first).to_be_visible()')
         return code
  
     # -------------------------------------------------------
@@ -901,7 +901,7 @@ def convert_step(step: str) -> List[str]:
         if sel:
             # FIX 1: CSS selector → locator(), not get_by_text
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}")).to_be_visible()')
+                code.append(f'expect(page.locator("{quote(sel)}").first).to_be_visible()')
             else:
                 code.append(f'expect(page.get_by_text("{quote(sel)}", exact=False).first).to_be_visible()')
         else:
@@ -921,9 +921,9 @@ def convert_step(step: str) -> List[str]:
         sel = extract_selector(step)
         if sel:
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}")).to_be_enabled()')
+                code.append(f'expect(page.locator("{quote(sel)}").first).to_be_enabled()')
             else:
-                code.append(f'expect(page.get_by_role("button", name="{quote(sel)}")).to_be_enabled()')
+                code.append(f'expect(page.get_by_role("button", name="{quote(sel)}").first).to_be_enabled()')
             return code
  
     # -------------------------------------------------------
@@ -935,12 +935,12 @@ def convert_step(step: str) -> List[str]:
         if url2:
             if sel and _is_css_selector(sel):
                 # Specific element: check its href attribute
-                code.append(f'expect(page.locator("{quote(sel)}")).to_have_attribute("href", "{quote(url2)}")')
+                code.append(f'expect(page.locator("{quote(sel)}").first).to_have_attribute("href", "{quote(url2)}")')
             else:
                 # No specific element: verify a link with that href exists on page
-                code.append(f'expect(page.locator("a[href=\\"{quote(url2)}\\"]")).to_have_attribute("href", "{quote(url2)}")')
+                code.append(f'expect(page.locator("a[href=\\"{quote(url2)}\\"]").first).to_have_attribute("href", "{quote(url2)}")')
         elif sel:
-            code.append(f'expect(page.locator("{quote(sel) if _is_css_selector(sel) else "a"}")).to_be_visible()')
+            code.append(f'expect(page.locator("{quote(sel) if _is_css_selector(sel) else "a"}").first).to_be_visible()')
         return code
  
     # -------------------------------------------------------
@@ -1019,9 +1019,9 @@ def convert_step(step: str) -> List[str]:
         sel = extract_selector(step)
         if sel:
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}")).to_be_visible()')
+                code.append(f'expect(page.locator("{quote(sel)}").first).to_be_visible()')
             else:
-                code.append(f'expect(page.get_by_role("region", name="{quote(sel)}")).to_be_visible()')
+                code.append(f'expect(page.get_by_role("region", name="{quote(sel)}").first).to_be_visible()')
             return code
  
     # -------------------------------------------------------
@@ -1065,7 +1065,7 @@ def convert_step(step: str) -> List[str]:
             code.append(f'expect(page).to_have_url(re.compile(r"{quote(url2)}"))')
         elif sel and _is_css_selector(sel):
             # FIX 1: real selector
-            code.append(f'expect(page.locator("{quote(sel)}")).to_be_visible()')
+            code.append(f'expect(page.locator("{quote(sel)}").first).to_be_visible()')
         else:
             # FIX 3: structural check — body is visible = page loaded without crash
             code.append('expect(page.locator("body")).to_be_visible()  # page loaded successfully')
