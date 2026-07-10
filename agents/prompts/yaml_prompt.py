@@ -145,6 +145,48 @@ Do NOT generate visibility assertions for:
 - authentication tokens
 
 Skip hidden elements entirely unless the test explicitly verifies their existence.
+
+Modal / Dialog Rules
+
+Buttons like "Yes", "No", "Confirm", "Cancel", "OK", or "Delete" that
+belong to a confirmation dialog are NOT visible or clickable on a
+freshly-loaded page. They only appear after a specific triggering
+action opens that dialog (e.g. clicking a "Delete" or "Logout" button
+elsewhere on the page first). A test that does "Open page" -> "Click
+Yes button" with no step in between that opens the dialog will always
+fail, because the button does not exist yet at that point.
+
+If you reference a dialog/modal button (Yes, No, Confirm, Cancel, OK,
+Delete-confirmation, etc.):
+- You MUST include the exact triggering step that opens that dialog
+  BEFORE the click step, using only actions/selectors already
+  established elsewhere in this prompt.
+- If you cannot identify what triggers that dialog from the
+  information given, DO NOT generate a test that clicks it. Instead
+  either omit the test entirely, or generate a test that only verifies
+  the triggering control (not the dialog button) is present.
+- Never assume a modal is already open on page load.
+
+Conditionally-Visible Element Rules
+
+This rule applies more broadly than just dialogs: ANY selector from
+the Available Buttons/Inputs/Links lists that is only revealed after
+some other interaction (expanding a table row's details, opening a
+dropdown, switching a tab, hovering a menu, etc.) must NOT be asserted
+or clicked immediately after "Open page" / "Wait for live SPA". This
+includes links or buttons that live inside a row-detail panel, an
+expandable card, or a menu that must first be opened.
+
+Before writing a step that verifies or clicks such an element:
+- Identify whether it is normally visible on page load, or only
+  after an interaction. If you are not certain it is visible on load,
+  treat it as conditionally-visible.
+- If conditionally-visible, include the exact step(s) that reveal it
+  first, using only actions/selectors already established elsewhere
+  in this prompt.
+- If you cannot identify what reveals it, DO NOT generate a test
+  asserting or clicking it. Omit that test case instead of guessing.
+
 Navigation Rules
 
 Use only these navigations:

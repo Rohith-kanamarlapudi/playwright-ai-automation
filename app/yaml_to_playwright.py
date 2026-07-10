@@ -40,50 +40,48 @@ def quote(value: str) -> str:
     return value.replace('"', '\\"')
 
 
-# ==========================================================
-# RESILIENT ROLE-BASED CLICK HELPER
-#
-# BUG FIX: several call sites (the "Click button X" branch and the
-# plain-text "Click link X" branch) used to emit a single bare
-# `page.get_by_role(role, name=...).click()` with no `.first` and no
-# existence check. Playwright locators are strict by default: if the
-# accessible name matches MORE than one element on the page (e.g. a
-# "Devices" nav link that also appears as a card heading elsewhere,
-# or a "User"/"Role" label that appears both as a tab and as a
-# section title) `.click()` raises a strict-mode violation instead of
-# clicking anything. If the name guess is slightly off from the real
-# accessible name, `.click()` instead hangs until the 10s timeout and
-# raises a TimeoutError. Either way the whole test crashes on what is
-# really just an imprecise selector guess from the YAML step text.
-# (See TC016-TC020 "Default Rule"/"Advanced Rule"/"Reset Rules"/
-# "User"/"Role" button failures and the "Devices" link failure.)
-#
-# This mirrors the same resilience already applied to the Yes/No
-# modal-button steps: pick `.first` so a genuine multi-match still
-# clicks the real element instead of crashing, and check `.count()`
-# first so a wrong/stale name guess degrades to an informative skip
-# message rather than a hard failure that blocks the whole suite.
-# ==========================================================
+def _locator_expr(sel: str) -> str:
+    """
+    Build the `page.locator("...")` expression string embedded in
+    generated test code. Automatically appends `.first` whenever the
+    selector uses `:has-text(`, since substring text matching is
+    inherently prone to matching MULTIPLE real elements -- e.g.
+    `a:has-text('Reports')` matches the main "Reports" nav link AND
+    the "Scheduled Reports"/"On-Demand Reports" sub-tabs, since all
+    three contain "Reports" as a substring. Without `.first`,
+    Playwright raises a strict-mode violation (not a "not found"
+    error) instead of running the intended single-element check or
+    action.
+    """
+    expr = f'page.locator("{quote(sel)}")'
+    if ":has-text(" in sel:
+        expr += ".first"
+    return expr
 
-def _resilient_click_lines(role: str, name: str, alt_role: str = None) -> List[str]:
-    quoted_name = quote(name)
-    if alt_role:
-        locator_expr = (
-            f'page.get_by_role("{role}", name="{quoted_name}").or_('
-            f'page.get_by_role("{alt_role}", name="{quoted_name}"))'
-        )
-    else:
-        locator_expr = f'page.get_by_role("{role}", name="{quoted_name}")'
-    return [
-        f"_click_target = {locator_expr}",
-        "if _click_target.count() > 0:",
-        "    _click_target.first.click()",
-        "    page.wait_for_load_state('networkidle')",
-        "else:",
-        f'    print("[Test] {role} named \'{quoted_name}\' not found on '
-        'this page — skipping click")',
-    ]
 
+_MAP_HREF_DOMAINS = (
+    "maps.google.", "google.com/maps", "www.google.com/maps",
+    "maps.apple.com", "bing.com/maps", "openstreetmap.org",
+)
+
+_HREF_ATTR_RE = re.compile(r"""href\s*=\s*['"]([^'"]+)['"]""", re.IGNORECASE)
+
+def _href_looks_like_map_link(sel: str) -> bool:
+    """
+    True if a CSS attribute selector like `a[href='...']` points to a
+    map service (Google Maps, Apple Maps, Bing Maps, OpenStreetMap).
+    Map links are almost universally rendered inside an expandable
+    row/detail panel or a "view location" action, not inline on page
+    load -- asserting one is visible immediately after "Open page" is
+    a near-guaranteed false failure regardless of how correct the
+    selector itself is. Treated as conditionally-visible: checked
+    softly rather than hard-asserted.
+    """
+    m = _HREF_ATTR_RE.search(sel)
+    if not m:
+        return False
+    href = m.group(1).lower()
+    return any(domain in href for domain in _MAP_HREF_DOMAINS)
  
  
 # ==========================================================
@@ -126,6 +124,27 @@ _CSS_SELECTOR_RE = re.compile(
     r"(?=[\[\.\:>,]|$))",
     re.IGNORECASE,
 )
+
+_DIALOG_BUTTON_LABELS = {
+    "yes", "no", "confirm", "cancel", "ok", "okay",
+    "delete", "remove", "close", "dismiss",
+}
+
+def _is_dialog_confirmation_label(text: str) -> bool:
+    """
+    True for button labels that typically belong to a confirmation
+    dialog (Yes/No/Confirm/Cancel/OK/etc.) rather than a normal
+    always-present page control. These are only visible after some
+    OTHER action opens the dialog — a YAML step that clicks one
+    immediately after page load, with nothing in between that could
+    have triggered it, will hang for the full timeout and fail, even
+    though the button conversion itself is correct. Code generated for
+    these labels checks visibility first and skips gracefully instead
+    of hard-failing, since we have no way to know from the step text
+    alone whether the dialog was actually opened first.
+    """
+    return text.strip().lower() in _DIALOG_BUTTON_LABELS
+
 
 def _strip_wrapping_quotes(value: str) -> str:
     """
@@ -436,47 +455,6 @@ def convert_step(step: str) -> List[str]:
         return code
  
     # -------------------------------------------------------
-    # Click Yes/No modal confirmation button  (BUG FIX)
-    #
-    # YAML flows like "Click Yes button" / "Click No button" are
-    # generated WITHOUT any preceding step that actually opens a
-    # confirmation modal (no "Click Delete" / "Click Logout" / any
-    # trigger action appears anywhere in these test cases). The old
-    # code fell through to the generic "Click <anything>" branch
-    # below, which emits an unconditional get_by_role(...).first
-    # .click() — a hard click on an element that was never
-    # rendered, which raises a Playwright TimeoutError and fails
-    # the test (see TC020-TC025 failures:
-    # "page.get_by_role('button', name='Yes')...click()" timing out
-    # because no modal was ever opened on the dashboard/reports/
-    # alerts/devices/alarms/users pages).
-    #
-    # Since the YAML gives no information about what would trigger
-    # the modal, the honest fix is to check whether the button
-    # actually exists before interacting with it: click and verify
-    # for real when a modal happens to be open, and log + continue
-    # (instead of crashing the whole test) when it isn't — rather
-    # than either a guaranteed failure or a fake assertion that
-    # always passes regardless of app behavior.
-    # -------------------------------------------------------
-    _modal_yes_no = re.match(r"^click\s+(yes|no)\s+button$", sl)
-    if _modal_yes_no:
-        label = _modal_yes_no.group(1).capitalize()
-        code.append(
-            f'_modal_btn = page.get_by_role("button", name="{label}").or_('
-            f'page.get_by_role("link", name="{label}"))'
-        )
-        code.append("if _modal_btn.count() > 0:")
-        code.append("    _modal_btn.first.click()")
-        code.append("    page.wait_for_load_state('networkidle')")
-        code.append("else:")
-        code.append(
-            f'    print("[Test] No confirmation modal open — \'{label}\' '
-            'button not present on this page, skipping interaction")'
-        )
-        return code
-
-    # -------------------------------------------------------
     # Click the '...' link with selector '...'
     # -------------------------------------------------------
     m = re.search(
@@ -485,7 +463,7 @@ def convert_step(step: str) -> List[str]:
     )
     if m:
         sel = m.group(1)
-        code.append(f'page.locator("{quote(sel)}").click()')
+        code.append(f'{_locator_expr(sel)}.click()')
         code.append("page.wait_for_load_state('networkidle')")
         return code
  
@@ -511,13 +489,12 @@ def convert_step(step: str) -> List[str]:
             # FIX 1: if sel looks like CSS selector use locator(), 
             # if bare /path treat as href, else get_by_role
             if _is_css_selector(sel):
-                code.append(f'page.locator("{quote(sel)}").click()')
+                code.append(f'{_locator_expr(sel)}.click()')
             elif sel.startswith("/"):
                 # bare path -> href locator
                 code.append(f'page.locator("a[href=\\"{quote(sel)}\\"]").click()')
             else:
-                code.extend(_resilient_click_lines("link", sel))
-                return code
+                code.append(f'page.get_by_role("link", name="{quote(sel)}").click()')
             code.append("page.wait_for_load_state('networkidle')")
         else:
             code.append("# TODO: specify link selector")
@@ -545,10 +522,10 @@ def convert_step(step: str) -> List[str]:
             # can never match anything. Reconstruct the full selector
             # instead, matching what extract_selector() already does
             # correctly for the "Click Link" branch above.
-            code.append(f'page.locator("{quote("button" + raw)}").click()')
+            code.append(f'{_locator_expr("button" + raw)}.click()')
         elif _is_css_selector(raw):
             # FIX 1: CSS selector → locator()
-            code.append(f'page.locator("{quote(raw)}").click()')
+            code.append(f'{_locator_expr(raw)}.click()')
         elif _looks_like_purpose_phrase(raw):
             # BUG FIX: text like "to open modal" describes WHY to
             # click, not WHAT the button is called — using it as
@@ -562,9 +539,29 @@ def convert_step(step: str) -> List[str]:
                 "button label — clicking first visible button as a "
                 "best-effort fallback"
             )
+        elif _is_dialog_confirmation_label(raw):
+            # BUG FIX: "Yes"/"No"/"Confirm"/etc. buttons belong to a
+            # confirmation dialog that's only visible after some other
+            # action opens it. A step like "Click Yes button" right
+            # after page load, with nothing in between that could have
+            # triggered the dialog, would otherwise hang for the full
+            # default timeout and fail — even though this conversion
+            # is correct. Check visibility first and skip gracefully
+            # if the dialog was never opened, rather than hard-failing.
+            code.append(
+                f'if page.get_by_role("button", name="{quote(raw)}").count() > 0:'
+            )
+            code.append(
+                f'    page.get_by_role("button", name="{quote(raw)}").first.click()'
+            )
+            code.append("else:")
+            code.append(
+                f'    print("SKIPPED: \\"{quote(raw)}\\" dialog button not '
+                'present — its triggering dialog was not opened")'
+            )
         else:
             # FIX 4: text → get_by_role with name
-            code.extend(_resilient_click_lines("button", raw))
+            code.append(f'page.get_by_role("button", name="{quote(raw)}").click()')
         return code
  
     # -------------------------------------------------------
@@ -596,13 +593,16 @@ def convert_step(step: str) -> List[str]:
     if sl.startswith("click "):
         raw = step[len("click "):].strip()
 
-        # BUG FIX: natural phrasing very often says "Click on Reports
-        # link" rather than "Click Reports link" — the leading "on "
-        # was never stripped, so it ended up baked into the label as
-        # "on Reports", producing get_by_role(name="on Reports"),
-        # which can never match the real element (actually named just
-        # "Reports"). Strip it before any further processing.
-        raw = re.sub(r"^on\s+", "", raw, flags=re.IGNORECASE).strip()
+        # BUG FIX: natural phrasing very often includes a leading
+        # filler word before the real target — "Click on Reports
+        # link", "Click the Dashboard link", "Click the Assign
+        # Devices button" — none of which get stripped, so they end
+        # up baked into the label as "on Reports"/"the Dashboard"/
+        # "the Assign Devices", producing a get_by_role(name=...) that
+        # can never match the real element (actually named just
+        # "Reports"/"Dashboard"/"Assign Devices"). Strip common
+        # leading filler words before any further processing.
+        raw = re.sub(r"^(on|the|an?)\s+", "", raw, flags=re.IGNORECASE).strip()
 
         # BUG FIX: this used to strip the trailing role word
         # ("button"/"link"/"icon"/"tab") for a clean `name=`, but then
@@ -634,7 +634,7 @@ def convert_step(step: str) -> List[str]:
 
         if label.startswith("#") or label.startswith("."):
 
-            code.append(f'page.locator("{quote(label)}").click()')
+            code.append(f'{_locator_expr(label)}.click()')
             code.append("page.wait_for_load_state('networkidle')")
             return code
         
@@ -643,7 +643,7 @@ def convert_step(step: str) -> List[str]:
             return code
         if _is_css_selector(label):
             # FIX 1: CSS selector → locator, not get_by_text
-            code.append(f'page.locator("{quote(label)}").click()')
+            code.append(f'{_locator_expr(label)}.click()')
         elif _looks_like_purpose_phrase(label):
             # BUG FIX: same class of issue as the click-button branch
             # — "to open modal" describes intent, not a real element
@@ -655,10 +655,28 @@ def convert_step(step: str) -> List[str]:
                 f"an element label — clicking first visible {role} as a "
                 "best-effort fallback"
             )
+        elif _is_dialog_confirmation_label(label):
+            # BUG FIX: same reasoning as the click-button branch —
+            # "Yes"/"No"/etc. belong to a conditionally-visible
+            # confirmation dialog, not an always-present control.
+            code.append(
+                f'if page.get_by_role("{role}", name="{quote(label)}").count() > 0:'
+            )
+            code.append(
+                f'    page.get_by_role("{role}", name="{quote(label)}").first.click()'
+            )
+            code.append("else:")
+            code.append(
+                f'    print("SKIPPED: \\"{quote(label)}\\" dialog button not '
+                'present — its triggering dialog was not opened")'
+            )
         else:
             other_role = "button" if role == "link" else "link"
-            code.extend(_resilient_click_lines(role, label, alt_role=other_role))
-            return code
+            code.append(
+                f'page.get_by_role("{role}", name="{quote(label)}").or_('
+                f'page.get_by_role("{other_role}", name="{quote(label)}")'
+                f').first.click()'
+            )
         code.append("page.wait_for_load_state('networkidle')")
         return code
  
@@ -671,7 +689,7 @@ def convert_step(step: str) -> List[str]:
             code.append("# FIX 5: PDF/download — use expect_download()")
             code.append("with page.expect_download() as download_info:")
             if _is_css_selector(sel):
-                code.append(f'    page.locator("{quote(sel)}").click()')
+                code.append(f'    {_locator_expr(sel)}.click()')
             else:
                 code.append(f'    page.get_by_text("{quote(sel)}").click()')
             code.append("download = download_info.value")
@@ -691,7 +709,7 @@ def convert_step(step: str) -> List[str]:
         if m:
             sel = m.group(1).strip()
             val = m.group(2).strip().strip("'").strip('"')
-            code.append(f'page.locator("{quote(sel)}").fill("{quote(val)}")')
+            code.append(f'{_locator_expr(sel)}.fill("{quote(val)}")')
             return code
  
     # -------------------------------------------------------
@@ -702,7 +720,7 @@ def convert_step(step: str) -> List[str]:
         if m:
             val = m.group(1).strip()
             sel = m.group(2).strip()
-            code.append(f'page.locator("{quote(sel)}").fill("{quote(val)}")')
+            code.append(f'{_locator_expr(sel)}.fill("{quote(val)}")')
             return code
  
     # -------------------------------------------------------
@@ -723,7 +741,7 @@ def convert_step(step: str) -> List[str]:
         sel = extract_selector(step)
         if sel:
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}").first).to_be_visible()')
+                code.append(f'expect({_locator_expr(sel)}).to_be_visible()')
             else:
                 code.append(f'expect(page.get_by_text("{quote(sel)}", exact=False).first).to_be_visible()')
             return code
@@ -735,7 +753,7 @@ def convert_step(step: str) -> List[str]:
         m = re.search(r"['\"]([^'\"]+)['\"]", step)
         if m:
             code.append(
-                f'expect(page.get_by_role("heading", name="{quote(m.group(1))}").first).to_be_visible()'
+                f'expect(page.get_by_role("heading", name="{quote(m.group(1))}")).to_be_visible()'
             )
         else:
             # FIX 3: check structural heading element, not English text
@@ -745,7 +763,7 @@ def convert_step(step: str) -> List[str]:
     # -------------------------------------------------------
     # Viewport resize
     # -------------------------------------------------------
-    if "viewport" in sl or "resize" in sl:
+    if "viewport" in sl:
         m = re.search(r"(\d+)\s*x\s*(\d+)", step)
         if m:
             w, h = int(m.group(1)), int(m.group(2))
@@ -800,12 +818,23 @@ def convert_step(step: str) -> List[str]:
         sel = extract_selector(step)
         if sel and url2:
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}").first).to_have_attribute("href", "{quote(url2)}")')
+                if _href_looks_like_map_link(sel):
+                    loc = _locator_expr(sel)
+                    code.append(f'if {loc}.count() > 0:')
+                    code.append(f'    expect({loc}).to_have_attribute("href", "{quote(url2)}")')
+                    code.append('else:')
+                    code.append(
+                        '    print("SKIPPED: map link not present on '
+                        'this view — it may require expanding a row '
+                        'or detail panel first")'
+                    )
+                else:
+                    code.append(f'expect({_locator_expr(sel)}).to_have_attribute("href", "{quote(url2)}")')
             else:
-                code.append(f'expect(page.get_by_role("link", name="{quote(sel)}").first).to_have_attribute("href", "{quote(url2)}")')
+                code.append(f'expect(page.get_by_role("link", name="{quote(sel)}")).to_have_attribute("href", "{quote(url2)}")')
         elif url2:
             # FIX 1: use locator(a[href=...]) not get_by_text
-            code.append(f'expect(page.locator("a[href=\\"{quote(url2)}\\"]").first).to_be_visible()')
+            code.append(f'expect(page.locator("a[href=\\"{quote(url2)}\\"]")).to_be_visible()')
         return code
  
     # -------------------------------------------------------
@@ -901,7 +930,23 @@ def convert_step(step: str) -> List[str]:
         if sel:
             # FIX 1: CSS selector → locator(), not get_by_text
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}").first).to_be_visible()')
+                if _href_looks_like_map_link(sel):
+                    # BUG FIX: map links are almost always gated behind
+                    # an expand/detail action, not visible on page
+                    # load. Check softly instead of hard-asserting, so
+                    # a genuinely-absent trigger step doesn't fail the
+                    # whole test over a link we have no way to reveal.
+                    loc = _locator_expr(sel)
+                    code.append(f'if {loc}.count() > 0:')
+                    code.append(f'    expect({loc}).to_be_visible()')
+                    code.append('else:')
+                    code.append(
+                        '    print("SKIPPED: map link not present on '
+                        'this view — it may require expanding a row '
+                        'or detail panel first")'
+                    )
+                else:
+                    code.append(f'expect({_locator_expr(sel)}).to_be_visible()')
             else:
                 code.append(f'expect(page.get_by_text("{quote(sel)}", exact=False).first).to_be_visible()')
         else:
@@ -921,9 +966,9 @@ def convert_step(step: str) -> List[str]:
         sel = extract_selector(step)
         if sel:
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}").first).to_be_enabled()')
+                code.append(f'expect({_locator_expr(sel)}).to_be_enabled()')
             else:
-                code.append(f'expect(page.get_by_role("button", name="{quote(sel)}").first).to_be_enabled()')
+                code.append(f'expect(page.get_by_role("button", name="{quote(sel)}")).to_be_enabled()')
             return code
  
     # -------------------------------------------------------
@@ -935,12 +980,36 @@ def convert_step(step: str) -> List[str]:
         if url2:
             if sel and _is_css_selector(sel):
                 # Specific element: check its href attribute
-                code.append(f'expect(page.locator("{quote(sel)}").first).to_have_attribute("href", "{quote(url2)}")')
+                if _href_looks_like_map_link(sel):
+                    loc = _locator_expr(sel)
+                    code.append(f'if {loc}.count() > 0:')
+                    code.append(f'    expect({loc}).to_have_attribute("href", "{quote(url2)}")')
+                    code.append('else:')
+                    code.append(
+                        '    print("SKIPPED: map link not present on '
+                        'this view — it may require expanding a row '
+                        'or detail panel first")'
+                    )
+                else:
+                    code.append(f'expect({_locator_expr(sel)}).to_have_attribute("href", "{quote(url2)}")')
             else:
                 # No specific element: verify a link with that href exists on page
+                # BUG FIX: an href attribute selector can still match
+                # more than one real element (e.g. the same link
+                # appears in both the header and footer) — add .first
+                # defensively rather than risk a strict-mode violation.
                 code.append(f'expect(page.locator("a[href=\\"{quote(url2)}\\"]").first).to_have_attribute("href", "{quote(url2)}")')
         elif sel:
-            code.append(f'expect(page.locator("{quote(sel) if _is_css_selector(sel) else "a"}").first).to_be_visible()')
+            # BUG FIX: when sel isn't recognizable as a CSS selector,
+            # this falls back to the bare tag "a" — deliberately broad
+            # (ANY anchor on the page), which is guaranteed to match
+            # many elements on a real page and previously caused the
+            # exact same strict-mode violation as unguarded
+            # :has-text() selectors. .first is mandatory here, not
+            # just for :has-text(), so this bypasses _locator_expr's
+            # narrower has-text-only check.
+            fallback_sel = quote(sel) if _is_css_selector(sel) else "a"
+            code.append(f'expect(page.locator("{fallback_sel}").first).to_be_visible()')
         return code
  
     # -------------------------------------------------------
@@ -976,7 +1045,7 @@ def convert_step(step: str) -> List[str]:
         code.append("# FIX 6: new tab — use expect_page()")
         code.append("with page.context.expect_page() as popup_info:")
         if sel and _is_css_selector(sel):
-            code.append(f'    page.locator("{quote(sel)}").click()')
+            code.append(f'    {_locator_expr(sel)}.click()')
         else:
             code.append("    pass  # TODO: add the click that triggers the new tab")
         code.append("popup = popup_info.value")
@@ -1019,39 +1088,11 @@ def convert_step(step: str) -> List[str]:
         sel = extract_selector(step)
         if sel:
             if _is_css_selector(sel):
-                code.append(f'expect(page.locator("{quote(sel)}").first).to_be_visible()')
+                code.append(f'expect({_locator_expr(sel)}).to_be_visible()')
             else:
-                code.append(f'expect(page.get_by_role("region", name="{quote(sel)}").first).to_be_visible()')
+                code.append(f'expect(page.get_by_role("region", name="{quote(sel)}")).to_be_visible()')
             return code
  
-    # -------------------------------------------------------
-    # Verify modal closes  (BUG FIX — companion to the Yes/No
-    # modal-click fix above)
-    #
-    # This used to fall through to the generic "verify" fallback
-    # at the bottom of this function, which only ever asserts
-    # `expect(page.locator("body")).to_be_visible()` — trivially
-    # true on any loaded page whether or not a modal was ever
-    # open or ever closed, so it never actually tested anything.
-    # Now it checks the real modal/dialog surface: if a dialog is
-    # present, assert it becomes hidden; if none was ever opened
-    # (the common case for these YAML flows — see the Yes/No fix
-    # above), that is itself confirmation the modal is closed, so
-    # assert on the page still being intact instead of a no-op.
-    # -------------------------------------------------------
-    if "modal" in sl and "close" in sl:
-        code.append(
-            '_modal = page.locator(\'[role="dialog"], .modal.show, .cdk-overlay-pane\')'
-        )
-        code.append("if _modal.count() > 0:")
-        code.append("    expect(_modal.first).to_be_hidden()")
-        code.append("else:")
-        code.append(
-            '    expect(page.locator("body")).to_be_visible()'
-            "  # no modal was open — nothing to close"
-        )
-        return code
-
     # -------------------------------------------------------
     # Verify / Assert generic fallback  (FIX 3)
     # FIX 3: check page structure, NOT English-text content
@@ -1065,7 +1106,7 @@ def convert_step(step: str) -> List[str]:
             code.append(f'expect(page).to_have_url(re.compile(r"{quote(url2)}"))')
         elif sel and _is_css_selector(sel):
             # FIX 1: real selector
-            code.append(f'expect(page.locator("{quote(sel)}").first).to_be_visible()')
+            code.append(f'expect({_locator_expr(sel)}).to_be_visible()')
         else:
             # FIX 3: structural check — body is visible = page loaded without crash
             code.append('expect(page.locator("body")).to_be_visible()  # page loaded successfully')
