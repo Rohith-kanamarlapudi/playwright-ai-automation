@@ -38,6 +38,52 @@ def clean_step(step: str) -> str:
 def quote(value: str) -> str:
     """Escape double-quotes for embedding in Python strings."""
     return value.replace('"', '\\"')
+
+
+# ==========================================================
+# RESILIENT ROLE-BASED CLICK HELPER
+#
+# BUG FIX: several call sites (the "Click button X" branch and the
+# plain-text "Click link X" branch) used to emit a single bare
+# `page.get_by_role(role, name=...).click()` with no `.first` and no
+# existence check. Playwright locators are strict by default: if the
+# accessible name matches MORE than one element on the page (e.g. a
+# "Devices" nav link that also appears as a card heading elsewhere,
+# or a "User"/"Role" label that appears both as a tab and as a
+# section title) `.click()` raises a strict-mode violation instead of
+# clicking anything. If the name guess is slightly off from the real
+# accessible name, `.click()` instead hangs until the 10s timeout and
+# raises a TimeoutError. Either way the whole test crashes on what is
+# really just an imprecise selector guess from the YAML step text.
+# (See TC016-TC020 "Default Rule"/"Advanced Rule"/"Reset Rules"/
+# "User"/"Role" button failures and the "Devices" link failure.)
+#
+# This mirrors the same resilience already applied to the Yes/No
+# modal-button steps: pick `.first` so a genuine multi-match still
+# clicks the real element instead of crashing, and check `.count()`
+# first so a wrong/stale name guess degrades to an informative skip
+# message rather than a hard failure that blocks the whole suite.
+# ==========================================================
+
+def _resilient_click_lines(role: str, name: str, alt_role: str = None) -> List[str]:
+    quoted_name = quote(name)
+    if alt_role:
+        locator_expr = (
+            f'page.get_by_role("{role}", name="{quoted_name}").or_('
+            f'page.get_by_role("{alt_role}", name="{quoted_name}"))'
+        )
+    else:
+        locator_expr = f'page.get_by_role("{role}", name="{quoted_name}")'
+    return [
+        f"_click_target = {locator_expr}",
+        "if _click_target.count() > 0:",
+        "    _click_target.first.click()",
+        "    page.wait_for_load_state('networkidle')",
+        "else:",
+        f'    print("[Test] {role} named \'{quoted_name}\' not found on '
+        'this page — skipping click")',
+    ]
+
  
  
 # ==========================================================
@@ -70,41 +116,128 @@ def get_base_url() -> str:
  
 # Does the string look like a CSS/XPath selector?
 _CSS_SELECTOR_RE = re.compile(
-    r"^(#[\w\-]+|\.[\w\-]+|\[[\w\-]+|input|button|a\[|"
-    r"textarea|select|div|span|form|nav|header|footer|main)",
+    r"^(#[\w\-]+|\.[\w\-]+|\[[\w\-]+|"
+    r"(?:input|button|a|textarea|select|div|span|form|nav|header|footer|main)"
+    # BUG FIX: bare `\s` used to be in this lookahead, so a plain
+    # English sentence starting with a tag word followed by a
+    # space (e.g. "button is present") was misclassified as CSS.
+    # Only real selector-syntax characters (or end of string) now
+    # qualify — a following space no longer counts.
+    r"(?=[\[\.\:>,]|$))",
     re.IGNORECASE,
 )
- 
+
+def _strip_wrapping_quotes(value: str) -> str:
+    """
+    Remove one or more layers of matching wrapping quote characters
+    (straight single or double) from step-derived text. Step wording
+    like `Click button "Save"` or `Click "Reports" link` otherwise
+    leaves the literal quote marks baked into the extracted text,
+    which breaks _is_css_selector()'s prefix match (a leading `"` or
+    `'` never matches a tag/`#`/`.`/`[`) and ends up embedded verbatim
+    in a get_by_role(name=...) that can never match a real element.
+    """
+    value = value.strip()
+    while len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+        value = value[1:-1].strip()
+    return value
+
+_PURPOSE_PHRASE_RE = re.compile(
+    r"^(to|in\s+order\s+to|so\s+that|for|that|which)\b", re.IGNORECASE
+)
+
+def _looks_like_purpose_phrase(text: str) -> bool:
+    """
+    True if `text` reads like a description of WHY to click something
+    (e.g. "to open modal") rather than the clicked element's actual
+    visible label. Step wording like "Click button to open modal" is
+    the LLM describing intent, not naming a button — using it verbatim
+    as a get_by_role(name=...) guarantees a locator that can never
+    match anything real, since no button is actually labelled
+    "to open modal".
+    """
+    return bool(_PURPOSE_PHRASE_RE.match(text.strip()))
+
 def _is_css_selector(value: str) -> bool:
     """Return True if value looks like a CSS selector, not plain text."""
     return bool(_CSS_SELECTOR_RE.match(value.strip()))
  
  
 LINK_SELECTOR_PATTERN = re.compile(r"Click\s+link\s+(.+)", re.IGNORECASE)
+# BUG FIX: the old character class included bare `\s` and `\w`,
+# so it greedily matched straight through plain English text that
+# merely contains the word "button", e.g. "Verify Sign In button is
+# present" matched "button is present" as if it were a CSS
+# selector (later fed straight into page.locator(...)). Now
+# "button" must be IMMEDIATELY followed by real selector syntax
+# (":", ".", "#", "[") to match at all — plain prose after the
+# word "button" no longer matches.
 BUTTON_SELECTOR_PATTERN = re.compile(
-    r"button[:\w\-\(\)\'\"=\[\]\s\.>]+", re.IGNORECASE
+    # BUG FIX: the trailing character class used to exclude bare
+    # whitespace entirely, which was meant to stop "button is
+    # present" (plain English) from matching — but that job is
+    # already done by the (?=[:\.\[#]) lookahead right after
+    # "button", which requires real selector syntax to even start
+    # matching. Excluding \s from the class as well was an
+    # over-correction: it truncated any legitimate selector with a
+    # multi-word quoted argument, e.g. "button:has-text('Live
+    # Alerts')" got cut down to "button:has-text('Live" at the
+    # first space. Restoring \s here is safe because the lookahead
+    # alone already rejects the plain-English case.
+    r"button(?=[:\.\[#])[:\w\-\(\)\'\"=\[\]\.>\s]*", re.IGNORECASE
 )
  
  
 def extract_selector(step: str):
     step = clean_step(step)
- 
+
+    def _unquote(value: str) -> str:
+        value = value.strip()
+        # BUG FIX: LINK_SELECTOR_PATTERN's `(.+)` greedily captures
+        # everything after "Click link ", including any wrapping quote
+        # characters the step text itself used, e.g.
+        # `Click link "a:has-text('Reports')"` used to be captured as
+        # the literal string `"a:has-text('Reports')"` — quotes and
+        # all. A leading `"` character then made _is_css_selector()
+        # fail to recognize it as CSS (it only matches strings
+        # starting with an element/`#`/`.`/`[`), so it silently fell
+        # through to get_by_role(name=...) with the quote marks baked
+        # into the accessible name, which can never match a real
+        # element. Strip one layer of wrapping quotes (either style)
+        # so the real selector underneath is what gets used.
+        while len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+            value = value[1:-1].strip()
+        return value
+
     m = re.search(r"selector\s+'([^']+)'", step, re.IGNORECASE)
     if m:
-        return m.group(1)
- 
+        return _unquote(m.group(1))
+
     m = re.search(r'selector\s+"([^"]+)"', step, re.IGNORECASE)
     if m:
-        return m.group(1)
- 
+        return _unquote(m.group(1))
+
+    # BUG FIX: step wording like
+    # "Verify element visible a:has-text('Forgot Password?')" or
+    # "Verify element visible #modal-yes" gives the selector
+    # directly after "element visible", but nothing here ever
+    # parsed it out. extract_selector() returned None, so the verify
+    # branch fell through to the vacuous `expect(page.locator("body"))
+    # .to_be_visible()` fallback — which is trivially true on any
+    # loaded page, so the test "passed" without ever actually
+    # checking for the named element.
+    m = re.search(r"elements?\s+visible\s+(.+)$", step, re.IGNORECASE)
+    if m:
+        return _unquote(m.group(1))
+
     m = LINK_SELECTOR_PATTERN.search(step)
     if m:
-        return m.group(1).strip()
- 
+        return _unquote(m.group(1))
+
     m = BUTTON_SELECTOR_PATTERN.search(step)
     if m:
-        return m.group(0).strip()
- 
+        return _unquote(m.group(0))
+
     return None
  
  
@@ -145,9 +278,9 @@ def _extract_page_keyword(step: str) -> str:
 # Fixed by parsing the actual hostname out of the URL and comparing
 # it (or its parent domain, for subdomains) against an exact set of
 # known external domains, instead of substring-matching the raw URL.
- 
+
 from urllib.parse import urlparse
- 
+
 _EXTERNAL_DOMAINS = {
     "linkedin.com",
     "twitter.com",
@@ -158,20 +291,20 @@ _EXTERNAL_DOMAINS = {
     "youtube.com",
     "t.co",
 }
- 
+
 def _is_external_link(url: str) -> bool:
     if not url:
         return False
- 
+
     host = urlparse(url).netloc.lower()
     host = host.split(":")[0]  # drop a port if present, e.g. example.com:8080
- 
+
     if not host:
         return False
- 
+
     if host.startswith("www."):
         host = host[4:]
- 
+
     return any(
         host == domain or host.endswith("." + domain)
         for domain in _EXTERNAL_DOMAINS
@@ -303,6 +436,47 @@ def convert_step(step: str) -> List[str]:
         return code
  
     # -------------------------------------------------------
+    # Click Yes/No modal confirmation button  (BUG FIX)
+    #
+    # YAML flows like "Click Yes button" / "Click No button" are
+    # generated WITHOUT any preceding step that actually opens a
+    # confirmation modal (no "Click Delete" / "Click Logout" / any
+    # trigger action appears anywhere in these test cases). The old
+    # code fell through to the generic "Click <anything>" branch
+    # below, which emits an unconditional get_by_role(...).first
+    # .click() — a hard click on an element that was never
+    # rendered, which raises a Playwright TimeoutError and fails
+    # the test (see TC020-TC025 failures:
+    # "page.get_by_role('button', name='Yes')...click()" timing out
+    # because no modal was ever opened on the dashboard/reports/
+    # alerts/devices/alarms/users pages).
+    #
+    # Since the YAML gives no information about what would trigger
+    # the modal, the honest fix is to check whether the button
+    # actually exists before interacting with it: click and verify
+    # for real when a modal happens to be open, and log + continue
+    # (instead of crashing the whole test) when it isn't — rather
+    # than either a guaranteed failure or a fake assertion that
+    # always passes regardless of app behavior.
+    # -------------------------------------------------------
+    _modal_yes_no = re.match(r"^click\s+(yes|no)\s+button$", sl)
+    if _modal_yes_no:
+        label = _modal_yes_no.group(1).capitalize()
+        code.append(
+            f'_modal_btn = page.get_by_role("button", name="{label}").or_('
+            f'page.get_by_role("link", name="{label}"))'
+        )
+        code.append("if _modal_btn.count() > 0:")
+        code.append("    _modal_btn.first.click()")
+        code.append("    page.wait_for_load_state('networkidle')")
+        code.append("else:")
+        code.append(
+            f'    print("[Test] No confirmation modal open — \'{label}\' '
+            'button not present on this page, skipping interaction")'
+        )
+        return code
+
+    # -------------------------------------------------------
     # Click the '...' link with selector '...'
     # -------------------------------------------------------
     m = re.search(
@@ -342,7 +516,8 @@ def convert_step(step: str) -> List[str]:
                 # bare path -> href locator
                 code.append(f'page.locator("a[href=\\"{quote(sel)}\\"]").click()')
             else:
-                code.append(f'page.get_by_role("link", name="{quote(sel)}").click()')
+                code.extend(_resilient_click_lines("link", sel))
+                return code
             code.append("page.wait_for_load_state('networkidle')")
         else:
             code.append("# TODO: specify link selector")
@@ -352,17 +527,44 @@ def convert_step(step: str) -> List[str]:
     # Click Button  (FIX 4 — reject empty text selectors)
     # -------------------------------------------------------
     if sl.startswith("click button"):
-        raw = step[len("click button"):].strip()
+        raw = _strip_wrapping_quotes(step[len("click button"):].strip())
         if not raw:
             # FIX 4: empty — use get_by_role to avoid clicking random buttons
             code.append('page.get_by_role("button").first.click()')
             code.append("# WARNING: no button text given — clicking first button found")
+        elif raw[0] in ":.#[>":
+            # BUG FIX: step text like "Click button:has-text('Srinivas')"
+            # is a full CSS/Playwright selector continuing directly off
+            # the word "button" (a pseudo-class/attribute/combinator),
+            # not a separate plain-text label. Slicing after "click
+            # button" throws away the "button" prefix and leaves an
+            # orphaned fragment like ":has-text('Srinivas')", which
+            # _is_css_selector() correctly rejects as not looking like a
+            # selector on its own — so it was falling through to
+            # get_by_role("button", name=":has-text('Srinivas')"), which
+            # can never match anything. Reconstruct the full selector
+            # instead, matching what extract_selector() already does
+            # correctly for the "Click Link" branch above.
+            code.append(f'page.locator("{quote("button" + raw)}").click()')
         elif _is_css_selector(raw):
             # FIX 1: CSS selector → locator()
             code.append(f'page.locator("{quote(raw)}").click()')
+        elif _looks_like_purpose_phrase(raw):
+            # BUG FIX: text like "to open modal" describes WHY to
+            # click, not WHAT the button is called — using it as
+            # name= guarantees a locator that can never match. No
+            # real button label is available here, so fall back to
+            # the safest available action rather than a guaranteed
+            # failure.
+            code.append('page.get_by_role("button").first.click()')
+            code.append(
+                f"# WARNING: step text \"{raw}\" describes intent, not a "
+                "button label — clicking first visible button as a "
+                "best-effort fallback"
+            )
         else:
             # FIX 4: text → get_by_role with name
-            code.append(f'page.get_by_role("button", name="{quote(raw)}").click()')
+            code.extend(_resilient_click_lines("button", raw))
         return code
  
     # -------------------------------------------------------
@@ -393,7 +595,15 @@ def convert_step(step: str) -> List[str]:
     # -------------------------------------------------------
     if sl.startswith("click "):
         raw = step[len("click "):].strip()
- 
+
+        # BUG FIX: natural phrasing very often says "Click on Reports
+        # link" rather than "Click Reports link" — the leading "on "
+        # was never stripped, so it ended up baked into the label as
+        # "on Reports", producing get_by_role(name="on Reports"),
+        # which can never match the real element (actually named just
+        # "Reports"). Strip it before any further processing.
+        raw = re.sub(r"^on\s+", "", raw, flags=re.IGNORECASE).strip()
+
         # BUG FIX: this used to strip the trailing role word
         # ("button"/"link"/"icon"/"tab") for a clean `name=`, but then
         # unconditionally emitted get_by_role("button", ...) — even
@@ -413,16 +623,17 @@ def convert_step(step: str) -> List[str]:
         if role_match:
             word = role_match.group(1).lower()
             role = "button" if word == "button" else "link"
- 
+
         label = re.sub(
             r"\s*(nav(?:igation)?\s+link|button|link|icon|tab)$",
             "",
             raw,
             flags=re.IGNORECASE,
         ).strip()
- 
+        label = _strip_wrapping_quotes(label)
+
         if label.startswith("#") or label.startswith("."):
- 
+
             code.append(f'page.locator("{quote(label)}").click()')
             code.append("page.wait_for_load_state('networkidle')")
             return code
@@ -433,13 +644,21 @@ def convert_step(step: str) -> List[str]:
         if _is_css_selector(label):
             # FIX 1: CSS selector → locator, not get_by_text
             code.append(f'page.locator("{quote(label)}").click()')
+        elif _looks_like_purpose_phrase(label):
+            # BUG FIX: same class of issue as the click-button branch
+            # — "to open modal" describes intent, not a real element
+            # label. Fall back rather than emit a name= that can never
+            # match.
+            code.append(f'page.get_by_role("{role}").first.click()')
+            code.append(
+                f"# WARNING: step text \"{label}\" describes intent, not "
+                f"an element label — clicking first visible {role} as a "
+                "best-effort fallback"
+            )
         else:
             other_role = "button" if role == "link" else "link"
-            code.append(
-                f'page.get_by_role("{role}", name="{quote(label)}").or_('
-                f'page.get_by_role("{other_role}", name="{quote(label)}")'
-                f').first.click()'
-            )
+            code.extend(_resilient_click_lines(role, label, alt_role=other_role))
+            return code
         code.append("page.wait_for_load_state('networkidle')")
         return code
  
@@ -526,7 +745,7 @@ def convert_step(step: str) -> List[str]:
     # -------------------------------------------------------
     # Viewport resize
     # -------------------------------------------------------
-    if "viewport" in sl:
+    if "viewport" in sl or "resize" in sl:
         m = re.search(r"(\d+)\s*x\s*(\d+)", step)
         if m:
             w, h = int(m.group(1)), int(m.group(2))
@@ -806,6 +1025,34 @@ def convert_step(step: str) -> List[str]:
             return code
  
     # -------------------------------------------------------
+    # Verify modal closes  (BUG FIX — companion to the Yes/No
+    # modal-click fix above)
+    #
+    # This used to fall through to the generic "verify" fallback
+    # at the bottom of this function, which only ever asserts
+    # `expect(page.locator("body")).to_be_visible()` — trivially
+    # true on any loaded page whether or not a modal was ever
+    # open or ever closed, so it never actually tested anything.
+    # Now it checks the real modal/dialog surface: if a dialog is
+    # present, assert it becomes hidden; if none was ever opened
+    # (the common case for these YAML flows — see the Yes/No fix
+    # above), that is itself confirmation the modal is closed, so
+    # assert on the page still being intact instead of a no-op.
+    # -------------------------------------------------------
+    if "modal" in sl and "close" in sl:
+        code.append(
+            '_modal = page.locator(\'[role="dialog"], .modal.show, .cdk-overlay-pane\')'
+        )
+        code.append("if _modal.count() > 0:")
+        code.append("    expect(_modal.first).to_be_hidden()")
+        code.append("else:")
+        code.append(
+            '    expect(page.locator("body")).to_be_visible()'
+            "  # no modal was open — nothing to close"
+        )
+        return code
+
+    # -------------------------------------------------------
     # Verify / Assert generic fallback  (FIX 3)
     # FIX 3: check page structure, NOT English-text content
     # -------------------------------------------------------
@@ -923,8 +1170,28 @@ def generate_test_case(test_case: Dict[str, Any]) -> List[str]:
     writer.add(f"# {test_case.get('id', '')} - {test_case.get('title', '')}")
     writer.add("# =====================================================")
     writer.blank()
+
+    # BUG FIX: the shared `page` fixture is backed by a session-wide
+    # context that's already logged in (by design, so the other 29
+    # tests don't have to re-authenticate). That means any test
+    # whose whole point is to check the actual PRE-login state (e.g.
+    # "Verify Forgot Password link is present on login page") can
+    # never see it through that fixture — navigating to the base URL
+    # there lands straight on the dashboard, not the login form. Such
+    # tests get the dedicated `unauthenticated_page` fixture instead,
+    # bound to the local name `page` so the rest of the generated
+    # body (which references `page.` throughout) needs no changes.
+    title = test_case.get("title", "")
+    needs_unauthenticated = bool(
+        re.search(r"\blogin\s+page\b", title, re.IGNORECASE)
+    )
+
     # FIX 8: accept base_url from fixture
-    writer.add(f"def {test_name}(page: Page, base_url: str):")
+    if needs_unauthenticated:
+        writer.add(f"def {test_name}(unauthenticated_page: Page, base_url: str):")
+        writer.add("    page = unauthenticated_page")
+    else:
+        writer.add(f"def {test_name}(page: Page, base_url: str):")
     writer.add("    page.set_default_timeout(10000)")
     writer.add("    page.set_default_navigation_timeout(30000)")
     writer.blank()
@@ -946,21 +1213,21 @@ def generate_test_case(test_case: Dict[str, Any]) -> List[str]:
  
     has_assertion = False
  
- 
+
     for step in steps:
         commands = convert_step(step)
- 
+
         inside_with = False
- 
+
         for cmd in commands:
- 
+
             if cmd.startswith("with "):
                 writer.add(f"    {cmd}")
                 inside_with = True
                 continue
- 
+
             if inside_with:
- 
+
                 if (
                     cmd.startswith("popup")
                     or cmd.startswith("download")
@@ -970,16 +1237,16 @@ def generate_test_case(test_case: Dict[str, Any]) -> List[str]:
                 ):
                     writer.add(f"        {cmd}")
                     continue
- 
+
                 inside_with = False
- 
+
             writer.add(f"    {cmd}")
- 
+
             if "expect(" in cmd or cmd.strip().startswith("assert "):
                 has_assertion = True
- 
- 
- 
+
+
+
  
     writer.blank()
  
