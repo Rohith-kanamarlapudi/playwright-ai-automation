@@ -64,7 +64,7 @@ _MAP_HREF_DOMAINS = (
     "maps.apple.com", "bing.com/maps", "openstreetmap.org",
 )
 
-_HREF_ATTR_RE = re.compile(r"""href\s*=\s*['"]([^'"]+)['"]""", re.IGNORECASE)
+_HREF_ATTR_RE = re.compile(r"""href\s*[~^$*|]?=\s*['"]([^'"]+)['"]""", re.IGNORECASE)
 
 def _href_looks_like_map_link(sel: str) -> bool:
     """
