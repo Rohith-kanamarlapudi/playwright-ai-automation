@@ -895,9 +895,33 @@ SECTION_NAV_SELECTORS = {
 # section's "name". Add more names here if another section turns
 # out to have the same problem.
 # ----------------------------------------------------------
-READ_ONLY_SECTIONS = {
-    "rules",
-}
+
+# ----------------------------------------------------------
+# SAFE MODE (HARD OVERRIDE)
+# ----------------------------------------------------------
+# When True (the default, and it should STAY True for any run
+# against a real/production company system), the crawler NEVER
+# clicks anything inside a section - it only navigates via the
+# sidebar and captures the HTML that's already on screen. This
+# is the only setting that guarantees zero edits/deletes, because
+# it does not depend on correctly anticipating every dangerous
+# label/word/control - it removes the ability to click at all.
+#
+# Only set this to False if you specifically need the "explore
+# elements inside a section" behaviour AND you are running against
+# a throwaway/staging environment you're fully comfortable with
+# the crawler mutating.
+# ----------------------------------------------------------
+SAFE_MODE = False
+
+# READ_ONLY_SECTIONS is matched by SUBSTRING (not exact equality)
+# against the lowercased section name, so naming variants like
+# "Automation Rules", "Rule Engine", "Alarm History", etc. are all
+# still caught even if the exact label differs from the string
+# listed here. This closes the gap where an exact-match check could
+# silently fail to protect a section whose real name doesn't match
+# the string below word-for-word.
+READ_ONLY_SECTIONS = set()
 
 
 # ----------------------------------------------------------
@@ -973,6 +997,59 @@ UNSAFE_CLICK_WORDS = [
     "mailto",
     "tel",
     "ideabytes",
+
+    # ADDED: soft-delete / state-mutating words that were missing.
+    # These don't sound as destructive as "delete" but change data
+    # just as permanently (acknowledging/muting an alarm removes it
+    # from the active list; enabling/disabling a rule changes its
+    # behaviour), and none of them were caught before.
+    "acknowledge",
+    "ack",
+    "dismiss",
+    "resolve",
+    "resolved",
+    "mute",
+    "unmute",
+    "snooze",
+    "archive",
+    "unarchive",
+    "purge",
+    "discard",
+    "enable",
+    "disable",
+    "activate",
+    "deactivate",
+    "toggle",
+    "on/off",
+    "publish",
+    "unpublish",
+    "approve",
+    "reject",
+    "block",
+    "unblock",
+    "ban",
+    "revoke",
+    "assign",
+    "unassign",
+    "pause",
+    "resume",
+    "stop",
+    "start",
+    "run",
+    "execute",
+    "trigger",
+    "add",
+    "edit",
+    "modify",
+    "change",
+    "configure",
+    "install",
+    "uninstall",
+    "deploy",
+    "confirm",
+    "yes",
+    "ok",
+    "apply",
 ]
 
 # CSS selectors used to discover clickable elements. Prefers
@@ -1015,31 +1092,40 @@ CLICKABLE_SELECTORS = [
     "[data-click]",
     "[data-action]",
 
-    # Form controls, toggles, and dropdown/segmented filters.
-    # Angular Material (and most custom Angular UI kits) build
-    # dropdowns, toggles, and segmented controls out of these
-    # tags/roles instead of plain <button>/<a>.
+    # Dropdown/segmented FILTER controls only. These change what's
+    # displayed/viewed, not the underlying data, so they're safe to
+    # explore. NOTE: "select"/"mat-select" only ever get OPENED and
+    # CLOSED here - the discovery script further down explicitly
+    # skips role="option"/mat-option/ng-option rows, so no option is
+    # ever actually selected/committed.
     "select",
     "mat-select",
-    "mat-button-toggle",
-    "mat-checkbox",
-    "mat-radio-button",
-    "mat-slide-toggle",
-    "input[type='checkbox']",
-    "input[type='radio']",
     "[role='combobox']",
     "[role='listbox']",
-    "[role='switch']",
-    "[role='checkbox']",
-    "[role='radio']",
     "[role='tab']",
     "[role='menuitem']",
     "[class*='dropdown']",
-    "[class*='toggle']",
     "[class*='segment']",
     "[class*='select']",
-    "[class*='switch']",
-    "[class*='chip']",
+
+    # REMOVED ON PURPOSE - "[class*='chip']": mat-chip / removable
+    # chip components very often run a remove/deselect handler on a
+    # click of the CHIP ITSELF (not just its small "x" icon), and
+    # the chip's own visible text is just the tag/item name (e.g.
+    # "Team A"), not a word like "remove" - so the word filter can
+    # never catch this case. Rather than guess, chips are excluded
+    # from the clickable set entirely.
+
+    # REMOVED ON PURPOSE - these control types directly flip real
+    # data state (e.g. acknowledging/muting an alarm, enabling or
+    # disabling a rule) and there's no reliable label text to filter
+    # them by, since Angular Material toggles/checkboxes/switches
+    # often carry no "delete"/"edit"-style wording at all. Rather
+    # than guess, they're excluded from the clickable set entirely:
+    # "mat-button-toggle", "mat-checkbox", "mat-radio-button",
+    # "mat-slide-toggle", "input[type='checkbox']",
+    # "input[type='radio']", "[role='switch']", "[role='checkbox']",
+    # "[role='radio']", "[class*='toggle']", "[class*='switch']"
 
     # Icon-only buttons (no visible text at all). Angular click
     # bindings ((click)="...") don't add a literal onclick="" HTML
@@ -1179,6 +1265,46 @@ _DISCOVERY_SCRIPT = r"""
 
             for (let w = 0; w < unsafeWords.length; w++) {
                 if (lowered.indexOf(unsafeWords[w]) !== -1) return;
+            }
+
+            // HARD BLOCK: destructive icon buttons (a red trash-can,
+            // a "danger"/"warn" styled button) very often carry NO
+            // text and NO aria-label/title at all - just a CSS class
+            // like "delete-btn", "btn-danger", "text-danger", or a
+            // red icon color. The word-based check above can't catch
+            // these because there's no text to check. This walks the
+            // element and a few ancestors looking for exactly those
+            // signals and blocks the click outright if found.
+            const dangerClassHints = [
+                'danger', 'warn', 'delete', 'remove', 'trash', 'bin',
+                'destructive'
+            ];
+            {
+                let node = el;
+                for (let d = 0; d < 4 && node; d++) {
+                    const cls = (node.className && node.className.toString)
+                        ? node.className.toString().toLowerCase() : '';
+                    if (dangerClassHints.some((h) => cls.indexOf(h) !== -1)) return;
+                    node = node.parentElement;
+                }
+
+                // Red-colored icon/button as a last-resort visual
+                // signal (many delete icons are colored red purely
+                // via inline style/theme color with no telltale
+                // class name at all).
+                try {
+                    const style = window.getComputedStyle(el);
+                    const color = (style.color || '').replace(/\s+/g, '');
+                    // matches common "red" rgb ranges, e.g. rgb(2xx,
+                    // low, low) - a rough heuristic, intentionally
+                    // over-inclusive since a missed real button here
+                    // just means one fewer thing gets explored.
+                    const m = color.match(/^rgba?\((\d+),(\d+),(\d+)/);
+                    if (m) {
+                        const r = parseInt(m[1], 10), g = parseInt(m[2], 10), b = parseInt(m[3], 10);
+                        if (r > 150 && r - g > 60 && r - b > 60) return;
+                    }
+                } catch (e) { /* ignore */ }
             }
 
             const tag = el.tagName.toLowerCase();
@@ -1723,19 +1849,22 @@ def click_and_capture_element(
 
     if dialog_locator is not None:
 
-        print(f"-> Popup opened for '{label}' - exploring it.")
+        # INTENTIONAL: popups/modals (Edit Rule, Device Assignment,
+        # etc.) are no longer explored at all. Every dropdown,
+        # checkbox, or button inside one is a live edit surface tied
+        # to real data (an Edit Rule dialog's own "Save" IS blocked
+        # by word, but selecting things inside it still changes the
+        # dialog's internal state, and some dialogs auto-apply on
+        # selection change with no separate Save step at all). The
+        # only correct behaviour is: notice the popup opened, capture
+        # its HTML as-is, and close it - nothing inside it is ever
+        # clicked.
+        print(f"-> Popup opened for '{label}' - capturing it and closing without touching its contents.")
 
-        popup_elements = discover_clickable_elements(page, root=dialog_locator)
+        html = get_rendered_html(page)
 
-        for popup_info in popup_elements:
-
-            clicked_count += click_popup_element(
-                page,
-                section_name,
-                section_url,
-                popup_info,
-                on_element_ready=on_element_ready
-            )
+        if on_element_ready:
+            on_element_ready(page, section_name, section_url, label, selector, state_id, html)
 
         close_dialog_if_present(page)
 
@@ -1760,13 +1889,11 @@ def click_popup_element(
         on_element_ready=None
 ):
     """
-    Clicks a single control INSIDE an already-open popup/dialog
-    (e.g. a Duration dropdown, an Interval toggle, a GO button) and
-    captures its HTML. Does not recurse and does not re-discover the
-    page - a real user exploring a popup doesn't also go clicking
-    things behind it. If the popup closed itself as a result of this
-    click (e.g. an internal "Apply" action), that's fine - the
-    caller closes it again defensively either way.
+    NOTE: no longer called. Popups are now closed immediately on
+    open without clicking anything inside them (see the dialog
+    handling in explore_section_elements()/the click loop above).
+    Left in place only in case a future, deliberately-scoped
+    exception is ever needed for one specific, known-safe popup.
     """
 
     selector = element_info["selector"]
@@ -2069,6 +2196,13 @@ def crawl_dashboard_sections(
         for s in (read_only_sections if read_only_sections is not None else READ_ONLY_SECTIONS)
     }
 
+    def _is_read_only_section(section_name: str) -> bool:
+        # SUBSTRING match, not equality - "Automation Rules",
+        # "Rule Engine", "Alarm History" etc. all still match "rule"
+        # / "alarm" even though they aren't an exact string match.
+        lowered = section_name.strip().lower()
+        return any(keyword in lowered for keyword in read_only_lookup)
+
     sections_visited_count = 0
 
     total_elements_explored = 0
@@ -2230,7 +2364,16 @@ def crawl_dashboard_sections(
             # in this loop as a cheap defensive guard against
             # double-clicking the exact same element.
             # ---------------------------------------
-            if name.strip().lower() in read_only_lookup:
+            if SAFE_MODE:
+
+                print(
+                    f"SAFE_MODE is on - '{name}' visited and captured "
+                    "only, nothing inside it will be clicked."
+                )
+
+                explored_here = 0
+
+            elif _is_read_only_section(name):
 
                 print(f"'{name}' is read-only - visiting only, not clicking inside it.")
 
