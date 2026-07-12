@@ -383,9 +383,6 @@ Every pipeline run produces a full set of reports in `reports/` — no digging t
 
 Built during an **AI Agents Developer Internship at [Ideabytes](https://ideabytes.com), Hyderabad.**
 
-- **Rohith Kanamarlapudi** — [@Rohith-kanamarlapudi](https://github.com/Rohith-kanamarlapudi) — LangGraph multi-agent pipeline, agent design, performance engine, YAML tooling
-- **Harshith Kanamarlapudi** — Scraper, FastAPI application, Plawright Automation
-
 **Rohith Kanamarlapudi** — [@Rohith-kanamarlapudi](https://github.com/Rohith-kanamarlapudi)
 
 > LangGraph multi-agent pipeline · agent design & prompt engineering · think-tag scaffolding · YAML tooling (`yaml_validator`, `yaml_to_playwright` — 30+ step patterns, locator & assertion fixes) · bounded self-review loop with conditional graph routing · AST safety layer · prompt injection protection (`doc_sanitiser.py`) · selector prioritisation & cap logging (`selector_utils.py`) · performance engine (psutil metrics + live TTFB crawler) · SPA-aware conftest generation with IoT wait helpers · structural assertion mode for live data · IoT edge case prompting · CI/CD (GitHub Actions) · FastAPI API key auth · live app adaptation & hardening
