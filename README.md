@@ -383,7 +383,8 @@ Every pipeline run produces a full set of reports in `reports/` — no digging t
 
 Built during an **AI Agents Developer Internship at [Ideabytes](https://ideabytes.com), Hyderabad.**
 
-<br/>
+- **Rohith Kanamarlapudi** — [@Rohith-kanamarlapudi](https://github.com/Rohith-kanamarlapudi) — LangGraph multi-agent pipeline, agent design, performance engine, YAML tooling
+- **Harshith Kanamarlapudi** — Scraper, FastAPI application, Plawright Automation
 
 **Rohith Kanamarlapudi** — [@Rohith-kanamarlapudi](https://github.com/Rohith-kanamarlapudi)
 
