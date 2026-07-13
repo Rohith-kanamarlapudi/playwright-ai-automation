@@ -215,18 +215,21 @@ async def upload_document(
         # ----------------------------
         agent_result = await asyncio.to_thread(
             run_agent_pipeline,
-            design_doc=document_text,
+            design_doc=document_text
         )
 
-        # Use the agent pipeline's generated YAML as the primary output
-        yaml_output = agent_result.get("generated_yaml", "")
+        # Fallback 1: agent pipeline returned empty YAML
         if not yaml_output.strip():
-            yaml_output = generate_test_cases(document_text)
+            print("[Upload] Agent pipeline empty — falling back to llm_generator.")
+            yaml_output = await asyncio.to_thread(
+                generate_test_cases, document_text
+            )
 
-        # Fallback: only call llm_generator if the pipeline produced nothing
-        if not yaml_output.strip():
-            print("[Upload] Agent pipeline returned no YAML — falling back to llm_generator.")
-            yaml_output = generate_test_cases(document_text)
+        # Fallback 2: any exception path fallback
+        # (replace any remaining bare generate_test_cases() calls with:)
+        yaml_output = await asyncio.to_thread(
+            generate_test_cases, document_text
+        )
         print("\n========== YAML OUTPUT ==========")
         print(yaml_output)
         print("=================================\n")
