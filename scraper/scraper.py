@@ -1,5 +1,3 @@
-from wsgiref import headers
-
 import requests
 import json
 from bs4 import BeautifulSoup
@@ -143,14 +141,6 @@ LIVE_WIDGET_CLASSES = [
     "status"
 
 ]
-
-print("=" * 60)
-print("IoT Dashboard Scraper")
-print("=" * 60)
-print(f"Target URL : {URL}")
-print(f"Max Pages  : {MAX_PAGES}")
-print("=" * 60)
-
 
 # ----------------------------------------
 # Download page using Requests
@@ -958,6 +948,19 @@ def main(url: str = None, max_pages: int = None):
         )
     )
 
+    # BUG FIX: this banner used to print at import time (module level),
+    # which meant it fired every time anything imported this module —
+    # e.g. on every FastAPI startup/reload, before any scrape was even
+    # requested. It now prints only when a crawl actually starts, and
+    # reflects the url/max_pages this specific call is using rather
+    # than always the module-level defaults.
+    print("=" * 60)
+    print("IoT Dashboard Scraper")
+    print("=" * 60)
+    print(f"Target URL : {url}")
+    print(f"Max Pages  : {max_pages}")
+    print("=" * 60)
+
     print("=" * 60)
     print("Starting Live IoT Dashboard Crawl (single browser session)")
     print("=" * 60)
@@ -972,7 +975,12 @@ def main(url: str = None, max_pages: int = None):
         print("Invalid URL")
         return []
 
-    BASE = "https://live.ideabytesiot.com/demolive/"
+    # BUG FIX: this used to be hardcoded to the live IoT dashboard URL
+    # regardless of the `url` argument above, so callers passing a
+    # different target_url (e.g. via run_agent_pipeline(target_url=...)
+    # from the FastAPI API) had it silently ignored — the crawl always
+    # hit the same hardcoded site no matter what was requested.
+    BASE = url if url.endswith("/") else url + "/"
 
     # ----------------------------------------
     # CHANGED (requirements #5/#6/#7):

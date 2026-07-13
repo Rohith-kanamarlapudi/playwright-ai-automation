@@ -40,6 +40,30 @@ def quote(value: str) -> str:
     return value.replace('"', '\\"')
 
 
+_EXACT_HREF_ATTR_RE = re.compile(r"""(\[href)\s*=\s*(['"])([^'"]+)\2(\])""", re.IGNORECASE)
+
+
+def _soften_exact_href_with_query(sel: str) -> str:
+    """
+    BUG FIX: an exact `[href='https://maps.google.com/maps?ll=...&z=...
+    &mapclient=apiv3']` selector baked in from a single crawl snapshot
+    is fragile whenever the query string encodes session- or
+    state-specific data (map coordinates, tokens, timestamps) that
+    legitimately differs between runs/devices/accounts. Downgrade such
+    exact matches to `[href*='...']`, matching only the stable part of
+    the URL before the `?`, so the click still targets the right link
+    without hard-failing on values that were never meant to be stable.
+    Selectors without a query string are left untouched.
+    """
+    def _repl(m):
+        open_part, quote_char, href, close_part = m.groups()
+        if "?" not in href:
+            return m.group(0)
+        base = href.split("?", 1)[0]
+        return f"{open_part}*={quote_char}{base}{quote_char}{close_part}"
+    return _EXACT_HREF_ATTR_RE.sub(_repl, sel)
+
+
 def _locator_expr(sel: str) -> str:
     """
     Build the `page.locator("...")` expression string embedded in
@@ -53,10 +77,41 @@ def _locator_expr(sel: str) -> str:
     error) instead of running the intended single-element check or
     action.
     """
+    sel = _soften_exact_href_with_query(sel)
     expr = f'page.locator("{quote(sel)}")'
     if ":has-text(" in sel:
         expr += ".first"
     return expr
+
+
+_HAS_TEXT_LABEL_RE = re.compile(r":has-text\(\s*['\"]([^'\"]+)['\"]\s*\)", re.IGNORECASE)
+
+
+def _extract_has_text_label(sel: str):
+    """Pull the literal text out of a `:has-text('...')` selector, if present."""
+    m = _HAS_TEXT_LABEL_RE.search(sel)
+    return m.group(1) if m else None
+
+
+# Generic action-word labels that frequently don't match the app's
+# actual button text verbatim (e.g. "Submit" vs. "Create User").
+_GENERIC_ACTION_WORDS = {
+    "submit", "save", "ok", "okay", "confirm", "continue",
+}
+
+
+_GATED_FORM_FIELD_RE = re.compile(r"report\s*(?:format|name)", re.IGNORECASE)
+
+
+def _looks_like_gated_form_field(sel: str) -> bool:
+    """
+    True for selectors like input[name='reportformat'] / input[name=
+    'reportName'] — fields that, on this app, only render inside the
+    "+ New Report" modal rather than on the base Scheduled Reports
+    page. Narrowly scoped to avoid false positives on unrelated
+    selectors.
+    """
+    return bool(_GATED_FORM_FIELD_RE.search(sel))
 
 
 _MAP_HREF_DOMAINS = (
@@ -84,6 +139,47 @@ def _href_looks_like_map_link(sel: str) -> bool:
     return any(domain in href for domain in _MAP_HREF_DOMAINS)
  
  
+# ==========================================================
+# YAML HASH-COMMENT SANITIZER
+# BUG FIX (critical): YAML treats a '#' preceded by whitespace
+# inside an UNQUOTED plain scalar as the start of a comment.
+# A perfectly ordinary step like `Fill #mailId with invalid-email`
+# or `Verify element visible #btnAssignDevice` therefore gets
+# silently truncated by yaml.safe_load() to just `Fill` / `Verify
+# element visible` -- the CSS id selector and everything after it
+# is thrown away by the parser before this module ever sees it.
+# There is no way to recover the lost text after parsing, so this
+# must run on the raw text, before yaml.safe_load() is called.
+# Only plain (unquoted) list-item scalars containing ' #' are
+# touched; already-quoted lines and non-list lines are untouched.
+# ==========================================================
+
+_YAML_LIST_ITEM_RE = re.compile(r"^(\s*-\s+)(.*?)\s*$")
+
+
+def _sanitize_yaml_hash_selectors(yaml_text: str) -> str:
+    fixed_lines = []
+    for line in yaml_text.splitlines():
+        m = _YAML_LIST_ITEM_RE.match(line)
+        if not m or " #" not in line:
+            fixed_lines.append(line)
+            continue
+        prefix, value = m.group(1), m.group(2)
+        stripped = value.strip()
+        already_quoted = (
+            len(stripped) >= 2
+            and stripped[0] == stripped[-1]
+            and stripped[0] in "'\""
+        )
+        if already_quoted or " #" not in value:
+            fixed_lines.append(line)
+            continue
+        # YAML single-quote escaping: a literal ' becomes ''
+        escaped = value.replace("'", "''")
+        fixed_lines.append(f"{prefix}'{escaped}'")
+    return "\n".join(fixed_lines)
+
+
 # ==========================================================
 # URL EXTRACTION
 # ==========================================================
@@ -522,7 +618,19 @@ def convert_step(step: str) -> List[str]:
             # can never match anything. Reconstruct the full selector
             # instead, matching what extract_selector() already does
             # correctly for the "Click Link" branch above.
-            code.append(f'{_locator_expr("button" + raw)}.click()')
+            full_sel = "button" + raw
+            has_text_label = _extract_has_text_label(full_sel)
+            if has_text_label and has_text_label.strip().lower() in _GENERIC_ACTION_WORDS:
+                code.append(f'_btn = {_locator_expr(full_sel)}')
+                code.append('if _btn.count() == 0:')
+                code.append(
+                    '    _btn = page.get_by_role("button", '
+                    'name=re.compile(r"submit|save|create|add|register|'
+                    'continue|confirm", re.I)).first'
+                )
+                code.append('_btn.click()')
+            else:
+                code.append(f'{_locator_expr(full_sel)}.click()')
         elif _is_css_selector(raw):
             # FIX 1: CSS selector → locator()
             code.append(f'{_locator_expr(raw)}.click()')
@@ -559,6 +667,22 @@ def convert_step(step: str) -> List[str]:
                 f'    print("SKIPPED: \\"{quote(raw)}\\" dialog button not '
                 'present — its triggering dialog was not opened")'
             )
+        elif raw.strip().lower() in _GENERIC_ACTION_WORDS:
+            # BUG FIX: a generic label like "Submit" frequently doesn't
+            # match the app's actual button text (e.g. "Create User",
+            # "Save", "Add User"). Try the literal label first, then
+            # fall back to a regex over common synonyms instead of
+            # hard-timing out.
+            code.append(
+                f'_btn = page.get_by_role("button", name="{quote(raw)}")'
+            )
+            code.append('if _btn.count() == 0:')
+            code.append(
+                '    _btn = page.get_by_role("button", '
+                'name=re.compile(r"submit|save|create|add|register|'
+                'continue|confirm", re.I)).first'
+            )
+            code.append('_btn.click()')
         else:
             # FIX 4: text → get_by_role with name
             code.append(f'page.get_by_role("button", name="{quote(raw)}").click()')
@@ -680,6 +804,41 @@ def convert_step(step: str) -> List[str]:
         code.append("page.wait_for_load_state('networkidle')")
         return code
  
+    # -------------------------------------------------------
+    # Checkbox Check / Uncheck
+    # BUG FIX: previously "Check X" fell into the generic verify
+    # fallback (visibility-only, never actually checked the box)
+    # and "Uncheck X" matched nothing at all and was reported as
+    # an unsupported step. Only intercepted when followed by an
+    # actual selector-looking target, so plain-English steps like
+    # "Check that the page loaded" still fall through to the
+    # verify fallback below as before.
+    # -------------------------------------------------------
+    _checkbox_m = re.match(r"^(un)?check\s+(.+)$", step.strip(), re.IGNORECASE)
+    if _checkbox_m:
+        is_uncheck = bool(_checkbox_m.group(1))
+        target = _strip_wrapping_quotes(_checkbox_m.group(2).strip())
+        if _is_css_selector(target):
+            action = "uncheck" if is_uncheck else "check"
+            code.append(f'{_locator_expr(target)}.{action}()')
+            return code
+
+    # -------------------------------------------------------
+    # Browser Back / Forward navigation
+    # BUG FIX: "Go back" / "Go forward" steps were falling through
+    # to the unsupported-step fallback (silently a no-op), which
+    # left the page wherever the previous action landed and made
+    # any subsequent URL assertion fail for the wrong reason.
+    # -------------------------------------------------------
+    if re.match(r"^go\s+back\b", sl):
+        code.append("page.go_back()")
+        code.append("page.wait_for_load_state('networkidle')")
+        return code
+    if re.match(r"^go\s+forward\b", sl):
+        code.append("page.go_forward()")
+        code.append("page.wait_for_load_state('networkidle')")
+        return code
+
     # -------------------------------------------------------
     # PDF / Download  (FIX 5)
     # -------------------------------------------------------
@@ -945,6 +1104,25 @@ def convert_step(step: str) -> List[str]:
                         'this view — it may require expanding a row '
                         'or detail panel first")'
                     )
+                elif _looks_like_gated_form_field(sel):
+                    # BUG FIX: fields like input[name='reportformat'] /
+                    # input[name='reportName'] only exist inside a
+                    # "+ New Report"-style modal, not on the base page.
+                    # A YAML step that checks visibility without ever
+                    # clicking the trigger button hard-fails every time.
+                    # Self-heal by trying a likely "New/Add/Create"
+                    # trigger once before asserting, instead of
+                    # silently skipping the check.
+                    loc = _locator_expr(sel)
+                    code.append(f'if {loc}.count() == 0:')
+                    code.append(
+                        '    _trigger = page.get_by_role("button", '
+                        'name=re.compile(r"new|add|create", re.I)).first'
+                    )
+                    code.append('    if _trigger.count() > 0:')
+                    code.append('        _trigger.click()')
+                    code.append("        page.wait_for_load_state('networkidle')")
+                    code.append(f'expect({loc}).to_be_visible()')
                 else:
                     code.append(f'expect({_locator_expr(sel)}).to_be_visible()')
             else:
@@ -1402,7 +1580,7 @@ def convert_yaml_to_playwright(yaml_text: str) -> Dict[str, Any]:
         return {"code": "# Empty YAML supplied.", "unsupported": [], "test_cases": []}
  
     try:
-        data = yaml.safe_load(yaml_text)
+        data = yaml.safe_load(_sanitize_yaml_hash_selectors(yaml_text))
     except Exception as e:
         return {"code": f"# Invalid YAML\n# {e}", "unsupported": [], "test_cases": []}
  

@@ -1,5 +1,4 @@
 from agents.state import AgentState
-from main import build_graph
 
 from scraper.scraper import main as crawl_site
 from agents.scraper_adapter import build_selectors_from_crawl
@@ -44,6 +43,7 @@ def run_agent_pipeline(
     # --------------------------------------------------
     # Build LangGraph
     # --------------------------------------------------
+    from main import build_graph
 
     app = build_graph()
 

@@ -1,4 +1,13 @@
-from fastapi import FastAPI, Request, UploadFile, File, Header, HTTPException, Depends
+from fastapi import (
+    FastAPI,
+    Request,
+    UploadFile,
+    File,
+    Header,
+    HTTPException,
+    Depends,
+    Form,
+)
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -43,7 +52,10 @@ def verify_api_key(x_api_key: str = Header(default="")):
     if os.getenv("ALLOW_UNAUTHENTICATED", "").lower() == "true":
         return  # explicit opt-out for local dev
     if not APP_API_KEY:
-        return  # should not reach here, but safety guard
+        raise HTTPException(
+            status_code=500,
+            detail="Application API key is not configured."
+        )
     if x_api_key != APP_API_KEY:
         raise HTTPException(
             status_code=401,
@@ -106,6 +118,7 @@ def home(request: Request):
 @app.post("/upload", response_class=HTMLResponse)
 async def upload_document(
     request: Request,
+    target_url: str = Form(...),
     file: UploadFile = File(...),
     _: None = Depends(verify_api_key),
 ):
@@ -241,21 +254,29 @@ async def upload_document(
         # ----------------------------
         agent_result = await asyncio.to_thread(
             run_agent_pipeline,
-            design_doc=document_text
+            design_doc=document_text,
+            target_url=target_url,
         )
 
-        # Fallback 1: agent pipeline returned empty YAML
+        # BUG FIX: `yaml_output` was referenced here before it was ever
+        # assigned (NameError), and the code below it unconditionally
+        # re-ran generate_test_cases() regardless of what the agent
+        # pipeline produced -- so the "authoritative" LangGraph path
+        # was silently discarded every single time. Pull the YAML the
+        # agent pipeline actually produced (if any), and only fall
+        # back to the legacy single-shot generator when it's missing.
+        # NOTE: agents/pipeline.py's run_agent_pipeline() returns the
+        # YAML under the key "generated_yaml", not "yaml_output".
+        yaml_output = (
+            agent_result.get("generated_yaml", "") if isinstance(agent_result, dict) else ""
+        )
+
         if not yaml_output.strip():
-            print("[Upload] Agent pipeline empty — falling back to llm_generator.")
+            print("[Upload] Agent pipeline returned no YAML — falling back to llm_generator.")
             yaml_output = await asyncio.to_thread(
                 generate_test_cases, document_text
             )
 
-        # Fallback 2: any exception path fallback
-        # (replace any remaining bare generate_test_cases() calls with:)
-        yaml_output = await asyncio.to_thread(
-            generate_test_cases, document_text
-        )
         print("\n========== YAML OUTPUT ==========")
         print(yaml_output)
         print("=================================\n")
@@ -339,7 +360,7 @@ async def run_agents(req: PipelineRequest, _: None = Depends(verify_api_key)):
     """
 
     try:
-
+        print(f"\n[Upload] Target URL: {target_url}\n")
         result = await asyncio.to_thread(
             run_agent_pipeline,
             design_doc=req.design_doc,

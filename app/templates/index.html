@@ -1,48 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Test Case Generator</title>
-    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #d1d5db;
+            line-height: 1.6;
+        }
+
+        .upload-card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .form-group input[type="url"],
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-group input[type="file"] {
+            padding: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .upload-card {
+                padding: 25px;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <div class="hero">
+        <div class="hero">
+            <h1>🤖 AI Test Case Generator</h1>
 
-        <h1>🤖 AI Test Case Generator</h1>
+            <p>
+                Upload a Design Document (.txt, .md, .pdf) and automatically
+                generate YAML Test Cases with Playwright Validation.
+            </p>
+        </div>
 
-        <p>
-            Upload a Design Document (.txt, .md, .pdf)
-            and automatically generate YAML Test Cases
-            with Playwright Validation.
-        </p>
+        <div class="upload-card">
+
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label for="target_url">
+                        Target Website URL
+                    </label>
+
+                    <input
+                        type="url"
+                        id="target_url"
+                        name="target_url"
+                        placeholder="https://live.ideabytesiot.com/demolive"
+                        value="https://live.ideabytesiot.com/demolive"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="file">
+                        Upload Design Document
+                    </label>
+
+                    <input
+                        type="file"
+                        id="file"
+                        name="file"
+                        accept=".txt,.md,.pdf"
+                        required>
+                </div>
+
+                <button type="submit">
+                    🚀 Generate Test Cases
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
-
-    <div class="upload-card">
-
-        <form action="/upload"
-              method="post"
-              enctype="multipart/form-data">
-
-            <input
-                type="file"
-                name="file"
-                required
-            >
-
-            <button type="submit">
-                Generate Test Cases
-            </button>
-
-        </form>
-
-    </div>
-
-</div>
 
 </body>
+
 </html>

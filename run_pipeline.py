@@ -133,10 +133,10 @@ def main():
         if not isinstance(result, dict):
             raise Exception("Test runner returned an invalid result.")
 
-        execution_time = result.get[
+        execution_time = result.get(
             "execution_time",
             0
-        ]
+        )
 
         print(
             f"\nExecution Time: "
