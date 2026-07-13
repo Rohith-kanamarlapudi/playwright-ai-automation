@@ -2,7 +2,10 @@ from playwright.sync_api import sync_playwright
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-
+import os
+AUTH_JSON_PATH = os.getenv("AUTH_JSON_PATH", "/tmp/auth.json")
+# Use AUTH_JSON_PATH everywhere — never a hardcoded repo-root path
+# /tmp/ is never committed to git
 load_dotenv()
 
 # ----------------------------------------------------------

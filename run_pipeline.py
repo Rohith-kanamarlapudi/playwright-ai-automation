@@ -37,19 +37,24 @@ def parse_args():
     return parser.parse_args()
 
 
-def generate_playwright_script():
+def generate_playwright_script(url: str = None):
 
     print(
         "\nGenerating Playwright Script..."
     )
 
+    cmd = [sys.executable, "llm_playwright_generator.py"]
+    if url:
+        cmd += ["--url", url]
+
     try:
         result = subprocess.run(
-            [sys.executable, "llm_playwright_generator.py"],
+            cmd,
             capture_output=True,
             text=True,
             timeout=GENERATION_TIMEOUT_SECONDS,
             check=False,
+            env={**os.environ},   # explicit env pass (also fixes minor env-inheritance issue)
         )
     except subprocess.TimeoutExpired as e:
         raise Exception(
@@ -65,12 +70,11 @@ def generate_playwright_script():
 
     if result.returncode != 0:
         raise Exception(
-            f"Playwright generation failed with exit code {result.returncode}"
+            f"Playwright generation failed with exit code {result.returncode}\n"
+            f"{result.stderr}"
         )
 
-    print(
-        "Generation Complete"
-    )
+    print("Generation Complete")
 
 def count_selectors(data):
 
@@ -95,11 +99,11 @@ def count_selectors(data):
 
 def main():
     args = parse_args()
-    URL = args.url
-    MAX_PAGES = args.max_pages
+    target_url = args.url
+    max_pages = args.max_pages
 
-    print(f"[Pipeline] Target URL : {URL}")
-    print(f"[Pipeline] Max pages  : {MAX_PAGES}")
+    print(f"[Pipeline] Target URL : {target_url}")
+    print(f"[Pipeline] Max pages  : {max_pages}")
 
     tracker = PerformanceTracker(label="full_pipeline_week2")
     tracker.start()
@@ -110,9 +114,11 @@ def main():
         print("=" * 50)
 
         crawl_data = crawl_site(
-            URL,
-            max_pages=MAX_PAGES
+            target_url,
+            max_pages=max_pages
         )
+        if not crawl_data:
+            raise Exception("Crawler returned no pages.")
 
         pages_crawled = len(crawl_data)
 
@@ -120,12 +126,16 @@ def main():
             f"\nPages Crawled: {pages_crawled}"
         )
 
-        generate_playwright_script()
+        generate_playwright_script(url=target_url)
 
         result = run_generated_test()
+        
+        if not isinstance(result, dict):
+            raise Exception("Test runner returned an invalid result.")
 
-        execution_time = result[
-            "execution_time"
+        execution_time = result.get[
+            "execution_time",
+            0
         ]
 
         print(
@@ -136,6 +146,9 @@ def main():
         tests_run = count_selectors(
             crawl_data
         )
+        
+        if tests_run == 0:
+            print("WARNING: No selectors found during crawling.")
 
         passed = tests_run
 
@@ -143,7 +156,7 @@ def main():
 
         failures = []
 
-        if result["return_code"] != 0:
+        if result.get("return_code", 1) != 0:
 
             failed = 1
 
@@ -157,7 +170,10 @@ def main():
                     "url": "unknown",
                     "selector": "unknown",
                     "error":
-                    result["stderr"]
+                    result.get(
+                        "stderr",
+                        "Unknown error"
+                    )
                 }
             )
 

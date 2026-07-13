@@ -11,6 +11,8 @@ import os
 from agents.pipeline import run_agent_pipeline
 from agents.scraper_adapter import build_selectors_from_crawl
 
+
+
 SCRAPER_OUTPUT = "reports/website_elements.json"
 
 
@@ -29,13 +31,21 @@ def main():
     # Load crawler output
     # ------------------------------------------------------
 
-    with open(
-        SCRAPER_OUTPUT,
-        "r",
-        encoding="utf-8"
-    ) as f:
+    try:
+        with open(
+            SCRAPER_OUTPUT,
+            "r",
+            encoding="utf-8"
+        ) as f:
+            crawl_data = json.load(f)
 
-        crawl_data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"ERROR: Invalid JSON in {SCRAPER_OUTPUT}")
+        print(e)
+        return
+    if not crawl_data:
+        print("ERROR: Scraper output is empty.")
+        return
 
     # ------------------------------------------------------
     # Build design document summary
@@ -64,6 +74,10 @@ def main():
     # ------------------------------------------------------
 
     selectors = build_selectors_from_crawl(crawl_data)
+    
+    if not selectors:
+        print("ERROR: No selectors extracted from crawler output.")
+        return
 
     print("=" * 70)
     print("LangGraph Playwright Generator")
@@ -76,21 +90,33 @@ def main():
     # Run pipeline
     # ------------------------------------------------------
 
-    result = run_agent_pipeline(
-        design_doc=design_doc,
-        selectors=selectors
-    )
+    try:
+        result = run_agent_pipeline(
+            design_doc=design_doc,
+            selectors=selectors
+        )
+    except Exception as e:
+        print(f"\nERROR: Pipeline execution failed.\n{e}")
+        return
 
     print("\nPipeline completed successfully.\n")
 
-    print(f"Task Plan        : {len(result['task_plan'])} tasks")
-    print(f"Generated Code   : {len(result['generated_code'])} characters")
-    print(f"Edge Cases       : {len(result['edge_cases'])}")
+    print(f"Task Plan        : {len(result.get('task_plan', []))} tasks")
+    print(f"Generated Code   : {len(result.get('generated_code', ''))} characters")
+    print(f"Edge Cases       : {len(result.get('edge_cases', []))}")
+
+
 
     print("\nGenerated files:")
-    print("  generated_tests/generated_yaml.yaml")
-    print("  generated_tests/generated_test.py")
 
+    for file in [
+        "generated_tests/generated_yaml.yaml",
+        "generated_tests/generated_test.py",
+    ]:
+        if os.path.exists(file):
+            print(f"  ✓ {file}")
+        else:
+            print(f"  ✗ {file} (not generated)")
 
 if __name__ == "__main__":
     main()
