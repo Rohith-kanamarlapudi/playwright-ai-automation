@@ -177,16 +177,16 @@ async def upload_document(
 
             from pypdf import PdfReader
 
-            with open(file_path, "rb") as pdf_file:
-                reader = PdfReader(pdf_file)
+            def _extract_pdf(path: str) -> str:
+                with open(path, "rb") as pdf_file:
+                    reader = PdfReader(pdf_file)
+                    return "".join(
+                        page.extract_text() or ""
+                        for page in reader.pages
+                    )
 
-
-                for page in reader.pages:
-
-                    page_text = page.extract_text()
-
-                    if page_text:
-                        document_text += page_text
+            # Run PDF parsing in a thread — avoids blocking the event loop
+            document_text = await asyncio.to_thread(_extract_pdf, file_path)
 
         else:
 
