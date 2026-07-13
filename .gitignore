@@ -248,22 +248,50 @@ credentials.json
 # OS files
 .DS_Store
 Thumbs.db
+# ===========================
+# Authentication & Sessions
+# ===========================
 
+# Playwright authentication/session files
+auth.json
+playwright/.auth/
+playwright/.auth/**
+storage_state.json
+state.json
+session.json
 
-# ── Generated runtime artifacts ──────────────────────────
-reports/website_elements.json
-website_elements.json
+# Local login/session data
+cookies.json
+token.json
+access_token.json
+refresh_token.json
+
+# Keep sample auth files
+!auth.example.json
+
+# ===========================
+# Generated runtime artifacts
+# ===========================
+
 generated_tests/generated_test.py
 generated_tests/generated_yaml.yaml
+generated_tests/conftest.py
 generated_tests/test_generated.py
 generated_tests/unsupported_steps.txt
-generated_tests/conftest.py
-performance/benchmark_results.csv
-reports/test_execution_report.json
+
 reports/test_execution_report.html
-reports/perf_baseline.json
+reports/test_execution_report.json
 reports/per_agent_perf.json
+reports/perf_baseline.json
 reports/perf_week2.json
+reports/live_sitemap.md
+
+performance/benchmark_results.csv
+
+reports/website_elements.json
+website_elements.json
+
 uploads/
+
 !generated_tests/.gitkeep
 !reports/.gitkeep
