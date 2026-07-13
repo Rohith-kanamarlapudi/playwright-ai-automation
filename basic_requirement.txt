@@ -1,8 +1,4 @@
 IoT Dashboard Requirements
-
-Application:
-https://live.ideabytesiot.com/demolive
-
 Features:
 - User login
 - Dashboard displays live sensor widgets
