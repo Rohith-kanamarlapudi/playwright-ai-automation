@@ -1,29 +1,28 @@
-# Core agent orchestration
-langgraph
-langchain
-langchain-openai          # DeepSeek via OpenAI-compatible API
-# Removed: langchain-ollama (unused), langchain-community (unused)
+# ── Core agent orchestration ─────────────────────────────
+langgraph==0.2.73
+langchain==0.3.25
+langchain-openai==0.3.18
 
-# Web framework
-fastapi
-uvicorn[standard]
-jinja2
-python-multipart
+# ── Web framework ─────────────────────────────────────────
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+jinja2==3.1.6
+python-multipart==0.0.20
 
-# Scraping
-beautifulsoup4
-requests
-playwright
+# ── Scraping ──────────────────────────────────────────────
+beautifulsoup4==4.13.4
+requests==2.32.3
+playwright==1.51.0
 
-# Data + config
-pyyaml
-python-dotenv
-psutil
+# ── Data + config ─────────────────────────────────────────
+pyyaml==6.0.2
+python-dotenv==1.1.0
+psutil==7.0.0
 
-# PDF support (used in app/main.py upload route)
-pypdf
+# ── PDF support ───────────────────────────────────────────
+pypdf==5.4.0
 
-# Testing
-pytest
-pytest-asyncio
-pytest-playwright
+# ── Testing ───────────────────────────────────────────────
+pytest==8.3.5
+pytest-asyncio==0.25.3
+pytest-playwright==0.7.0
