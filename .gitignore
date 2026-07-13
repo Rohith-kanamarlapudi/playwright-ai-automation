@@ -295,3 +295,12 @@ state.json
 cookies.json
 session.json
 *.session.json
+
+
+# ── Committed artifacts to un-track ──────────────────────
+sample.txt
+uploads/sample.txt
+reports/report.md
+auth.json
+auth_state.json
+*.session.json
