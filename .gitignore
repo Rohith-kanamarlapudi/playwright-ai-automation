@@ -250,18 +250,6 @@ credentials.json
 Thumbs.db
 
 
-# ===========================
-# Authentication & Sessions
-# ===========================
-
-# Playwright authentication/session files
-auth.json
-playwright/.auth/
-playwright/.auth/**
-storage_state.json
-state.json
-session.json
-
 # Local login/session data
 cookies.json
 token.json
@@ -297,3 +285,13 @@ uploads/
 
 !generated_tests/.gitkeep
 !reports/.gitkeep
+
+
+# ── Auth / Session files (NEVER commit these) ─────────────
+auth.json
+auth_state.json
+playwright_auth.json
+state.json
+cookies.json
+session.json
+*.session.json
