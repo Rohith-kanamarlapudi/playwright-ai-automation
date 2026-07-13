@@ -14,15 +14,41 @@ from app.llm_generator import generate_test_cases
 from app.yaml_validator import validate_yaml
 from app.yaml_to_playwright import convert_yaml_to_playwright
 
-APP_API_KEY = os.getenv("APP_API_KEY", "")   # set in .env for production
+import secrets
+
+_configured_key = os.getenv("APP_API_KEY", "")
+
+# Fail-closed: if no key is configured, generate one and log it.
+# The developer must use this key in X-API-Key header.
+# Set ALLOW_UNAUTHENTICATED=true in .env to disable auth in dev.
+if not _configured_key and os.getenv("ALLOW_UNAUTHENTICATED", "").lower() != "true":
+    _configured_key = secrets.token_urlsafe(32)
+    print(
+        f"\n{'='*60}\n"
+        f"[AUTH] No APP_API_KEY set — generated a temporary key:\n"
+        f"[AUTH] APP_API_KEY={_configured_key}\n"
+        f"[AUTH] Add this to your .env or set ALLOW_UNAUTHENTICATED=true\n"
+        f"{'='*60}\n"
+    )
+
+APP_API_KEY = _configured_key
+
 
 def verify_api_key(x_api_key: str = Header(default="")):
     """
     Require X-API-Key header on protected endpoints.
-    Skip check if APP_API_KEY is not configured (dev mode).
+    Fails closed: if APP_API_KEY is set (or auto-generated),
+    the key MUST match. Set ALLOW_UNAUTHENTICATED=true to disable.
     """
-    if APP_API_KEY and x_api_key != APP_API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid or missing X-API-Key header.")
+    if os.getenv("ALLOW_UNAUTHENTICATED", "").lower() == "true":
+        return  # explicit opt-out for local dev
+    if not APP_API_KEY:
+        return  # should not reach here, but safety guard
+    if x_api_key != APP_API_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing X-API-Key header."
+        )
     
 
 app = FastAPI(title="Test Case Generator")
