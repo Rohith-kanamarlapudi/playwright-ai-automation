@@ -1,0 +1,19 @@
+IoT Dashboard Requirements
+Features:
+- User login
+- Dashboard displays live sensor widgets
+- Reports page
+- Alerts page
+- Devices page
+- Users page
+- Logout
+
+Test Requirements:
+- Verify successful login
+- Verify dashboard widgets become visible
+- Verify Reports page loads
+- Verify Alerts page loads
+- Verify Devices page navigation
+- Verify Users page navigation
+- Verify logout
+- Verify no console errors after navigation

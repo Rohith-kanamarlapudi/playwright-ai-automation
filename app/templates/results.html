@@ -1,132 +1,292 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Results</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Test Case Generator - Results</title>
 
-    <link rel="stylesheet"
-          href="/static/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            padding: 40px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            margin-bottom: 25px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2563eb;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #2563eb;
+        }
+
+        h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        pre {
+            background: #1e1e1e;
+            color: #eee;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        code {
+            color: #7dd3fc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #2563eb;
+            color: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        ul {
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 22px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+    </style>
 </head>
 
 <body>
 
-<h1>Results</h1>
+<div class="container">
+
+<h1>🤖 AI Test Case Generator Results</h1>
 
 {% if error %}
-<p>{{ error }}</p>
+<div class="card">
+    <h2>Error</h2>
+    <p class="error">{{ error }}</p>
+</div>
 {% endif %}
 
-<h2>File</h2>
+<div class="card">
+    <h2>Uploaded File</h2>
+    <p>{{ filename }}</p>
+</div>
 
-<p>{{ filename }}</p>
+<div class="card">
+    <h2>Document Preview</h2>
+    <pre>{{ preview }}</pre>
+</div>
 
-<h2>Preview</h2>
+<div class="card">
 
-<pre>{{ preview }}</pre>
+<h2>YAML Validation</h2>
 
-<h2>Validation</h2>
+{% if validation %}
 
-{% if validation.valid %}
-<p>VALID YAML</p>
+    {% if validation.valid %}
+        <p class="success">✔ VALID YAML</p>
+    {% else %}
+        <p class="error">✖ YAML Validation Failed</p>
+
+        {% if validation.errors %}
+        <ul>
+            {% for err in validation.errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+    {% endif %}
+
 {% else %}
-<ul>
-{% for error in validation.errors %}
-<li>{{ error }}</li>
-{% endfor %}
-</ul>
+<p>No validation results available.</p>
 {% endif %}
 
-<h2>Test Cases</h2>
+</div>
+
+<div class="card">
+
+<h2>Generated Test Cases</h2>
+
+{% if test_cases %}
 
 <table>
 
+<thead>
 <tr>
-<th>ID</th>
-<th>Title</th>
-<th>Priority</th>
-<th>Steps</th>
-<th>Expected Result</th>
+    <th>ID</th>
+    <th>Title</th>
+    <th>Priority</th>
+    <th>Steps</th>
+    <th>Expected Result</th>
 </tr>
+</thead>
+
+<tbody>
 
 {% for tc in test_cases %}
-
 <tr>
-<td>{{ tc.id }}</td>
-<td>{{ tc.title }}</td>
-<td>{{ tc.priority }}</td>
-<td>{{ tc.steps|length }}</td>
-<td>{{ tc.expected_result }}</td>
+    <td>{{ tc.id }}</td>
+    <td>{{ tc.title }}</td>
+    <td>{{ tc.priority }}</td>
+    <td>{{ tc.steps|length }}</td>
+    <td>{{ tc.expected_result }}</td>
 </tr>
-
 {% endfor %}
 
+</tbody>
+
 </table>
+
+{% else %}
+
+<p>No test cases generated.</p>
+
+{% endif %}
+
+</div>
+
+<div class="card">
 
 <h2>Generated YAML</h2>
 
 <pre>{{ yaml_output }}</pre>
 
+</div>
+
+<div class="card">
+
 <h2>Playwright Preview</h2>
 
 <pre>{{ playwright_output }}</pre>
 
-<!-- ================================================= -->
-<!-- Multi-Agent LangGraph Pipeline Output -->
-<!-- ================================================= -->
+</div>
 
 {% if agent_code %}
 
-<hr>
+<div class="card">
 
-<h2>Multi-Agent Pipeline Output</h2>
-
-<!-- Strategy Agent -->
+<h2>🧠 Multi-Agent LangGraph Pipeline</h2>
 
 <h3>Strategy Agent - Test Plan</h3>
 
 {% if agent_task_plan %}
+
 <ul>
 {% for task in agent_task_plan %}
 <li>{{ task }}</li>
 {% endfor %}
 </ul>
-{% else %}
-<p>No task plan generated.</p>
-{% endif %}
 
-<!-- Architecture Agent -->
+{% else %}
+
+<p>No task plan generated.</p>
+
+{% endif %}
 
 <h3>Architecture Agent</h3>
 
 <pre>{{ agent_architecture }}</pre>
 
-<!-- Code Generation Agent -->
-
-<h3>Generated Playwright Code (Code Generation Agent)</h3>
+<h3>Generated Playwright Code</h3>
 
 <pre><code>{{ agent_code }}</code></pre>
 
-<!-- Review Agent -->
-
-<h3>Review Notes</h3>
+<h3>Review Agent</h3>
 
 <pre>{{ agent_review }}</pre>
-
-<!-- Edge Cases Agent -->
 
 <h3>Edge Cases</h3>
 
 {% if agent_edge_cases %}
+
 <ul>
-{% for edge_case in agent_edge_cases %}
-<li>{{ edge_case }}</li>
+
+{% for edge in agent_edge_cases %}
+<li>{{ edge }}</li>
 {% endfor %}
+
 </ul>
+
 {% else %}
+
 <p>No edge cases generated.</p>
-{% endif %}
 
 {% endif %}
+
+</div>
+
+{% endif %}
+
+<a href="/" class="button">⬅ Generate Another Test Suite</a>
+
+</div>
 
 </body>
 
