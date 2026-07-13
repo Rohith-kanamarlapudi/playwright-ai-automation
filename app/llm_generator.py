@@ -33,32 +33,30 @@ test_cases:
     expected_result: User logged in
 """
 
-    prompt = f"""
-Generate YAML test cases.
-
-Return VALID YAML ONLY.
-
-No markdown.
-No explanation.
-
-Structure:
-
-test_cases:
-  - id:
-    title:
-    priority:
-    steps:
-    expected_result:
-
-Generate:
-- positive cases
-- negative cases
-- edge cases
-
-Document:
+    prompt = f"""You are a QA automation engineer using Playwright.
+Generate test cases for this application:
 
 {document_text}
-"""
+
+Return ONLY valid YAML in this EXACT structure — no other format accepted:
+
+test_cases:
+  - id: TC001
+    title: Test login with valid credentials
+    priority: High
+    steps:
+      - Open login page
+      - Enter username
+      - Enter password
+      - Click login button
+      - Verify dashboard is visible
+    expected_result: User is redirected to dashboard
+
+Rules:
+- Each step must be a short, actionable phrase
+- At least one step must start with "Verify" or "Assert"
+- Use plain English action phrases (Open, Click, Enter, Verify, Navigate)
+- Return ONLY YAML — no markdown fences, no explanation"""
 
     try:
 
