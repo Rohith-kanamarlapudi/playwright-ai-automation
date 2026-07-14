@@ -1,159 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
-
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Test Case Generator - Results</title>
-
+ 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+ 
     <style>
+        :root {
+            --bg-deep: #090d16;
+            --bg-panel: #10151f;
+            --bg-panel-raised: #161d2b;
+            --bg-code: #0a0e17;
+            --border: #232c3f;
+            --border-soft: #1b2230;
+            --text-primary: #e7ecf6;
+            --text-muted: #8791a8;
+            --text-faint: #545f76;
+            --accent-teal: #35e0c2;
+            --accent-teal-dim: #12352f;
+            --accent-amber: #f5b942;
+            --accent-red: #ff6b6b;
+            --accent-red-dim: #3a1c22;
+            --accent-violet: #8f8bf7;
+            --mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+            --sans: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+        }
+ 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Segoe UI", Arial, sans-serif;
         }
-
+ 
         body {
-            background: #f4f6f9;
-            padding: 40px;
-            color: #333;
+            font-family: var(--sans);
+            background:
+                radial-gradient(circle at 10% 0%, rgba(143, 139, 247, 0.08), transparent 40%),
+                radial-gradient(circle at 90% 20%, rgba(53, 224, 194, 0.07), transparent 40%),
+                var(--bg-deep);
+            padding: 48px 24px 70px;
+            color: var(--text-primary);
         }
-
+ 
         .container {
-            max-width: 1200px;
+            max-width: 1080px;
             margin: auto;
         }
-
-        .card {
-            background: white;
-            margin-bottom: 25px;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.08);
-        }
-
+ 
         h1 {
             text-align: center;
-            margin-bottom: 30px;
-            color: #2563eb;
+            margin-bottom: 8px;
+            font-family: var(--mono);
+            font-weight: 800;
+            font-size: 32px;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
         }
-
+ 
+        .page-sub {
+            text-align: center;
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--text-faint);
+            letter-spacing: 0.04em;
+            margin-bottom: 38px;
+        }
+ 
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            margin-bottom: 22px;
+            border-radius: 12px;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+ 
+        .card-inner {
+            padding: 26px 28px;
+        }
+ 
+        .card-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 28px;
+            background: var(--bg-panel-raised);
+            border-bottom: 1px solid var(--border);
+            font-family: var(--mono);
+            font-size: 11.5px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-faint);
+        }
+ 
+        .card-eyebrow .stage-num {
+            color: var(--accent-teal);
+            font-weight: 700;
+        }
+ 
         h2 {
-            margin-bottom: 15px;
-            color: #2563eb;
+            margin-bottom: 14px;
+            color: var(--text-primary);
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: 18px;
         }
-
+ 
         h3 {
-            margin-top: 20px;
+            margin-top: 22px;
             margin-bottom: 10px;
-            color: #444;
+            color: var(--text-muted);
+            font-family: var(--sans);
+            font-weight: 600;
+            font-size: 14.5px;
+            letter-spacing: 0.01em;
         }
-
+ 
         pre {
-            background: #1e1e1e;
-            color: #eee;
-            padding: 15px;
-            border-radius: 8px;
+            background: var(--bg-code);
+            color: #d6dded;
+            padding: 16px 18px;
+            border-radius: 9px;
+            border: 1px solid var(--border-soft);
             overflow-x: auto;
             white-space: pre-wrap;
             word-break: break-word;
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.55;
         }
-
+ 
         code {
             color: #7dd3fc;
+            font-family: var(--mono);
         }
-
+ 
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 14px;
         }
-
+ 
         th {
-            background: #2563eb;
-            color: white;
+            background: var(--bg-panel-raised);
+            color: var(--text-muted);
+            font-family: var(--mono);
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
-
+ 
         th,
         td {
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 12px 14px;
+            border: 1px solid var(--border-soft);
             text-align: left;
         }
-
-        tr:nth-child(even) {
-            background: #f8f8f8;
+ 
+        td {
+            color: var(--text-primary);
         }
-
-        .success {
-            color: green;
-            font-weight: bold;
+ 
+        tr:nth-child(even) td {
+            background: rgba(255, 255, 255, 0.015);
         }
-
+ 
+        tr:hover td {
+            background: rgba(53, 224, 194, 0.04);
+        }
+ 
+        .success,
         .error {
-            color: red;
-            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-family: var(--mono);
+            font-size: 13.5px;
+            padding: 7px 14px;
+            border-radius: 999px;
         }
-
+ 
+        .success {
+            color: var(--accent-teal);
+            background: var(--accent-teal-dim);
+            border: 1px solid rgba(53, 224, 194, 0.3);
+        }
+ 
+        .error {
+            color: var(--accent-red);
+            background: var(--accent-red-dim);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+ 
         ul {
-            padding-left: 25px;
+            padding-left: 22px;
         }
-
+ 
         li {
             margin-bottom: 8px;
+            color: var(--text-muted);
+            line-height: 1.5;
         }
-
+ 
+        li::marker {
+            color: var(--accent-teal);
+        }
+ 
         .button {
-            display: inline-block;
-            padding: 12px 22px;
-            background: #2563eb;
-            color: white;
+            display: block;
+            width: fit-content;
+            margin: 30px auto 0;
+            padding: 13px 26px;
+            background: linear-gradient(135deg, var(--accent-teal), #22b8a2);
+            color: #05231f;
             text-decoration: none;
-            border-radius: 8px;
-            margin-top: 20px;
+            border-radius: 9px;
+            font-weight: 700;
+            font-family: var(--sans);
+            box-shadow: 0 10px 24px rgba(53, 224, 194, 0.22);
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
         }
-
+ 
         .button:hover {
-            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(53, 224, 194, 0.32);
+            background: linear-gradient(135deg, var(--accent-teal), #22b8a2);
         }
-
+ 
+        .agent-card .card-eyebrow {
+            color: var(--accent-violet);
+        }
+ 
+        .agent-card .card-eyebrow .stage-num {
+            color: var(--accent-violet);
+        }
+ 
     </style>
 </head>
-
+ 
 <body>
-
+ 
 <div class="container">
-
+ 
 <h1>🤖 AI Test Case Generator Results</h1>
-
+<p class="page-sub">design doc → validation → test cases → yaml → playwright → agent pipeline</p>
+ 
 {% if error %}
 <div class="card">
-    <h2>Error</h2>
+    <div class="card-eyebrow"><span class="stage-num">!</span> Error</div>
+    <div class="card-inner">
     <p class="error">{{ error }}</p>
+    </div>
 </div>
 {% endif %}
-
+ 
 <div class="card">
-    <h2>Uploaded File</h2>
+    <div class="card-eyebrow"><span class="stage-num">01</span> Uploaded File</div>
+    <div class="card-inner">
     <p>{{ filename }}</p>
+    </div>
 </div>
-
+ 
 <div class="card">
-    <h2>Document Preview</h2>
+    <div class="card-eyebrow"><span class="stage-num">02</span> Document Preview</div>
+    <div class="card-inner">
     <pre>{{ preview }}</pre>
+    </div>
 </div>
-
+ 
 <div class="card">
-
-<h2>YAML Validation</h2>
-
+<div class="card-eyebrow"><span class="stage-num">03</span> YAML Validation</div>
+<div class="card-inner">
+ 
 {% if validation %}
-
+ 
     {% if validation.valid %}
         <p class="success">✔ VALID YAML</p>
     {% else %}
         <p class="error">✖ YAML Validation Failed</p>
-
+ 
         {% if validation.errors %}
         <ul>
             {% for err in validation.errors %}
@@ -161,23 +293,24 @@
             {% endfor %}
         </ul>
         {% endif %}
-
+ 
     {% endif %}
-
+ 
 {% else %}
 <p>No validation results available.</p>
 {% endif %}
-
+ 
 </div>
-
+</div>
+ 
 <div class="card">
-
-<h2>Generated Test Cases</h2>
-
+<div class="card-eyebrow"><span class="stage-num">04</span> Generated Test Cases</div>
+<div class="card-inner">
+ 
 {% if test_cases %}
-
+ 
 <table>
-
+ 
 <thead>
 <tr>
     <th>ID</th>
@@ -187,9 +320,9 @@
     <th>Expected Result</th>
 </tr>
 </thead>
-
+ 
 <tbody>
-
+ 
 {% for tc in test_cases %}
 <tr>
     <td>{{ tc.id }}</td>
@@ -199,95 +332,100 @@
     <td>{{ tc.expected_result }}</td>
 </tr>
 {% endfor %}
-
+ 
 </tbody>
-
+ 
 </table>
-
+ 
 {% else %}
-
+ 
 <p>No test cases generated.</p>
-
+ 
 {% endif %}
-
+ 
 </div>
-
+</div>
+ 
 <div class="card">
-
-<h2>Generated YAML</h2>
-
+<div class="card-eyebrow"><span class="stage-num">05</span> Generated YAML</div>
+<div class="card-inner">
+ 
 <pre>{{ yaml_output }}</pre>
-
+ 
 </div>
-
+</div>
+ 
 <div class="card">
-
-<h2>Playwright Preview</h2>
-
+<div class="card-eyebrow"><span class="stage-num">06</span> Playwright Preview</div>
+<div class="card-inner">
+ 
 <pre>{{ playwright_output }}</pre>
-
+ 
 </div>
-
+</div>
+ 
 {% if agent_code %}
-
-<div class="card">
-
-<h2>🧠 Multi-Agent LangGraph Pipeline</h2>
-
+ 
+<div class="card agent-card">
+<div class="card-eyebrow"><span class="stage-num">07</span> 🧠 Multi-Agent LangGraph Pipeline</div>
+<div class="card-inner">
+ 
 <h3>Strategy Agent - Test Plan</h3>
-
+ 
 {% if agent_task_plan %}
-
+ 
 <ul>
 {% for task in agent_task_plan %}
 <li>{{ task }}</li>
 {% endfor %}
 </ul>
-
+ 
 {% else %}
-
+ 
 <p>No task plan generated.</p>
-
+ 
 {% endif %}
-
+ 
 <h3>Architecture Agent</h3>
-
+ 
 <pre>{{ agent_architecture }}</pre>
-
+ 
 <h3>Generated Playwright Code</h3>
-
+ 
 <pre><code>{{ agent_code }}</code></pre>
-
+ 
 <h3>Review Agent</h3>
-
+ 
 <pre>{{ agent_review }}</pre>
-
+ 
 <h3>Edge Cases</h3>
-
+ 
 {% if agent_edge_cases %}
-
+ 
 <ul>
-
+ 
 {% for edge in agent_edge_cases %}
 <li>{{ edge }}</li>
 {% endfor %}
-
+ 
 </ul>
-
+ 
 {% else %}
-
+ 
 <p>No edge cases generated.</p>
-
+ 
 {% endif %}
-
+ 
 </div>
-
+</div>
+ 
 {% endif %}
-
+ 
 <a href="/" class="button">⬅ Generate Another Test Suite</a>
-
+ 
 </div>
-
+ 
 </body>
-
+ 
 </html>
+ 
