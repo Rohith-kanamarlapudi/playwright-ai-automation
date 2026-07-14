@@ -18,6 +18,12 @@ import argparse
 from dotenv import load_dotenv
 load_dotenv()
 
+from db.database import (
+    init_db,
+    start_run,
+    finish_run,
+)
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Run the Playwright AI automation pipeline."
@@ -98,9 +104,17 @@ def count_selectors(data):
 
 
 def main():
+    init_db()
     args = parse_args()
     target_url = args.url
     max_pages = args.max_pages
+    
+    run_id = None
+    run_id = start_run(
+        target_url=target_url,
+        llm_provider=os.getenv("LLM_PROVIDER", "deepseek"),
+        llm_model=os.getenv("LLM_MODEL", "deepseek-chat"),
+    )
 
     print(f"[Pipeline] Target URL : {target_url}")
     print(f"[Pipeline] Max pages  : {max_pages}")
@@ -127,6 +141,29 @@ def main():
         )
 
         generate_playwright_script(url=target_url)
+        
+        
+        generated_yaml = ""
+
+        if os.path.exists("generated_tests/generated_yaml.yaml"):
+            with open(
+                "generated_tests/generated_yaml.yaml",
+                "r",
+                encoding="utf-8",
+            ) as f:
+                generated_yaml = f.read()
+
+        generated_code = ""
+
+        if os.path.exists("generated_tests/generated_test.py"):
+            with open(
+                "generated_tests/generated_test.py",
+                "r",
+                encoding="utf-8",
+            ) as f:
+                generated_code = f.read()
+
+
 
         result = run_generated_test()
         
@@ -197,6 +234,26 @@ def main():
         create_html_report(
             report
         )
+        
+        
+        finish_run(
+            run_id=run_id,
+            status="passed",
+            result={
+                "duration_seconds": execution_time,
+                "pages_crawled": pages_crawled,
+                "selectors_found": tests_run,
+                "tests_generated": tests_run,
+                "tests_passed": passed,
+                "tests_failed": failed,
+                "regen_count": 0,
+                "generated_code": generated_code,
+                "generated_yaml": generated_yaml,
+                "review_notes": "",
+                "edge_cases": [],
+            },
+        )
+                  
 
         print(
             "\nPipeline Complete"
@@ -204,9 +261,25 @@ def main():
 
     except Exception as e:
 
-        print(
-            "\nPipeline Failed"
+        finish_run(
+            run_id=run_id,
+            status="failed",
+            result={
+                "duration_seconds": 0,
+                "pages_crawled": 0,
+                "selectors_found": 0,
+                "tests_generated": 0,
+                "tests_passed": 0,
+                "tests_failed": 1,
+                "regen_count": 0,
+                "generated_code": "",
+                "generated_yaml": "",
+                "review_notes": str(e),
+                "edge_cases": [],
+            },
         )
+
+        print("\nPipeline Failed")
 
         print(str(e))
 

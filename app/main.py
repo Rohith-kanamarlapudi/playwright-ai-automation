@@ -1,3 +1,4 @@
+from fastapi import Query
 from fastapi import (
     FastAPI,
     Request,
@@ -15,6 +16,11 @@ from pydantic import BaseModel
 from agents.pipeline import run_agent_pipeline
 from agents.doc_sanitiser import sanitise_document
 import asyncio
+from db.database import (
+    init_db,
+    get_runs,
+    get_run
+)
 
 
 import os
@@ -65,6 +71,10 @@ def verify_api_key(x_api_key: str = Header(default="")):
 
 app = FastAPI(title="Test Case Generator")
 
+
+@app.on_event("startup")
+async def startup():
+    init_db()
 class PipelineRequest(BaseModel):
     design_doc: str
     target_url: str | None = None
@@ -360,7 +370,7 @@ async def run_agents(req: PipelineRequest, _: None = Depends(verify_api_key)):
     """
 
     try:
-        print(f"\n[Upload] Target URL: {target_url}\n")
+        print(f"\n[Upload] Target URL: {req.target_url}\n")
         result = await asyncio.to_thread(
             run_agent_pipeline,
             design_doc=req.design_doc,
@@ -387,3 +397,60 @@ async def run_agents(req: PipelineRequest, _: None = Depends(verify_api_key)):
             "status": "error",
             "message": str(e)
         }
+        
+# --------------------------------------------------------
+# Run History APIs
+# --------------------------------------------------------
+
+@app.get("/runs")
+async def list_runs(
+    limit: int = Query(
+        default=20,
+        ge=1,
+        le=100
+    ),
+    _: None = Depends(verify_api_key),
+):
+    """
+    Return the latest pipeline runs.
+    """
+
+    try:
+        return {
+            "runs": get_runs(limit=limit)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+
+@app.get("/runs/{run_id}")
+async def get_run_detail(
+    run_id: str,
+    _: None = Depends(verify_api_key),
+):
+    """
+    Return one pipeline execution.
+    """
+
+    try:
+        run = get_run(run_id)
+
+        if not run:
+            raise HTTPException(
+                status_code=404,
+                detail="Run not found"
+            )
+
+        return run
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
