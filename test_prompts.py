@@ -1,6 +1,8 @@
 from agents.llm_client import get_llm
-from agents.prompts.strategy_prompt import STRATEGY_PROMPT
-
+from agents.prompts.strategy_prompt import (
+    STRATEGY_PROMPT,
+    LIVE_APP_CONTEXT,
+)
 llm = get_llm()
 
 sample_doc = """
@@ -23,10 +25,11 @@ inputs = [
 links = []
 
 prompt = STRATEGY_PROMPT.format(
+    live_app_context=LIVE_APP_CONTEXT,
     design_doc=sample_doc,
     buttons=buttons,
     inputs=inputs,
-    links=links
+    links=links,
 )
 
 response = llm.invoke(prompt)
