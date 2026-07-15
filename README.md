@@ -56,16 +56,16 @@ Rather than betting everything on one fragile LLM call, the work is split across
         │
         ▼
   ┌──────────────────────────────────────────────────────────────────┐
-  │                      LangGraph Pipeline                           │
-  │                                                                    │
+  │                      LangGraph Pipeline                          │
+  │                                                                  │
   │   Strategy ──► Architecture ──► Code Gen ──► Review              │
-  │                                     ▲            │                │
+  │                                     ▲            │               │
   │                                     └─── regen ──┘  (max 2)      │
-  │                                          if High risk             │
-  │                                                 ▼                 │
-  │                                          Edge Cases               │
-  │                                                 ▼                 │
-  │                                           Heal Agent ◄── failures │
+  │                                          if High risk            │
+  │                                                 ▼                │
+  │                                          Edge Cases              │
+  │                                                 ▼                │
+  │                                           Heal Agent ◄── failures│
   └──────────────────────────────────────────────────────────────────┘
         │
         ▼
@@ -107,31 +107,31 @@ Rather than betting everything on one fragile LLM call, the work is split across
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                         FastAPI Layer                             │
+│                         FastAPI Layer                            │
 │   POST /upload-doc      POST /agents/run      GET /runs          │
 │   (X-API-Key protected) (X-API-Key protected) GET /runs/{id}     │
 └──────────────────┬───────────────────────────────────────────────┘
                    │ design_doc + target_url
                    ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                     Scraper + Sanitiser                           │
-│  scraper.py (requests + BS4)  ──►  playwright_check.py (SPA)    │
-│  login.py (Keycloak auth)     ──►  scraper_adapter.py           │
+│                     Scraper + Sanitiser                          │
+│  scraper.py (requests + BS4)  ──►  playwright_check.py (SPA)     │
+│  login.py (Keycloak auth)     ──►  scraper_adapter.py            │
 │  doc_sanitiser.py (injection guard)                              │
 │  selector_utils.py (memory-weighted stability ranking)           │
 └──────────────────┬───────────────────────────────────────────────┘
                    │ selectors[] (memory-scored) · clean design_doc
                    ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                      LangGraph Pipeline                           │
-│   AgentState (TypedDict) ── shared typed contract                 │
-│                                                                    │
-│   ┌──────────┐  ┌──────────────┐  ┌──────────┐  ┌────────┐     │
-│   │ Strategy │─►│ Architecture │─►│ Code Gen │─►│ Review │     │
-│   └──────────┘  └──────────────┘  └──────────┘  └───┬────┘     │
-│                                         ▲  regen      │          │
+┌─────────────────────────────────────────────────────────────────┐
+│                      LangGraph Pipeline                         │
+│   AgentState (TypedDict) ── shared typed contract               │
+│                                                                 │
+│   ┌──────────┐  ┌──────────────┐  ┌──────────┐  ┌────────┐      │
+│   │ Strategy │─►│ Architecture │─►│ Code Gen │─►│ Review │      │
+│   └──────────┘  └──────────────┘  └──────────┘  └───┬────┘      │
+│                                         ▲  regen      │         │
 │                                         └─────────────┘ (max 2) │
-│                                                       ▼          │
+│                                                       ▼         │
 │                                            ┌──────────────┐     │
 │                                            │  Edge Cases  │     │
 │                                            └──────┬───────┘     │
@@ -143,16 +143,16 @@ Rather than betting everything on one fragile LLM call, the work is split across
                                                      │ generated_code (healed)
                                                      ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                       Execution Layer                             │
+│                       Execution Layer                            │
 │   AST check → conftest gen → pytest subprocess (60s cap)         │
 │   Performance Engine (psutil) + Live TTFB Crawler (3-run avg)    │
 └──────────────────┬───────────────────┬───────────────────────────┘
                    ▼                   ▼
         ┌──────────────────┐  ┌────────────────────────────┐
-        │   Output Layer   │  │    Persistence Layer        │
-        │  report.json     │  │  SQLite: runs table         │
-        │  report.html     │  │  SQLite: selector_memory    │
-        │  perf_baseline   │  │  Queryable via /runs API    │
+        │   Output Layer   │  │    Persistence Layer       │
+        │  report.json     │  │  SQLite: runs table        │
+        │  report.html     │  │  SQLite: selector_memory   │
+        │  perf_baseline   │  │  Queryable via /runs API   │
         │  live_sitemap    │  └────────────────────────────┘
         └──────────────────┘
 ```
