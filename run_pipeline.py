@@ -23,6 +23,7 @@ from db.database import (
     start_run,
     finish_run,
 )
+from db.selector_memory import init_selector_memory
 
 from agents.heal_agent import (
     parse_pytest_failures,
@@ -110,6 +111,7 @@ def count_selectors(data):
 
 def main():
     init_db()
+    init_selector_memory()
     args = parse_args()
     target_url = args.url
     max_pages = args.max_pages
