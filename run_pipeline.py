@@ -24,6 +24,11 @@ from db.database import (
     finish_run,
 )
 
+from agents.heal_agent import (
+    parse_pytest_failures,
+    heal_agent,
+)
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Run the Playwright AI automation pipeline."
@@ -121,6 +126,7 @@ def main():
 
     tracker = PerformanceTracker(label="full_pipeline_week2")
     tracker.start()
+    execution_failures = []
 
     try:
         print("=" * 50)
@@ -139,6 +145,12 @@ def main():
         print(
             f"\nPages Crawled: {pages_crawled}"
         )
+        
+        
+        tests_run = count_selectors(crawl_data)
+
+        if tests_run == 0:
+            print("WARNING: No selectors found during crawling.")
 
         generate_playwright_script(url=target_url)
         
@@ -152,6 +164,9 @@ def main():
                 encoding="utf-8",
             ) as f:
                 generated_yaml = f.read()
+        else:
+            print("[Pipeline] Warning: generated_yaml.yaml not found.")
+
 
         generated_code = ""
 
@@ -162,13 +177,99 @@ def main():
                 encoding="utf-8",
             ) as f:
                 generated_code = f.read()
+        else:
+            print("[Pipeline] Warning: generated_test.py not found.")
 
 
 
         result = run_generated_test()
         
+        
+        if not isinstance(result, dict):
+            raise Exception(
+                "Healed test runner returned an invalid result."
+            )
+        
         if not isinstance(result, dict):
             raise Exception("Test runner returned an invalid result.")
+        
+        
+        
+        # ----------------------------------------------------
+        # Heal failed Playwright tests
+        # ----------------------------------------------------
+
+        stdout = result.get("stdout", "")
+
+        execution_failures = parse_pytest_failures(stdout)
+
+        if execution_failures:
+
+            print(
+                f"[Pipeline] Found {len(execution_failures)} execution failure(s)."
+            )
+
+            generated_code = ""
+
+            if os.path.exists("generated_tests/generated_test.py"):
+                with open(
+                    "generated_tests/generated_test.py",
+                    "r",
+                    encoding="utf-8",
+                ) as f:
+                    generated_code = f.read()
+
+            heal_state = {
+                "generated_code": generated_code,
+                "execution_stdout": stdout,
+                "execution_return_code": result.get("return_code", 1),
+                "execution_failures": execution_failures,
+                "needs_regen": False,
+                "best_code": generated_code,
+            }
+
+            healed_state = heal_agent(heal_state)
+
+            with open(
+                "generated_tests/generated_test.py",
+                "w",
+                encoding="utf-8",
+            ) as f:
+
+                generated_code = healed_state["generated_code"]
+                f.write(generated_code)
+
+            print(
+                "[Pipeline] Healed Playwright test saved."
+            )
+            
+            
+            
+            print("\n[Pipeline] Re-running healed Playwright tests...")
+
+            result = run_generated_test()
+
+            stdout = result.get("stdout", "")
+
+            execution_failures = parse_pytest_failures(stdout)
+
+            print(
+                f"[Pipeline] Remaining failures: "
+                f"{len(execution_failures)}"
+            )
+            
+            
+            
+            if result.get("return_code", 1) == 0:
+                passed = tests_run
+                failed = 0
+            else:
+                failed = len(execution_failures)
+                passed = max(
+                    0,
+                    tests_run - failed
+                )
+                                
 
         execution_time = result.get(
             "execution_time",
@@ -180,12 +281,6 @@ def main():
             f"{execution_time} sec"
         )
 
-        tests_run = count_selectors(
-            crawl_data
-        )
-        
-        if tests_run == 0:
-            print("WARNING: No selectors found during crawling.")
 
         passed = tests_run
 
@@ -202,17 +297,19 @@ def main():
                 tests_run - 1
             )
 
-            failures.append(
-                {
-                    "url": "unknown",
-                    "selector": "unknown",
-                    "error":
-                    result.get(
-                        "stderr",
-                        "Unknown error"
-                    )
-                }
-            )
+            failures = execution_failures
+
+            if not failures and result.get("return_code", 1) != 0:
+                failures.append(
+                    {
+                        "url": "unknown",
+                        "selector": "unknown",
+                        "error": result.get(
+                            "stderr",
+                            "Unknown error"
+                        ),
+                    }
+                )
 
         print(
             f"Passed: {passed}"
@@ -247,6 +344,8 @@ def main():
                 "tests_passed": passed,
                 "tests_failed": failed,
                 "regen_count": 0,
+                "heal_attempted": len(execution_failures) > 0,
+                "heal_failures": len(execution_failures),
                 "generated_code": generated_code,
                 "generated_yaml": generated_yaml,
                 "review_notes": "",
@@ -255,12 +354,17 @@ def main():
         )
                   
 
+        if execution_failures:
+            print(
+                f"[Pipeline] Heal Agent repaired "
+                f"{len(execution_failures)} failure(s)."
+            )
         print(
             "\nPipeline Complete"
         )
 
     except Exception as e:
-
+        tracker.stop(agents_completed=0)
         finish_run(
             run_id=run_id,
             status="failed",

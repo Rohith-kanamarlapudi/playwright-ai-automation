@@ -13,6 +13,7 @@ from agents.architecture_agent import architecture_agent
 from agents.code_gen_agent import code_gen_agent
 from agents.review_agent import review_agent
 from agents.edge_cases_agent import edge_cases_agent
+from agents.heal_agent import heal_agent
 
 from scraper.scraper import main as scrape_website
 from performance.engine import PerformanceTracker
@@ -38,8 +39,12 @@ def build_graph():
     graph.add_node("code_gen", code_gen_agent)
     graph.add_node("review", review_agent)
     graph.add_node("edge_cases", edge_cases_agent)
+    graph.add_node("heal", heal_agent)
 
     graph.set_entry_point("strategy")
+    
+    graph.add_edge("edge_cases", "heal")
+    graph.add_edge("heal", END)
 
     graph.add_edge("strategy", "architecture")
     graph.add_edge("architecture", "code_gen")
@@ -75,7 +80,6 @@ def build_graph():
         },
     )
 
-    graph.add_edge("edge_cases", END)
 
     return graph.compile()
 
@@ -90,11 +94,14 @@ if __name__ == "__main__":
 
     crawl_data = scrape_website()
 
-    if crawl_data is None:
-        print("[Main] Scraper failed.")
+    if not crawl_data:
+        print("[Main] No pages returned by crawler.")
         crawl_data = []
 
     selectors = build_selectors_from_crawl(crawl_data)
+    
+    if not selectors:
+        print("[Main] Warning: No selectors found from crawler.")
 
     print(f"[Main] Pages crawled : {len(crawl_data)}")
     print(f"[Main] Selectors found: {len(selectors)}")
@@ -121,7 +128,7 @@ if __name__ == "__main__":
         "duplicate_generation": False,
 
         # Design Document
-"design_doc": f"""
+        "design_doc": f"""
 Generate Playwright automation tests for the live IoT monitoring application.
 
 Target URL:
@@ -160,6 +167,16 @@ Requirements:
         # Edge Cases Agent
         "edge_cases": [],
         
+        
+        
+        # ----------------------------------------------------
+        # Test Execution Feedback
+        # ----------------------------------------------------
+
+        "execution_stdout": "",
+        "execution_return_code": 0,
+        "execution_failures": [],
+        
         # ----------------------------------------------------
         # Week 3 Live App Context
         # ----------------------------------------------------
@@ -184,14 +201,27 @@ Requirements:
             initial_state,
             config={"recursion_limit": RECURSION_LIMIT},
         )
+        
+        if not result:
+            raise RuntimeError("LangGraph returned an empty state.")
     except Exception as e:
+        tracker.stop(agents_completed=0)
         print(f"[Main] Graph execution stopped: {e}")
         raise
 
-    metrics = tracker.stop(agents_completed=5)
+    metrics = tracker.stop(agents_completed=6)
 
     tracker.save("reports/perf_baseline.json")
 
+    generated_test = Path("generated_tests/generated_test.py")
+    generated_yaml = Path("generated_tests/generated_yaml.yaml")
+
+    if generated_test.exists():
+        print(f"[Main] Generated test: {generated_test}")
+
+    if generated_yaml.exists():
+        print(f"[Main] Generated YAML: {generated_yaml}")
+    
     print("\n" + "=" * 70)
     print("FINAL STATE")
     print("=" * 70)

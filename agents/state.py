@@ -90,3 +90,24 @@ class AgentState(TypedDict):
     
     # Prevent duplicate generation cycles
     duplicate_generation: bool
+    
+    
+    # -------------------------------------------------
+    # Test Execution Feedback (Self-Healing Loop)
+    # -------------------------------------------------
+
+    # Complete pytest stdout from the latest execution
+    execution_stdout: str
+
+    # Pytest return code (0 = success)
+    execution_return_code: int
+
+    # Parsed execution failures
+    # Example:
+    # [
+    #     {
+    #         "test": "test_login",
+    #         "error": "Timeout 30000ms exceeded"
+    #     }
+    # ]
+    execution_failures: List[Dict[str, Any]]
