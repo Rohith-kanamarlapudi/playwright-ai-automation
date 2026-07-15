@@ -53,10 +53,25 @@ Focus on:
 
 Rules
 
-- Return ONLY a JSON array.
-- One edge case per item.
-- No markdown.
-- No explanations.
+Return ONLY valid JSON.
+
+Do NOT wrap the JSON inside ```json``` markdown.
+
+Return exactly this structure:
+
+[
+  {
+    "id": "EC-01",
+    "title": "Sensor offline",
+    "description": "Verify the dashboard displays '--' instead of crashing."
+  }
+]
+
+Return exactly 6 objects.
+
+No extra text.
+No explanations.
+No markdown.
 """
 
         prompt = LIVE_EDGE_CASE_PROMPT.format(
@@ -64,37 +79,56 @@ Rules
             architecture_notes=state.get("architecture_notes", ""),
             target_url=state.get("target_url", ""),
         )
+        
+        
+        
+        
 
         response = llm.invoke(prompt)
 
-        text = response.content if hasattr(response, "content") else str(response)
-        
-        
-        
+        text = (
+            response.content
+            if hasattr(response, "content")
+            else str(response)
+        ).strip()
 
-        
+        # ----------------------------------------------------
+        # Remove Markdown code fences if the LLM returned them
+        # ----------------------------------------------------
+
+        if text.startswith("```"):
+            text = text.replace("```json", "")
+            text = text.replace("```JSON", "")
+            text = text.replace("```", "")
+            text = text.strip()
 
         try:
 
             edge_cases = json.loads(text)
 
             if not isinstance(edge_cases, list):
-                raise ValueError("Expected JSON list")
+                raise ValueError("Expected a JSON array.")
 
-            edge_cases = [
-                str(case).strip()
-                for case in edge_cases
-                if str(case).strip()
-            ]
-            
-            # Keep only the first 6 edge cases
-            edge_cases = edge_cases[:6]
+            cleaned = []
+
+            for case in edge_cases:
+
+                if not isinstance(case, dict):
+                    continue
+
+                cleaned.append({
+                    "id": case.get("id", ""),
+                    "title": case.get("title", ""),
+                    "description": case.get("description", ""),
+                })
+
+            edge_cases = cleaned[:6]
 
         except Exception:
 
             edge_cases = []
 
-            for line in text.splitlines():
+            for i, line in enumerate(text.splitlines(), start=1):
 
                 line = line.strip()
 
@@ -103,17 +137,26 @@ Rules
 
                 line = line.lstrip("-•0123456789. ").strip()
 
-                if line:
-                    edge_cases.append(line)
-                # Ensure exactly 6 edge cases
-                edge_cases = edge_cases[:6]
-                
-                
-                
-                
-                
+                if not line:
+                    continue
+
+                edge_cases.append(
+                    {
+                        "id": f"EC-{i:02d}",
+                        "title": line,
+                        "description": line,
+                    }
+                )
+
+            edge_cases = edge_cases[:6]
 
         state["edge_cases"] = edge_cases
+                
+        
+        
+        
+        
+        
 
         print(f"[Edge Cases Agent] Generated {len(edge_cases)} edge cases.")
 
