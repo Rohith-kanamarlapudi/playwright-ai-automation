@@ -2,6 +2,11 @@
 
 import os
 
+try:
+    from db.selector_memory import get_selector_score
+except ImportError:
+    get_selector_score = None
+
 # Increase selector cap for the larger live IoT application
 SELECTOR_CAP = int(os.getenv("SELECTOR_CAP", "25"))
 
@@ -10,15 +15,17 @@ def prioritise_selectors(selectors: list) -> list:
     """
     Prioritise the most stable selectors for Angular SPAs.
 
-    Priority:
-    0 -> data-testid / aria-label
-    1 -> id selectors
-    2 -> input[name] / a[href]
-    3 -> semantic widget classes
-    4 -> buttons / inputs
-    5 -> everything else
+    Lower score = higher priority.
 
-    Invalid selectors are discarded completely.
+    Priority:
+        data-testid / aria-label
+        id
+        name attributes
+        semantic selectors
+        buttons / inputs
+        everything else
+
+    Historical selector success is also considered.
     """
 
     cleaned = []
@@ -41,8 +48,7 @@ def prioritise_selectors(selectors: list) -> list:
     for s in selectors:
 
         sel = str(s.get("selector", "")).strip()
-        
-        
+
         element_type = str(s.get("type", "")).lower()
 
         attributes = str(s.get("attributes", "")).lower()
@@ -56,17 +62,11 @@ def prioritise_selectors(selectors: list) -> list:
         if element_type == "hidden":
             continue
 
-        # ---------------------------------------------
         # Reject empty selectors
-        # ---------------------------------------------
-
         if not sel:
             continue
 
-        # ---------------------------------------------
         # Reject invalid selectors
-        # ---------------------------------------------
-
         if sel in INVALID_PATTERNS:
             continue
 
@@ -85,75 +85,103 @@ def prioritise_selectors(selectors: list) -> list:
         cleaned.append(s)
 
     def score(s):
+        """
+        Lower score = better selector.
+
+        Combines selector quality with historical
+        selector reliability stored in SQLite.
+        """
 
         sel = str(s.get("selector", ""))
-        sel_type = str(s.get("type", ""))
 
-        # ---------------------------------------------
-        # Highest priority
-        # ---------------------------------------------
+        sel_type = str(s.get("type", "")).lower()
+
+        # ---------------------------------------------------
+        # Base selector priority
+        # ---------------------------------------------------
 
         if (
             sel.startswith("[data-testid")
             or sel.startswith("[aria-label")
         ):
-            return 0
+            base = 0
 
-        # ---------------------------------------------
-        # ID selectors
-        # ---------------------------------------------
+        elif sel.startswith("#"):
+            base = 1
 
-        if sel.startswith("#"):
-            return 1
-
-        # ---------------------------------------------
-        # Stable attribute selectors
-        # ---------------------------------------------
-
-        if (
+        elif (
             sel.startswith("input[name")
+            or sel.startswith("textarea[name")
+            or sel.startswith("select[name")
             or sel.startswith("a[href")
         ):
-            return 2
+            base = 2
 
-        # ---------------------------------------------
-        # Semantic selectors
-        # ---------------------------------------------
+        else:
 
-        semantic_keywords = (
-            "widget",
-            "gauge",
-            "chart",
-            "sensor",
-            "metric",
-            "dashboard",
-            "card",
-            "report",
-            "alert",
-            "alarm",
-            "device",
-            "table",
-            "grid",
-            "list",
-            "menu",
-            "navbar",
-            "sidebar",
-            "panel",
-            "dialog",
-            "modal",
-        )
+            semantic_keywords = (
+                "widget",
+                "gauge",
+                "chart",
+                "sensor",
+                "metric",
+                "dashboard",
+                "card",
+                "report",
+                "alert",
+                "alarm",
+                "device",
+                "table",
+                "grid",
+                "list",
+                "menu",
+                "navbar",
+                "sidebar",
+                "panel",
+                "dialog",
+                "modal",
+            )
 
-        if any(keyword in sel.lower() for keyword in semantic_keywords):
-            return 3
+            if any(
+                keyword in sel.lower()
+                for keyword in semantic_keywords
+            ):
+                base = 3
 
-        # ---------------------------------------------
-        # Buttons / Inputs
-        # ---------------------------------------------
+            elif sel_type in (
+                "button",
+                "input",
+                "textarea",
+                "select",
+            ):
+                base = 4
 
-        if sel_type in ("button", "input"):
-            return 4
+            else:
+                base = 5
 
-        return 5
+        # ---------------------------------------------------
+        # Historical selector stability
+        # ---------------------------------------------------
+
+        if get_selector_score is None:
+            return base
+
+        try:
+
+            memory_score = get_selector_score(sel)
+
+            # 1.0 -> always passed
+            # 0.5 -> unknown
+            # 0.0 -> always failed
+
+            memory_penalty = round(
+                (1.0 - memory_score) * 3
+            )
+
+            return base + memory_penalty
+
+        except Exception:
+            return base
 
     return sorted(cleaned, key=score)
 
@@ -172,6 +200,7 @@ def cap_selectors(selectors: list, label: str) -> list:
     dropped = total - len(capped)
 
     if dropped > 0:
+
         print(
             f"[Selector Cap] {label}: "
             f"using {len(capped)}/{total} "
