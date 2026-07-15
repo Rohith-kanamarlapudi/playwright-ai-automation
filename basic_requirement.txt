@@ -1,19 +1,77 @@
 IoT Dashboard Requirements
-Features:
-- User login
-- Dashboard displays live sensor widgets
-- Reports page
-- Alerts page
-- Devices page
-- Users page
-- Logout
 
-Test Requirements:
-- Verify successful login
-- Verify dashboard widgets become visible
-- Verify Reports page loads
-- Verify Alerts page loads
-- Verify Devices page navigation
-- Verify Users page navigation
-- Verify logout
-- Verify no console errors after navigation
+Application Overview:
+The application is a web-based IoT monitoring dashboard that allows authenticated users to monitor devices, view live sensor data, manage alerts, generate reports, and administer users.
+
+Core Features:
+- Secure user authentication
+- User logout
+- Dashboard with live IoT sensor widgets
+- Real-time device monitoring
+- Reports management
+- Alerts management
+- Devices management
+- Users management
+- Angular Single Page Application (SPA)
+- Responsive user interface
+- Dynamic content loading
+- Sidebar navigation
+- Protected routes requiring authentication
+
+Functional Test Requirements:
+- Verify successful login with valid credentials
+- Verify invalid login displays appropriate error message
+- Verify dashboard loads after authentication
+- Verify live sensor widgets are displayed
+- Verify widgets contain valid values
+- Verify Reports page loads successfully
+- Verify Alerts page loads successfully
+- Verify Devices page loads successfully
+- Verify Users page loads successfully
+- Verify sidebar navigation between all modules
+- Verify browser back/forward navigation
+- Verify logout redirects to login page
+- Verify protected pages cannot be accessed after logout
+
+UI Validation:
+- Verify important buttons are visible and enabled
+- Verify input fields are interactable
+- Verify tables load correctly
+- Verify charts and widgets are rendered
+- Verify loading indicators disappear after page load
+- Verify responsive layout on different screen sizes
+- Verify page titles and headers are correct
+
+Playwright Automation Requirements:
+- Use stable selectors whenever available
+- Prefer data-testid, aria-label, and ID selectors
+- Handle Angular SPA page transitions
+- Wait for page hydration before assertions
+- Wait for network idle where appropriate
+- Avoid fixed sleep statements
+- Generate reusable helper methods
+- Capture screenshots on failures
+- Produce maintainable Playwright test code
+
+Edge Case Testing:
+- Verify empty data states
+- Verify navigation to invalid routes
+- Verify application behavior during slow page loads
+- Verify session timeout handling
+- Verify browser refresh on authenticated pages
+- Verify duplicate navigation does not break the application
+
+Performance Validation:
+- Verify pages load within acceptable time
+- Verify no JavaScript console errors
+- Verify no failed network requests
+- Verify no uncaught browser exceptions
+
+Expected Deliverables:
+- Playwright Python test suite
+- YAML test specification
+- Structured test cases
+- Review notes
+- Edge case recommendations
+- Self-healed test code (if failures occur)
+- Execution report
