@@ -1,10 +1,12 @@
 import json
+
 from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 
+from agentlens.sdk import trace
 
-
+@trace(name="edge_cases_agent")
 def edge_cases_agent(state: AgentState) -> AgentState:
 
     tracker = PerformanceTracker(label="edge_cases_agent")

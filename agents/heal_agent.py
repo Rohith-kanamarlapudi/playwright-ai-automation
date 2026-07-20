@@ -7,8 +7,8 @@ import re
 from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
-
-
+from agentlens.sdk import trace
+@trace(name="heal_agent")
 def parse_pytest_failures(stdout: str) -> list:
     """Extract test name + error message from pytest -v output."""
     failures = []

@@ -11,6 +11,7 @@ from agents.prompts.yaml_prompt import (
     YAML_PROMPT,
     LIVE_DATA_INSTRUCTIONS,
 )
+
 from agents.python_fallback import generate_python_directly
 from agents.popup_sanitizer import sanitize_unjustified_popups
 
@@ -19,6 +20,8 @@ from app.yaml_to_playwright import convert_yaml_to_playwright
 
 from agents.selector_utils import cap_selectors
 from test_runner import ast_safety_check
+
+from agentlens.sdk import trace
 
 SPA_WAIT_TIMEOUT = int(
     os.getenv("SPA_WAIT_TIMEOUT", "15000")
@@ -335,6 +338,7 @@ def check_assertions(filepath: str) -> bool:
         return False
     
 
+@trace(name="code_gen_agent")
 def code_gen_agent(state: AgentState) -> AgentState:
     tracker = PerformanceTracker(label="code_gen_agent")
     tracker.start()

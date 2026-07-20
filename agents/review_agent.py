@@ -3,9 +3,9 @@ from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 import re
 
+from agentlens.sdk import trace
 
-
-
+@trace(name="review_agent")
 def review_agent(state: AgentState) -> AgentState:
     tracker = PerformanceTracker(label="review_agent")
     tracker.start()

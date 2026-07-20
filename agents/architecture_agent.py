@@ -4,8 +4,9 @@ from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
 from agents.selector_utils import cap_selectors
+from agentlens.sdk import trace
 
-
+@trace(name="architecture_agent")
 def architecture_agent(state: AgentState) -> AgentState:
 
     tracker = PerformanceTracker(label="architecture_agent")
