@@ -3,10 +3,15 @@ import json
 from agents.state import AgentState
 from agents.llm_client import get_llm
 from performance.engine import PerformanceTracker
-from agents.prompts.strategy_prompt import LIVE_APP_CONTEXT, STRATEGY_PROMPT
+from agents.prompts.strategy_prompt import (
+    LIVE_APP_CONTEXT,
+    STRATEGY_PROMPT,
+)
 from agents.selector_utils import cap_selectors
 
+from agentlens.sdk import trace
 
+@trace(name="strategy_agent")
 def strategy_agent(state: AgentState) -> AgentState:
     tracker = PerformanceTracker(label="strategy_agent")
     tracker.start()
