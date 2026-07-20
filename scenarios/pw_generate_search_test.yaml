@@ -1,0 +1,4 @@
+scenario_id: pw_generate_search_test
+prompt: "Generate a Playwright test for the product search functionality"
+expected: pass
+tool_budget: 4
