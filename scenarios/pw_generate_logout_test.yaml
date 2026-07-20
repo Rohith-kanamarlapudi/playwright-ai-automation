@@ -1,0 +1,3 @@
+prompt: "Generate a Playwright test for the logout functionality"
+expected: pass
+tool_budget: 3

@@ -1,0 +1,3 @@
+prompt: "Generate a Playwright test for the user signup page"
+expected: pass
+tool_budget: 4

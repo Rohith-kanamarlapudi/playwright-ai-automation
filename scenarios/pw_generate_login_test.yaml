@@ -1,0 +1,3 @@
+prompt: "Generate a Playwright test for the login page"
+expected: pass
+tool_budget: 4

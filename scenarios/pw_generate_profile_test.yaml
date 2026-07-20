@@ -1,0 +1,3 @@
+prompt: "Generate a Playwright test for updating the user profile"
+expected: pass
+tool_budget: 5
